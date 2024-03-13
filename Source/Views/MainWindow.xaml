@@ -1,0 +1,133 @@
+﻿<Window x:Class="WatchedFilmsTracker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WatchedFilmsTracker"
+        mc:Ignorable="d"
+        Title="MainWindow"  SizeToContent="WidthAndHeight"
+        MinHeight="225" MinWidth="965"
+        MaxWidth="965" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
+    <Grid>
+        <StackPanel Orientation="Vertical" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Vertical">
+
+                    <!--Quick actions border-->
+                    <GroupBox  HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <GroupBox.Header>Quick actions</GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Button x:Name="buttonNewFile"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="NewFile">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icons/newFile.png" Stretch="None" />
+                                    <TextBlock Text="New file" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="buttonOpenFile"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="OpenFileChooser">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="\Assets\Icons\openFile.png" Stretch="None" />
+                                    <TextBlock Text="Open file" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Separator Width="5" HorizontalAlignment="Center" VerticalAlignment="Center"  />
+                            <Button x:Name="buttonSave"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="Save">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icons/save2.png" Stretch="None" />
+                                    <TextBlock Text="Save" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="buttonSaveAs"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="SaveAs">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="\Assets\Icons\saveas2.png" Stretch="None" />
+                                    <TextBlock Text="Save as" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="buttonRevertChanges"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="RevertChanges">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="\Assets\Icons\revert.png" Stretch="None" />
+                                    <TextBlock Text="Revert changes" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Separator Width="5" HorizontalAlignment="Center" VerticalAlignment="Center"  />
+                            <Button x:Name="buttonNewFilmRecord"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="NewFilmRecord">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="\Assets\Icons\addrecord.png" Stretch="None" />
+                                    <TextBlock Text="New film record" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="buttonDeleteFilmRecord"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="DeleteFilmRecord">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="\Assets\Icons\deleterecord.png" Stretch="None" />
+                                    <TextBlock Text="Delete film record" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="buttonClearAll"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="ClearAll">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="\Assets\Icons\clear2.png" Stretch="None" />
+                                    <TextBlock Text="Clear all" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Separator Width="5" HorizontalAlignment="Center" VerticalAlignment="Center"  />
+                            <Button x:Name="buttonAbout"  HorizontalAlignment="Left"  VerticalAlignment="Top" Click="AboutButton">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="\Assets\Icons\about2.png" Stretch="None" />
+                                    <TextBlock Text="About" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!--Watched films table border-->
+                    <GroupBox>
+                        <GroupBox.Header>List of watched films data</GroupBox.Header>
+
+                        <Grid>
+                            <DataGrid x:Name="filmsGrid" CellEditEnding="FilmGrid_CellEditEnding" AutoGenerateColumns="True"></DataGrid></Grid>
+                        <!--<Label Content="Table to see the films" HorizontalAlignment="Left" Background="#FFCDD5EC"></Label>-->
+                    </GroupBox>
+
+                </StackPanel>
+
+                <!--Statistics and settings-->
+                <StackPanel Orientation="Vertical">
+
+                    <!--Statistics border-->
+                    <GroupBox>
+                        <GroupBox.Header>Statistics</GroupBox.Header>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Number  of films watched:</Label>
+                                <Label x:Name="filmsTotalLabel">0</Label>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Average rating per film:</Label>
+                                <Label x:Name="averageRatingLabel">No data</Label>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label>On average you watch:</Label>
+                                <Label x:Name="averageFilmPerDayLabel">0</Label>
+                                <Label>films per week.</Label>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!--Settings border-->
+                    <GroupBox>
+                        <GroupBox.Header>Settings</GroupBox.Header>
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox x:Name="defaultDateBox" Content="Default date is today" Click="CheckBoxDefaultDate"/>
+                            <CheckBox x:Name="autosaveBox" Content="Autosave changes on close" Click="CheckBoxAutoSave"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <!--Version bottom panel-->
+        <Grid Background="#FFAFAFAF" Margin="0,160,0,0" VerticalAlignment="Bottom">
+            <Label x:Name="LabelVersion" Content="Version 0.001" HorizontalAlignment="Left" VerticalAlignment="Top"></Label>
+            <Label x:Name="LabelAuthor" Content="© 2024 Oskar Jargilo" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        </Grid>
+
+    </Grid>
+</Window>

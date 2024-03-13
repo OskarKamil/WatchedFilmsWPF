@@ -1,0 +1,108 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Controls;
+
+namespace WatchedFilmsTracker.Source.Managers
+{
+    public static class ButtonManager
+    {
+        private static List<Button> alwaysActiveButtons = new List<Button>();
+        private static List<Button> openedFileButtons = new List<Button>();
+        private static List<Button> selectedCellsButtons = new List<Button>();
+        private static List<Button> unsavedChangeButtons = new List<Button>();
+        private static List<Button> anyChangeButtons = new List<Button>();
+
+        public static void DisableButton(Button button)
+        {
+            button.IsEnabled = false;
+        }
+
+        public static void  DisableButtons(List<Button> buttons)
+        {
+            foreach (Button button in buttons)
+            {
+                button.IsEnabled = false;
+            }
+        }
+
+        public static void EnableButton(Button button)
+        {
+            button.IsEnabled = true;
+        }
+
+        public static void EnableButtons(List<Button> buttons)
+        {
+            foreach (Button button in buttons)
+            {
+                button.IsEnabled = true;
+            }
+        }
+
+        public static List<Button> GetAlwaysActiveButtons()
+        {
+            return alwaysActiveButtons;
+        }
+
+        public static void SetAlwaysActiveButtons(List<Button> alwaysActiveButtons)
+        {
+            ButtonManager.alwaysActiveButtons = alwaysActiveButtons;
+        }
+
+        public static List<Button> GetAnyChangeButtons()
+        {
+            return anyChangeButtons;
+        }
+
+        public static void SetAnyChangeButtons(List<Button> anyChangeButtons)
+        {
+            ButtonManager.anyChangeButtons = anyChangeButtons;
+        }
+
+        public static List<Button> GetOpenedFileButtons()
+        {
+            return openedFileButtons;
+        }
+
+        public static void SetOpenedFileButtons(List<Button> openedFileButtons)
+        {
+            ButtonManager.openedFileButtons = openedFileButtons;
+        }
+
+        public static List<Button> GetSelectedCellsButtons()
+        {
+            return selectedCellsButtons;
+        }
+
+        public static void SetSelectedCellsButtons(List<Button> selectedCellsButtons)
+        {
+            ButtonManager.selectedCellsButtons = selectedCellsButtons;
+        }
+
+        public static List<Button> GetUnsavedChangeButtons()
+        {
+            return unsavedChangeButtons;
+        }
+
+        public static void SetUnsavedChangeButtons(List<Button> unsavedChangeButtons)
+        {
+            ButtonManager.unsavedChangeButtons = unsavedChangeButtons;
+        }
+
+        public static void TestButtons(bool b)
+        {
+            List<Button> allButtons = new List<Button>();
+            allButtons.AddRange(alwaysActiveButtons);
+            allButtons.AddRange(openedFileButtons);
+            allButtons.AddRange(selectedCellsButtons);
+            allButtons.AddRange(unsavedChangeButtons);
+            allButtons.AddRange(anyChangeButtons);
+            foreach (Button button in allButtons)
+            {
+                button.Content = "Good";
+            }
+        }
+    }
+}

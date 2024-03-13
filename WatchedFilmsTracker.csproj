@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\Icons\icon2.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Icons\about2.png" />
+    <None Remove="Assets\Icons\addRecord.png" />
+    <None Remove="Assets\Icons\clear2.png" />
+    <None Remove="Assets\Icons\deleteRecord.png" />
+    <None Remove="Assets\Icons\exit2.png" />
+    <None Remove="Assets\Icons\icon.png" />
+    <None Remove="Assets\Icons\icon2.ico" />
+    <None Remove="Assets\Icons\icon2.png" />
+    <None Remove="Assets\Icons\icon_old.png" />
+    <None Remove="Assets\Icons\newFile.png" />
+    <None Remove="Assets\Icons\off2.png" />
+    <None Remove="Assets\Icons\on2.png" />
+    <None Remove="Assets\Icons\openFile.png" />
+    <None Remove="Assets\Icons\revert.png" />
+    <None Remove="Assets\Icons\save2.png" />
+    <None Remove="Assets\Icons\saveAs2.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Icons\icon2.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Icons\about2.png" />
+    <Resource Include="Assets\Icons\addRecord.png" />
+    <Resource Include="Assets\Icons\clear2.png" />
+    <Resource Include="Assets\Icons\deleteRecord.png" />
+    <Resource Include="Assets\Icons\exit2.png" />
+    <Resource Include="Assets\Icons\icon.png" />
+    <Resource Include="Assets\Icons\icon2.png" />
+    <Resource Include="Assets\Icons\icon_old.png" />
+    <Resource Include="Assets\Icons\newFile.png" />
+    <Resource Include="Assets\Icons\off2.png" />
+    <Resource Include="Assets\Icons\on2.png" />
+    <Resource Include="Assets\Icons\openFile.png" />
+    <Resource Include="Assets\Icons\revert.png" />
+    <Resource Include="Assets\Icons\save2.png" />
+    <Resource Include="Assets\Icons\saveAs2.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="External\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+0.001 - First scene in JavaFX. Titled window. Displays most recent watched film as Label.
+0.002 - Shows a scrollable tableView with complete list of films from the file. Icon in the titled window.
+0.003 - Quick actions pane. Statistics pane. Separate pane for tableView. About modal window with link to GitHub page and program information.
+0.004 - New quick actions buttons with icons. Editable cells in the tableView.
+0.005 - IDs for each record. TableView columns width adjusted to window size. All panes adjusted to window size. New pane for settings with checkbox but not functioning yet. More statistics in statistics pane.
+0.006 - Window is titled with path to opened file. If changes in file are not saved, it shows * in front of the name. More buttons with icons and separators depending on category. Functioning settings that are loaded and saved when program starts and ends. Program asks if save changes when closing program before saving.
+0.007 - Buttons are enabled and disabled depending on the context and state of the program. If cell is selected it enables [Delete row] button. And changes made in file enables [Save] button. Fixed paths of reading and saving config.ini file for JAR file.
+0.008 - 

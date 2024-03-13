@@ -1,0 +1,31 @@
+Something with opening the file is not working, almost working but check
+
+NOW
+Sorting by column and saving will save file with new sorting but IDs stay the same.
+Possible solutions:
+    Before saving. Copy List and save in order of IDs.
+    Add new button "Generate IDs based new order".
+    or
+    Find solution so the sorted list by column does not affect the list.
+When asking if save file, change icon of that window.
+Write changes in text file in version folder.
+
+LATER
+Open/Save file, default location is current file. If no file, then internal program folder
+Disable buttons if they do nothing
+Update statistics after each change
+Confirm changes of table cell by clicking elsewhere
+Enter goes to next cell on the right
+Button - open file explorer to open any csv file
+Button - save as CSV in any location you want
+Button - save changes current file
+Check of integrity of dates of watched (in normal id sort or normal file, date cannot go back)
+Prepare program for release. Make sure you create exe file using jlink and program is ready to be used by people.
+If entered a title and release year, check if duplicate exists in case someone forgot.
+Select multiple rows and make actions upon them
+    Cut,
+    Copy,
+    Paste,
+    Delete,
+Shortcut and undo action maybe?
+Learn hibernate and spring. What even are they?
