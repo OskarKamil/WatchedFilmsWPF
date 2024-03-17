@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -204,6 +205,7 @@ namespace WatchedFilmsTracker
 
         private bool Save()
         {
+            
             string filePath = filmsFile.FilePath;
             bool saved = false;
 
@@ -334,6 +336,7 @@ namespace WatchedFilmsTracker
 
         private void NewFilmRecord(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("new film record");
             FilmRecord newRecord = new FilmRecord(filmsObservableList.Count + 1);
             filmsObservableList.Add(newRecord);
             filmsGrid.SelectedItem = newRecord;

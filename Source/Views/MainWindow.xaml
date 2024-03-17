@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow"  SizeToContent="WidthAndHeight"
         MinHeight="225" MinWidth="965"
-        MaxWidth="965" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip">
+        MaxWidth="965" WindowStartupLocation="CenterScreen">
     <Grid>
         <StackPanel Orientation="Vertical" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal">
