@@ -21,12 +21,14 @@
 
 ## Usage
 
-To run this project, follow these steps:
+To download and run this project, follow these steps:
 
-1. Clone this repository to your local machine.
-2. Open the solution file (`WatchedFilmsWPF.sln`) in Visual Studio.
-3. Build the solution to ensure all dependencies are resolved.
-4. Run the project by pressing F5 or selecting the "Start" button in Visual Studio.
+1. Go to the [Releases](https://github.com/OskarKamil/WatchedFilmsWPF/releases) section on GitHub.
+2. Click on the newest release.
+3. Download the archive file.
+4. Extract the contents of the archive using an archive opener like 7-Zip.
+5. Open the extracted folder.
+6. Run the executable file (`.exe`). Note that you may need the .NET redistributable installed, but it is usually included by default on newer Windows systems.
 
 ## Contributing
 
