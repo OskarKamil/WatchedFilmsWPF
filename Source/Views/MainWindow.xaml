@@ -5,16 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WatchedFilmsTracker"
         mc:Ignorable="d"
-        Title="MainWindow"  SizeToContent="WidthAndHeight"
-        MinHeight="225" MinWidth="965"
-        MaxWidth="965" WindowStartupLocation="CenterScreen">
+        Title="MainWindow"
+        MinHeight="225" MinWidth="1000" ScrollViewer.CanContentScroll="True">
     <Grid>
-        <StackPanel Orientation="Vertical" Grid.ColumnSpan="2">
-            <StackPanel Orientation="Horizontal">
-                <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical">
+            <StackPanel x:Name="stackPanel1" Orientation="Horizontal">
+
+                <!-- Left Panel-->
+                <StackPanel x:Name="leftPanel" Orientation="Vertical" MaxWidth="{Binding ActualWidth, ElementName=groupBoxQuickActions, Mode=OneWay}">
 
                     <!--Quick actions border-->
-                    <GroupBox  HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <GroupBox x:Name="groupBoxQuickActions"  HorizontalAlignment="Left" VerticalAlignment="Top">
                         <GroupBox.Header>Quick actions</GroupBox.Header>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <Button x:Name="buttonNewFile"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="NewFile">
@@ -75,14 +76,15 @@
                                 </StackPanel>
                             </Button>
                         </StackPanel>
+
                     </GroupBox>
 
                     <!--Watched films table border-->
-                    <GroupBox>
+                    <GroupBox x:Name="groupBoxFilmList" MaxWidth="{Binding Width, ElementName=groupBoxQuickActions}">
                         <GroupBox.Header>List of watched films data</GroupBox.Header>
-
-                        <Grid>
-                            <DataGrid x:Name="filmsGrid" CellEditEnding="FilmGrid_CellEditEnding" AutoGenerateColumns="True"></DataGrid></Grid>
+                        <Grid x:Name="grid" >
+                            <DataGrid x:Name="filmsGrid" CellEditEnding="FilmGrid_CellEditEnding" AutoGenerateColumns="False" CanUserAddRows="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ColumnWidth="Auto" Width="{Binding ActualWidth, ElementName=grid, Mode=OneWay}" CanUserDeleteRows="False"/>
+                        </Grid>
                         <!--<Label Content="Table to see the films" HorizontalAlignment="Left" Background="#FFCDD5EC"></Label>-->
                     </GroupBox>
 

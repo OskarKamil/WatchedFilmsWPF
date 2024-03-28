@@ -9,3 +9,4 @@ Java - JavaFX
 
 C# - .NET WPF
 0.008 - Transition to another programming language. New GUI and visuals. Downgrade in functionality and compa. Some features are not working properly or not working at all. Program can be compiled on Windows only. Executable file can run without installing any JRE since .NET runtime is installed by default on Windows machines.
+0.009 - The window size and position stays the same between program runs. Column order and width fixed. Editing cells works now. Deleting single row selects next row after deletion. Closing new file with unsaved changes will ask if save changes instead of opening file picker.

@@ -1,10 +1,13 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Xml.Linq;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 
@@ -12,22 +15,18 @@ namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
-
         private RecordManager filmsFile;
         private string filePath;
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
-
-
 
         public MainWindow()
         {
             //General GUI adjustments
             InitializeComponent();
-            SizeToContent = SizeToContent.WidthAndHeight;
             LabelAuthor.Content = ProgramInformation.COPYRIGHT;
             LabelVersion.Content = ProgramInformation.VERSION;
             this.Title = ProgramInformation.PROGRAM_NAME;
-            Closing += MainWindow_Closing;
+            Closing += MainWindow_Closing; // override closing window
 
             //PROGRAM STATE MANAGER
             ProgramStateManager programStateManager = new ProgramStateManager(this);
@@ -63,29 +62,66 @@ namespace WatchedFilmsTracker
             SettingsManager.ReadSettingsFile();
             autosaveBox.IsChecked = SettingsManager.AutoSave;
             defaultDateBox.IsChecked = SettingsManager.DefaultDateIsToday;
+            this.Left = SettingsManager.WindowLeft;
+            this.Top = SettingsManager.WindowTop;
+            this.Width = SettingsManager.WindowWidth;
+            this.Height = SettingsManager.WindowHeight;
+
 
             //TABLEVIEW DISPLAY VALUES
-            //titleColumn.DisplayMemberBinding = new Binding("EnglishTitle");
-            //originalTitleColumn.DisplayMemberBinding = new Binding("OriginalTitle");
-            //typeColumn.DisplayMemberBinding = new Binding("Type");
-            //releaseYearColumn.DisplayMemberBinding = new Binding("ReleaseYear");
-            //ratingColumn.DisplayMemberBinding = new Binding("Rating");
-            //watchDateColumn.DisplayMemberBinding = new Binding("WatchDate");
-            //commentsColumn.DisplayMemberBinding = new Binding("Comments");
-            //idColumn.DisplayMemberBinding = new Binding("IdInList");
-            OpenFilepath(SettingsManager.LastPath);
+            DataGridTextColumn id = new DataGridTextColumn();
+            id.Header = "#";
+            id.Binding = new Binding("IdInList");
+            filmsGrid.Columns.Add(id);
+            id.IsReadOnly = true;
+          //  id.Width = 0;
 
+            DataGridTextColumn englishTitle = new DataGridTextColumn();
+            englishTitle.Header = "English title";
+            englishTitle.Binding = new Binding("EnglishTitle");
+            filmsGrid.Columns.Add(englishTitle);
+           // englishTitle.Width = 0;
+
+            DataGridTextColumn originalTitle = new DataGridTextColumn();
+            originalTitle.Header = "Original title";
+            originalTitle.Binding = new Binding("OriginalTitle");
+            filmsGrid.Columns.Add(originalTitle);
+            // originalTitle.Width = 50;
+
+            DataGridTextColumn type = new DataGridTextColumn();
+            type.Header = "Type";
+            type.Binding = new Binding("Type");
+            filmsGrid.Columns.Add(type);
+            // type.Width = 50;
+
+            DataGridTextColumn releaseYear = new DataGridTextColumn();
+            releaseYear.Header = "Release year";
+            releaseYear.Binding = new Binding("ReleaseYear");
+            filmsGrid.Columns.Add(releaseYear);
+            // releaseYear.Width = 50;
+
+            DataGridTextColumn rating = new DataGridTextColumn();
+            rating.Header = "Rating";
+            rating.Binding = new Binding("Rating");
+            filmsGrid.Columns.Add(rating);
+            //   rating.Width = 50;
+
+            DataGridTextColumn watchDate = new DataGridTextColumn();
+            watchDate.Header = "Watch date";
+            watchDate.Binding = new Binding("WatchDate");
+            filmsGrid.Columns.Add(watchDate);
+            //   watchDate.Width = 50;
+
+            DataGridTextColumn comments = new DataGridTextColumn();
+            comments.Header = "Comments";
+            comments.Binding = new Binding("Comments");
+            filmsGrid.Columns.Add(comments);
+            comments.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+
+
+            OpenFilepath(SettingsManager.LastPath);
             filmsGrid.ItemsSource = filmsObservableList;
 
-            //TABLEVIEW EDIT OPTIONS
-            //titleColumn.CellTemplate = (DataTemplate)Resources["textFieldTemplate"];
-            //originalTitleColumn.CellTemplate = (DataTemplate)Resources["textFieldTemplate"];
-            //typeColumn.CellTemplate = (DataTemplate)Resources["textFieldTemplate"];
-            //releaseYearColumn.CellTemplate = (DataTemplate)Resources["textFieldTemplate"];
-            //ratingColumn.CellTemplate = (DataTemplate)Resources["textFieldTemplate"];
-            //watchDateColumn.CellTemplate = (DataTemplate)Resources["textFieldTemplate"];
-            //commentsColumn.CellTemplate = (DataTemplate)Resources["textFieldTemplate"];
-            //filmsTable.Items.Refresh();
 
             //TABLEVIEW SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;
@@ -100,18 +136,23 @@ namespace WatchedFilmsTracker
             UpdateStatistics();
         }
 
-        private void MainWindow_Closing(object? sender, CancelEventArgs e)
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             // Call the ShutDown method when the window is closing
             bool canClose = Shutdown();
 
             // Cancel the closing event if necessary
+
             e.Cancel = !canClose;
+            SettingsManager.WindowLeft = Left;
+            SettingsManager.WindowTop = Top;
+            SettingsManager.WindowWidth = Width;
+            SettingsManager.WindowHeight = Height;
         }
 
         private void AboutButton(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("About dialog opened");
+            Debug.WriteLine("About dialog opened");
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.Owner = this; // Set the owner window to enable modal behavior
             aboutWindow.ShowDialog();
@@ -130,9 +171,7 @@ namespace WatchedFilmsTracker
             // and will try to save current file before creating a new file
             if (Shutdown())
             {
-                Console.WriteLine("Here3");
                 filmsFile = new RecordManager();
-                Console.WriteLine("Here4");
                 filmsFile.StartReader("New File");
                 filePath = SettingsManager.LastPath;
                 filmsObservableList = filmsFile.ListOfFilms;
@@ -140,7 +179,7 @@ namespace WatchedFilmsTracker
                 filePath = "New File";
                 ProgramStateManager.IsAnyChange = (false);
                 ProgramStateManager.IsUnsavedChange = (false);
-                Console.WriteLine("New file created and names: " + filePath);
+                Debug.WriteLine("New file created and names: " + filePath);
                 SettingsManager.LastPath = (filePath);
                 UpdateStatistics();
                 UpdateStageTitle();
@@ -150,10 +189,10 @@ namespace WatchedFilmsTracker
 
         private void OpenFilepath(string newFilePath)
         {
-            Console.WriteLine("Trying to open new file");
+            Debug.WriteLine("Trying to open new file");
             if (string.IsNullOrEmpty(newFilePath))
             {
-                Console.WriteLine("Trying to create new file");
+                Debug.WriteLine("Trying to create new file");
                 NewFile();
             }
             else
@@ -167,6 +206,7 @@ namespace WatchedFilmsTracker
                 ProgramStateManager.IsUnsavedChange = (false);
                 ProgramStateManager.IsAnyChange = (false);
                 UpdateStatistics();
+                filmsFile.CloseReader(); // close file after reading it, so you can safely write to it without locking
                 // UpdateStageTitle();
             }
         }
@@ -179,7 +219,7 @@ namespace WatchedFilmsTracker
 
             if ("New File".Equals(filePath))
             {
-                Console.WriteLine("New file");
+                Debug.WriteLine("New file");
                 openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
             }
             else
@@ -205,7 +245,7 @@ namespace WatchedFilmsTracker
 
         private bool Save()
         {
-            
+
             string filePath = filmsFile.FilePath;
             bool saved = false;
 
@@ -249,42 +289,46 @@ namespace WatchedFilmsTracker
                 return true;
             }
             return false;
+        }
 
+        public bool ShowSaveChangesDialog()
+        {
+            MessageBoxResult result = MessageBox.Show("Save changes in this file?", "Save changes", MessageBoxButton.YesNoCancel);
+            if (result == MessageBoxResult.Yes)
+            {
+                bool saved = Save();
+                return saved;
+            }
+            else if (result == MessageBoxResult.No)
+            {
+                return true;
+            }
+            else if (result == MessageBoxResult.Cancel)
+            {
+                Debug.WriteLine("Option Cancel");
+                return false;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool Shutdown()
         {
-
-            Console.WriteLine("Stop with shutdown");
-            if (SettingsManager.AutoSave && ProgramStateManager.IsUnsavedChange)
+            Debug.WriteLine("Stop with shutdown");
+            if (ProgramStateManager.IsUnsavedChange)
             {
-                Save();
-            }
-            else
-            {
-                Console.WriteLine("Here");
-
-                if (ProgramStateManager.IsUnsavedChange)
+                Debug.WriteLine(filmsFile.FilePath);
+                if (filmsFile.FilePath == "New File" || !SettingsManager.AutoSave)
                 {
-
-                    MessageBoxResult result = MessageBox.Show("Save changes in this file?", "Save changes", MessageBoxButton.YesNoCancel);
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        bool saved = Save();
-                        return saved;
-                    }
-                    else if (result == MessageBoxResult.No)
-                    {
-                        return true;
-                    }
-                    else if (result == MessageBoxResult.Cancel)
-                    {
-                        Console.WriteLine("Option Cancel");
-                        return false;
-                    }
+                    return ShowSaveChangesDialog();
 
                 }
-                Console.WriteLine("Here2");
+                else if (SettingsManager.AutoSave)
+                {
+                    Save();
+                }
             }
             return !ProgramStateManager.IsUnsavedChange;
         }
@@ -303,7 +347,7 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            Console.WriteLine("Updating stage title to: " + filePath);
+            Debug.WriteLine("Updating stage title to: " + filePath);
             stageTitle += filePath + " - " + ProgramInformation.PROGRAM_NAME;
 
             // Assuming `this` refers to the current window instance
@@ -356,18 +400,19 @@ namespace WatchedFilmsTracker
             FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
             if (selected != null)
             {
-                filmsFile.DeleteRecordFromList(selected);
                 int selectedIndex = filmsGrid.SelectedIndex;
-                if (selectedIndex != -1 && selectedIndex != 0)
-                    filmsGrid.SelectedIndex = selectedIndex + 1;
+                filmsFile.DeleteRecordFromList(selected);
+                if (selectedIndex == filmsGrid.Items.Count)
+                    filmsGrid.SelectedIndex = selectedIndex - 1;
+                else
+                {
+                    filmsGrid.SelectedIndex = selectedIndex;
+                }
                 ProgramStateManager.IsAnyChange = (true);
                 ProgramStateManager.IsUnsavedChange = (true);
             }
-            filmsGrid.Items.Refresh();
+            //filmsGrid.Items.Refresh();
         }
-
-
-
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
@@ -400,7 +445,9 @@ namespace WatchedFilmsTracker
 
         private void FilmGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
+            Debug.WriteLine("Is any change shoulb be invoked");
             ProgramStateManager.IsAnyChange = true;
+            ProgramStateManager.IsUnsavedChange = true;
         }
     }
 }

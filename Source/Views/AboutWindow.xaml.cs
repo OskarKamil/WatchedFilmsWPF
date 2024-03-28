@@ -28,7 +28,7 @@ namespace WatchedFilmsTracker
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
-            Console.WriteLine("Tried to open hyperlink");
+            Debug.WriteLine("Tried to open hyperlink");
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
         }
 

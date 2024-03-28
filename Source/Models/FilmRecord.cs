@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace WatchedFilmsTracker.Source.Models
 {
@@ -36,8 +37,8 @@ namespace WatchedFilmsTracker.Source.Models
 
         public void AddFilmRecordFromKeyboard()
         {
-            Console.WriteLine("Adding film record. Please enter the following details:");
-            Console.WriteLine("English title:");
+            Debug.WriteLine("Adding film record. Please enter the following details:");
+            Debug.WriteLine("English title:");
             EnglishTitle = Console.ReadLine();
         }
 

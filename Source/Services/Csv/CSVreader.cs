@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Text;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
@@ -40,7 +41,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             PrepareValuesFromCurrentLine();
             Console.Write("This CSV file's structures is: ");
             while (iterator.MoveNext()) Console.Write("[" + iterator.Current + "] ");
-            Console.WriteLine();
+            Debug.WriteLine("");
         }
 
         public void CloseFile()

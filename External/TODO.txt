@@ -1,19 +1,16 @@
 **Immediate (NOW):**
-- Publish exe file and release on GitHub.
-- Rename methods from Console.WriteLine to Debug.WriteLine. Organise them.
-- Enable editing and saving changes to columns.
-- Adjust column order to prioritize content over comments.
-- Ensure columns extend fully without leaving gaps.
-- Fix row deletion by selecting the previous row.
-- Resolve issue with ordering IDs to correspond with rows.
+- Settings button: reset column width and order.
+- Fix statistics block.
 
 **Upcoming (SOON):**
 - Implement sorting by column while preserving original IDs.
 - Provide options for saving sorted data without altering IDs.
 - Update save file icon to indicate changes.
 - Record modifications in a text file within the version folder.
+- If button is disabled, grayscale the icon.
 
 **Future Plans (FUTURE):**
+- Decide what settings are embedded in exe, which are in settings and which are in config file.
 - Enable default file locations for Open/Save operations.
 - Disable non-functional buttons.
 - Automatically update statistics after each modification.
@@ -26,3 +23,4 @@
 - Enable actions on multiple selected rows: Cut, Copy, Paste, Delete.
 - Consider implementing shortcut keys and an undo feature.
 - Explore learning opportunities with Hibernate and Spring frameworks.
+- Store columns width and order.

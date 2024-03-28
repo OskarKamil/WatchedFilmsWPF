@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using WatchedFilmsTracker.Source.Models;
 
@@ -42,7 +43,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                 filmsWriter.Write(ToString(filmRecord.Comments) + "\n");
             }
             filmsWriter.Close();
-            Console.WriteLine("Saved and closed");
+            Debug.WriteLine("Saved and closed");
         }
 
         public void SetFileColumn(string fileColumns)
