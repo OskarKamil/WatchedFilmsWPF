@@ -1,6 +1,8 @@
 **Immediate (NOW):**
 - Settings button: reset column width and order.
 - Fix statistics block.
+- Columns manager.
+- Statistics manager. (check bookmark)
 
 **Upcoming (SOON):**
 - Implement sorting by column while preserving original IDs.
@@ -23,4 +25,3 @@
 - Enable actions on multiple selected rows: Cut, Copy, Paste, Delete.
 - Consider implementing shortcut keys and an undo feature.
 - Explore learning opportunities with Hibernate and Spring frameworks.
-- Store columns width and order.
