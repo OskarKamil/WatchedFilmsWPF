@@ -1,13 +1,12 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Xml.Linq;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 
@@ -15,9 +14,11 @@ namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
-        private RecordManager filmsFile;
+        private ColumnsManager columnsManager;
         private string filePath;
+        private RecordManager filmsFile;
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
+        private StatisticsManager statisticsManager;
 
         public MainWindow()
         {
@@ -67,20 +68,19 @@ namespace WatchedFilmsTracker
             this.Width = SettingsManager.WindowWidth;
             this.Height = SettingsManager.WindowHeight;
 
-
             //TABLEVIEW DISPLAY VALUES
             DataGridTextColumn id = new DataGridTextColumn();
             id.Header = "#";
             id.Binding = new Binding("IdInList");
             filmsGrid.Columns.Add(id);
             id.IsReadOnly = true;
-          //  id.Width = 0;
+            //  id.Width = 0;
 
             DataGridTextColumn englishTitle = new DataGridTextColumn();
             englishTitle.Header = "English title";
             englishTitle.Binding = new Binding("EnglishTitle");
             filmsGrid.Columns.Add(englishTitle);
-           // englishTitle.Width = 0;
+            // englishTitle.Width = 0;
 
             DataGridTextColumn originalTitle = new DataGridTextColumn();
             originalTitle.Header = "Original title";
@@ -118,12 +118,19 @@ namespace WatchedFilmsTracker
             filmsGrid.Columns.Add(comments);
             comments.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
 
+            columnsManager = new ColumnsManager(filmsGrid);
 
             OpenFilepath(SettingsManager.LastPath);
             filmsGrid.ItemsSource = filmsObservableList;
+            filmsObservableList.CollectionChanged += filmsListHasChanged;
 
+            // Subscribe to PropertyChanged event of each FilmRecord instance
+            foreach (var filmRecord in filmsObservableList)
+            {
+                filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
+            }
 
-            //TABLEVIEW SELECTED LISTENER
+            //GRIDLIST SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;
             filmsGrid.SelectionChanged += (obs, args) =>
             {
@@ -131,23 +138,82 @@ namespace WatchedFilmsTracker
                 // No cell is selected
                 ProgramStateManager.IsSelectedCells = filmsGrid.SelectedItem != null;
             };
+        }
 
-            //STATISTICS
+        public void AfterFileHasBeenLoaded()
+        {
+            filmsObservableList = filmsFile.ListOfFilms;
+            filmsGrid.ItemsSource = filmsObservableList;
+            SettingsManager.LastPath = (filePath);
+            ProgramStateManager.IsUnsavedChange = (false);
+            ProgramStateManager.IsAnyChange = (false);
+            statisticsManager = new StatisticsManager(filmsObservableList);
+            UpdateStageTitle();
+            filmsFile.CloseReader();
+
             UpdateStatistics();
         }
 
-        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        public bool CloseFileAndAskToSave()
         {
-            // Call the ShutDown method when the window is closing
-            bool canClose = Shutdown();
+            Debug.WriteLine("Stop with shutdown");
+            if (ProgramStateManager.IsUnsavedChange)
+            {
+                Debug.WriteLine(filmsFile.FilePath);
+                if (filmsFile.FilePath == "New File" || !SettingsManager.AutoSave)
+                {
+                    return ShowSaveChangesDialog();
+                }
+                else if (SettingsManager.AutoSave)
+                {
+                    Save();
+                }
+            }
+            return !ProgramStateManager.IsUnsavedChange;
+        }
 
-            // Cancel the closing event if necessary
+        public bool ShowSaveChangesDialog()
+        {
+            MessageBoxResult result = MessageBox.Show("Save changes in this file?", "Save changes", MessageBoxButton.YesNoCancel);
+            if (result == MessageBoxResult.Yes)
+            {
+                bool saved = Save();
+                return saved;
+            }
+            else if (result == MessageBoxResult.No)
+            {
+                return true;
+            }
+            else if (result == MessageBoxResult.Cancel)
+            {
+                Debug.WriteLine("Option Cancel");
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-            e.Cancel = !canClose;
-            SettingsManager.WindowLeft = Left;
-            SettingsManager.WindowTop = Top;
-            SettingsManager.WindowWidth = Width;
-            SettingsManager.WindowHeight = Height;
+        public void UpdateNumberOfFilms()
+        {
+            filmsTotalLabel.Content = statisticsManager.GetNumberOfTotalWatchedFilms().ToString();
+        }
+
+        public void UpdateStageTitle()
+        {
+            string stageTitle = "";
+
+            if (ProgramStateManager.IsUnsavedChange)
+            {
+                stageTitle = "*";
+            }
+
+            Debug.WriteLine("Updating stage title to: " + filePath);
+            stageTitle += filePath + " - " + ProgramInformation.PROGRAM_NAME;
+
+            // Assuming `this` refers to the current window instance
+            this.Title = stageTitle;
         }
 
         private void AboutButton(object sender, RoutedEventArgs e)
@@ -158,84 +224,195 @@ namespace WatchedFilmsTracker
             aboutWindow.ShowDialog();
         }
 
+        private void AnyChangeHappen()
+        {
+            ProgramStateManager.IsAnyChange = true;
+            ProgramStateManager.IsUnsavedChange = true;
+            UpdateStatistics();
+        }
+
+        private void BuildDynamicStatistics()
+        {
+            UpdateDecadesOfFilms();
+            UpdateAverageYearlyReport();
+        }
+
+        private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = (CheckBox)sender;
+            SettingsManager.AutoSave = (bool)checkBox.IsChecked; ;
+            checkBox.IsChecked = SettingsManager.AutoSave;
+        }
+
+        private void CheckBoxDefaultDate(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = (CheckBox)sender;
+            SettingsManager.DefaultDateIsToday = (bool)checkBox.IsChecked; ;
+            checkBox.IsChecked = SettingsManager.DefaultDateIsToday;
+        }
+
+        private void ClearAll(object sender, RoutedEventArgs e)
+        {
+            filmsFile.ListOfFilms.Clear();
+            AnyChangeHappen();
+        }
+
+        private void DeleteFilmRecord(object sender, RoutedEventArgs e)
+        {
+            FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
+            if (selected != null)
+            {
+                int selectedIndex = filmsGrid.SelectedIndex;
+                filmsFile.DeleteRecordFromList(selected);
+                if (selectedIndex == filmsGrid.Items.Count)
+                    filmsGrid.SelectedIndex = selectedIndex - 1;
+                else
+                {
+                    filmsGrid.SelectedIndex = selectedIndex;
+                }
+                AnyChangeHappen();
+            }
+            //filmsGrid.Items.Refresh();
+        }
+
+        private void FilmRecord_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            AnyChangeHappen();
+        }
+
+        private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            Debug.Print("list changed listener");
+            AnyChangeHappen();
+        }
+
+        private void FilmsListHasChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                // New items added to the list
+                foreach (var newItem in e.NewItems)
+                {
+                    if (newItem is FilmRecord newRecord)
+                    {
+                        // Subscribe to PropertyChanged event of the new FilmRecord instance
+                        newRecord.PropertyChanged += FilmRecord_PropertyChanged;
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                // Items removed from the list
+                foreach (var oldItem in e.OldItems)
+                {
+                    if (oldItem is FilmRecord oldRecord)
+                    {
+                        // Unsubscribe from PropertyChanged event of the removed FilmRecord instance
+                        oldRecord.PropertyChanged -= FilmRecord_PropertyChanged;
+                    }
+                }
+            }
+        }
+
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            // Call the ShutDown method when the window is closing
+            bool canClose = CloseFileAndAskToSave();
+
+            // Cancel the closing event if necessary
+
+            e.Cancel = !canClose;
+            SettingsManager.WindowLeft = Left;
+            SettingsManager.WindowTop = Top;
+            SettingsManager.WindowWidth = Width;
+            SettingsManager.WindowHeight = Height;
+        }
+
         private void NewFile(object sender, RoutedEventArgs e)
         {
-            NewFile();
-
+            OpenFilepath(null);
         }
 
-        private void NewFile()
+        private void NewFilmRecord(object sender, RoutedEventArgs e)
         {
-            // this program can open only one file at a time, in the future there will be tabs
-            // for now, opening new file will trigger a close action for the current file
-            // and will try to save current file before creating a new file
-            if (Shutdown())
-            {
-                filmsFile = new RecordManager();
-                filmsFile.StartReader("New File");
-                filePath = SettingsManager.LastPath;
-                filmsObservableList = filmsFile.ListOfFilms;
-                filmsGrid.ItemsSource = filmsObservableList;
-                filePath = "New File";
-                ProgramStateManager.IsAnyChange = (false);
-                ProgramStateManager.IsUnsavedChange = (false);
-                Debug.WriteLine("New file created and names: " + filePath);
-                SettingsManager.LastPath = (filePath);
-                UpdateStatistics();
-                UpdateStageTitle();
-            }
+            Debug.WriteLine("new film record");
+            FilmRecord newRecord = new FilmRecord(filmsObservableList.Count + 1);
+            newRecord.PropertyChanged += FilmRecord_PropertyChanged;
+            filmsObservableList.Add(newRecord);
+            filmsGrid.SelectedItem = newRecord;
 
+            if (SettingsManager.DefaultDateIsToday)
+            {
+                string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
+                newRecord.WatchDate = (formattedString);
+            }
+            AnyChangeHappen();
         }
 
-        private void OpenFilepath(string newFilePath)
+        private void OpenFileChooser(object sender, RoutedEventArgs e)
+        {
+            if (CloseFileAndAskToSave())
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Title = "Open file";
+                openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+
+                if ("New File".Equals(filePath))
+                {
+                    Debug.WriteLine("New file");
+                    openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+                }
+                else
+                {
+                    string parentDirectory = Directory.GetParent(filePath)?.FullName;
+                    if (!string.IsNullOrEmpty(parentDirectory))
+                    {
+                        openFileDialog.InitialDirectory = parentDirectory;
+                    }
+                }
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    OpenFilepath(openFileDialog.FileName);
+                }
+            }
+        }
+
+        private void OpenFilepath(string? newFilePath)
         {
             Debug.WriteLine("Trying to open new file");
             if (string.IsNullOrEmpty(newFilePath))
             {
                 Debug.WriteLine("Trying to create new file");
-                NewFile();
-            }
-            else
-            {
-                filePath = newFilePath;
-                filmsFile = new RecordManager();
-                filmsFile.StartReader(filePath);
-                filmsObservableList = filmsFile.ListOfFilms;
-                filmsGrid.ItemsSource = filmsObservableList;
-                SettingsManager.LastPath = (filePath);
-                ProgramStateManager.IsUnsavedChange = (false);
-                ProgramStateManager.IsAnyChange = (false);
-                UpdateStatistics();
-                filmsFile.CloseReader(); // close file after reading it, so you can safely write to it without locking
-                // UpdateStageTitle();
-            }
-        }
-
-        private void OpenFileChooser(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Open file";
-            openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
-
-            if ("New File".Equals(filePath))
-            {
-                Debug.WriteLine("New file");
-                openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
-            }
-            else
-            {
-                string parentDirectory = Directory.GetParent(filePath)?.FullName;
-                if (!string.IsNullOrEmpty(parentDirectory))
+                if (CloseFileAndAskToSave())
                 {
-                    openFileDialog.InitialDirectory = parentDirectory;
+                    filmsFile = new RecordManager();
+                    filmsFile.StartReader("New File");
+                    filePath = "New File";
+                }
+                else
+                {
+                    return;
                 }
             }
-
-            if (openFileDialog.ShowDialog() == true)
+            else
             {
-                OpenFilepath(openFileDialog.FileName);
+                filmsFile = new RecordManager();
+                filePath = newFilePath;
+                filmsFile.StartReader(filePath);
             }
+            AfterFileHasBeenLoaded();
+        }
 
+        private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
+        {
+            columnsManager.ResetToDefault();
+            filmsGrid.Items.Refresh();
+        }
+
+        private void RevertChanges(object sender, RoutedEventArgs e)
+        {
+            OpenFilepath(filePath);
         }
 
         private void Save(object sender, RoutedEventArgs e)
@@ -245,7 +422,6 @@ namespace WatchedFilmsTracker
 
         private bool Save()
         {
-
             string filePath = filmsFile.FilePath;
             bool saved = false;
 
@@ -291,72 +467,14 @@ namespace WatchedFilmsTracker
             return false;
         }
 
-        public bool ShowSaveChangesDialog()
+        private void tester(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Save changes in this file?", "Save changes", MessageBoxButton.YesNoCancel);
-            if (result == MessageBoxResult.Yes)
-            {
-                bool saved = Save();
-                return saved;
-            }
-            else if (result == MessageBoxResult.No)
-            {
-                return true;
-            }
-            else if (result == MessageBoxResult.Cancel)
-            {
-                Debug.WriteLine("Option Cancel");
-                return false;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool Shutdown()
-        {
-            Debug.WriteLine("Stop with shutdown");
-            if (ProgramStateManager.IsUnsavedChange)
-            {
-                Debug.WriteLine(filmsFile.FilePath);
-                if (filmsFile.FilePath == "New File" || !SettingsManager.AutoSave)
-                {
-                    return ShowSaveChangesDialog();
-
-                }
-                else if (SettingsManager.AutoSave)
-                {
-                    Save();
-                }
-            }
-            return !ProgramStateManager.IsUnsavedChange;
+            // statisticsManager.GetAllDecadesStatistics();
         }
 
         private void UpdateAverageFilmPerDay()
         {
-            averageFilmPerDayLabel.Content = filmsFile.GetAverageWatchStatistics();
-        }
-
-        public void UpdateStageTitle()
-        {
-            string stageTitle = "";
-
-            if (ProgramStateManager.IsUnsavedChange)
-            {
-                stageTitle = "*";
-            }
-
-            Debug.WriteLine("Updating stage title to: " + filePath);
-            stageTitle += filePath + " - " + ProgramInformation.PROGRAM_NAME;
-
-            // Assuming `this` refers to the current window instance
-            this.Title = stageTitle;
-        }
-
-        public void UpdateNumberOfFilms()
-        {
-            filmsTotalLabel.Content = filmsFile.GetNumberOfTotalWatchedFilms().ToString();
+            //averageFilmPerDayLabel.Content = statisticsManager.GetAverageWatchStatistics();
         }
 
         private void UpdateAverageFilmRating()
@@ -367,59 +485,53 @@ namespace WatchedFilmsTracker
             }
             else
             {
-                double averageRating = filmsFile.GetAverageFilmRating();
-                string formattedRating = averageRating.ToString("#.##") + "/4";
-                averageRatingLabel.Content = formattedRating;
+                double averageRating = statisticsManager.GetAverageFilmRating();
+                averageRatingLabel.Content = statisticsManager.FormattedRating(averageRating);
             }
         }
 
-        private void RevertChanges(object sender, RoutedEventArgs e)
+        private void UpdateAverageYearlyReport()
         {
-            OpenFilepath(filePath);
+            //throw new NotImplementedException();
         }
 
-        private void NewFilmRecord(object sender, RoutedEventArgs e)
+        private void UpdateDecadesOfFilms()
         {
-            Debug.WriteLine("new film record");
-            FilmRecord newRecord = new FilmRecord(filmsObservableList.Count + 1);
-            filmsObservableList.Add(newRecord);
-            filmsGrid.SelectedItem = newRecord;
+            Dictionary<int, List<FilmRecord>> decades = statisticsManager.GetAllDecadesStatistics();
 
-            if (SettingsManager.DefaultDateIsToday)
+            // Clear all old decades
+            decadePanel.Children.Clear();
+            totalFilmPanel.Children.Clear();
+            averageRatingPanel.Children.Clear();
+
+            //GroupBox decadalBox = new GroupBox();
+            //MainPanelDecadal
+
+            Label decadeL = new Label();
+            decadeL.Content = "Decade";
+            Label averageRating = new Label();
+            averageRating.Content = "Average rating";
+            Label totalFilms = new Label();
+            totalFilms.Content = "Total films";
+            decadePanel.Children.Add(decadeL);
+            totalFilmPanel.Children.Add(totalFilms);
+            averageRatingPanel.Children.Add(averageRating);
+
+            foreach (var decadeGroup in decades)
             {
-                string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
-                newRecord.WatchDate = (formattedString);
+                int decade = decadeGroup.Key;
+                Collection<FilmRecord> filmsInDecade = new Collection<FilmRecord>(decadeGroup.Value);
+
+                Label decadeLabel = new Label();
+                decadeLabel.Content = decade + "s";
+                Label averageRatingLabel = new Label();
+                averageRatingLabel.Content = statisticsManager.FormattedRating(statisticsManager.GetAverageFilmRating(filmsInDecade));
+                Label totalFilmsLabel = new Label();
+                totalFilmsLabel.Content = statisticsManager.GetNumberOfTotalWatchedFilms(filmsInDecade);
+                decadePanel.Children.Add(decadeLabel);
+                averageRatingPanel.Children.Add(averageRatingLabel);
+                totalFilmPanel.Children.Add(totalFilmsLabel);
             }
-            ProgramStateManager.IsAnyChange = (true);
-            ProgramStateManager.IsUnsavedChange = (true);
-
-        }
-
-        private void DeleteFilmRecord(object sender, RoutedEventArgs e)
-        {
-            FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
-            if (selected != null)
-            {
-                int selectedIndex = filmsGrid.SelectedIndex;
-                filmsFile.DeleteRecordFromList(selected);
-                if (selectedIndex == filmsGrid.Items.Count)
-                    filmsGrid.SelectedIndex = selectedIndex - 1;
-                else
-                {
-                    filmsGrid.SelectedIndex = selectedIndex;
-                }
-                ProgramStateManager.IsAnyChange = (true);
-                ProgramStateManager.IsUnsavedChange = (true);
-            }
-            //filmsGrid.Items.Refresh();
-        }
-
-        private void ClearAll(object sender, RoutedEventArgs e)
-        {
-            filmsFile.ListOfFilms.Clear();
-            ProgramStateManager.IsAnyChange = (true);
-            ProgramStateManager.IsUnsavedChange = (true);
-
         }
 
         private void UpdateStatistics()
@@ -427,27 +539,8 @@ namespace WatchedFilmsTracker
             UpdateNumberOfFilms();
             UpdateAverageFilmRating();
             UpdateAverageFilmPerDay();
-        }
-
-        private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
-        {
-            CheckBox checkBox = (CheckBox)sender;
-            SettingsManager.AutoSave = (bool)checkBox.IsChecked; ;
-            checkBox.IsChecked = SettingsManager.AutoSave;
-        }
-
-        private void CheckBoxDefaultDate(object sender, RoutedEventArgs e)
-        {
-            CheckBox checkBox = (CheckBox)sender;
-            SettingsManager.DefaultDateIsToday = (bool)checkBox.IsChecked; ;
-            checkBox.IsChecked = SettingsManager.DefaultDateIsToday;
-        }
-
-        private void FilmGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            Debug.WriteLine("Is any change shoulb be invoked");
-            ProgramStateManager.IsAnyChange = true;
-            ProgramStateManager.IsUnsavedChange = true;
+            UpdateDecadesOfFilms();
+            UpdateAverageYearlyReport();
         }
     }
 }

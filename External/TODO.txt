@@ -1,13 +1,10 @@
 **Immediate (NOW):**
-- Settings button: reset column width and order.
-- Fix statistics block.
-- Columns manager.
-- Statistics manager. (check bookmark)
+- Try to display data in nicer way. Maybe datagrid with source to the arraylist?
+- Add dynamic year statistics. For each year watched display amount of films, average rating.
 
 **Upcoming (SOON):**
-- Implement sorting by column while preserving original IDs.
-- Provide options for saving sorted data without altering IDs.
 - Update save file icon to indicate changes.
+- Save changes dialog. Add save icon and make look more modern.
 - Record modifications in a text file within the version folder.
 - If button is disabled, grayscale the icon.
 
@@ -25,3 +22,6 @@
 - Enable actions on multiple selected rows: Cut, Copy, Paste, Delete.
 - Consider implementing shortcut keys and an undo feature.
 - Explore learning opportunities with Hibernate and Spring frameworks.
+- When cell selected, mouse wheel changes year, date, rating.
+- In settings, user can choose rating system, max 4, 5, maybe 10 stars.
+- Rating system will affect GUI and other things.

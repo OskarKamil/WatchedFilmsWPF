@@ -8,11 +8,11 @@ namespace WatchedFilmsTracker.Source.Managers
 {
     internal class ProgramStateManager
     {
-        private static MainWindow mainWindow;
-        private static bool unsavedChange;
         private static bool anyChange;
-        private static bool selectedCells;
+        private static MainWindow mainWindow;
         private static bool openedFile;
+        private static bool selectedCells;
+        private static bool unsavedChange;
 
         public ProgramStateManager(MainWindow mainWindow)
         {
@@ -83,6 +83,5 @@ namespace WatchedFilmsTracker.Source.Managers
                 mainWindow.UpdateStageTitle();
             }
         }
-
     }
 }

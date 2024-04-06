@@ -49,7 +49,7 @@ namespace WatchedFilmsTracker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("MyFilms.csv")]
         public string LastPath {
             get {
                 return ((string)(this["LastPath"]));
@@ -61,7 +61,7 @@ namespace WatchedFilmsTracker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("45")]
         public double WindowLeft {
             get {
                 return ((double)(this["WindowLeft"]));
@@ -73,7 +73,7 @@ namespace WatchedFilmsTracker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("45")]
         public double WindowTop {
             get {
                 return ((double)(this["WindowTop"]));
@@ -85,7 +85,7 @@ namespace WatchedFilmsTracker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
         public double WindowHeight {
             get {
                 return ((double)(this["WindowHeight"]));
@@ -97,7 +97,7 @@ namespace WatchedFilmsTracker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("700")]
         public double WindowWidth {
             get {
                 return ((double)(this["WindowWidth"]));

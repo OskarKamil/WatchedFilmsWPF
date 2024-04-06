@@ -1,18 +1,26 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace WatchedFilmsTracker.Source.Models
 {
-    public class FilmRecord
+    public class FilmRecord : INotifyPropertyChanged
     {
-        private string englishTitle;
-        private string originalTitle;
-        private string type;
-        private string releaseYear;
-        private string rating;
-        private string watchDate;
         private string comments;
+
+        private string englishTitle;
+
         private int idInList = -1;
+
+        private string originalTitle;
+
+        private string rating;
+
+        private string releaseYear;
+
+        private string type;
+
+        private string watchDate;
 
         public FilmRecord(string englishTitle, string originalTitle, string type, string releaseYear, string rating, string watchDate, string comments)
         {
@@ -35,59 +43,110 @@ namespace WatchedFilmsTracker.Source.Models
             idInList = id;
         }
 
-        public void AddFilmRecordFromKeyboard()
-        {
-            Debug.WriteLine("Adding film record. Please enter the following details:");
-            Debug.WriteLine("English title:");
-            EnglishTitle = Console.ReadLine();
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string Comments
         {
             get { return comments; }
-            set { comments = value; }
+            set
+            {
+                if (comments != value)
+                {
+                    comments = value;
+                    OnPropertyChanged(nameof(Comments));
+                }
+            }
         }
 
         public string EnglishTitle
         {
             get { return englishTitle; }
-            set { englishTitle = value; }
+            set
+            {
+                if (englishTitle != value)
+                {
+                    englishTitle = value;
+                    OnPropertyChanged(nameof(EnglishTitle));
+                }
+            }
         }
 
         public int IdInList
         {
             get { return idInList; }
-            set { idInList = value; }
+            set
+            {
+                if (idInList != value)
+                {
+                    idInList = value;
+                    OnPropertyChanged(nameof(IdInList));
+                }
+            }
         }
 
         public string OriginalTitle
         {
             get { return originalTitle; }
-            set { originalTitle = value; }
+            set
+            {
+                if (originalTitle != value)
+                {
+                    originalTitle = value;
+                    OnPropertyChanged(nameof(OriginalTitle));
+                }
+            }
         }
 
         public string Rating
         {
             get { return rating; }
-            set { rating = value; }
+            set
+            {
+                if (rating != value)
+                {
+                    rating = value;
+                    OnPropertyChanged(nameof(Rating));
+                }
+            }
         }
 
         public string ReleaseYear
         {
             get { return releaseYear; }
-            set { releaseYear = value; }
+            set
+            {
+                if (releaseYear != value)
+                {
+                    releaseYear = value;
+                    OnPropertyChanged(nameof(ReleaseYear));
+                }
+            }
         }
 
         public string Type
         {
             get { return type; }
-            set { type = value; }
+            set
+            {
+                if (type != value)
+                {
+                    type = value;
+                    OnPropertyChanged(nameof(Type));
+                }
+            }
         }
 
         public string WatchDate
         {
             get { return watchDate; }
-            set { watchDate = value; }
+            set
+            {
+                if (watchDate != value)
+                {
+                    watchDate = value;
+                    OnPropertyChanged(nameof(WatchDate));
+                }
+            }
         }
 
         public string ToNiceString()
@@ -103,6 +162,11 @@ namespace WatchedFilmsTracker.Source.Models
         public override string ToString()
         {
             return $"FilmRecord{{englishTitle='{englishTitle}', originalTitle='{originalTitle}', type='{type}', releaseYear='{releaseYear}', rating='{rating}', watchDate='{watchDate}', comments='{comments}', idInList={idInList}}}";
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
