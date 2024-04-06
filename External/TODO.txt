@@ -1,9 +1,12 @@
 **Immediate (NOW):**
 - Save icon on button seems blurry. Investigate.
+- User should be able to expand tablegrid. Some titles can be very long and they should expand it as they please.
+- Button to expand/shrink datagrid to titles and other data lenght.
 - Try to display data in nicer way. Maybe datagrid with source to the arraylist?
 - Add dynamic year statistics. For each year watched display amount of films, average rating.
 
 **Upcoming (SOON):**
+- Extremely slow on big files. 2k films. Investigate.
 - Update save file icon to indicate changes.
 - Save changes dialog. Add save icon and make look more modern.
 - Record modifications in a text file within the version folder.
