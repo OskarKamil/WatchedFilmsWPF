@@ -1,4 +1,5 @@
 **Immediate (NOW):**
+- Save icon on button seems blurry. Investigate.
 - Try to display data in nicer way. Maybe datagrid with source to the arraylist?
 - Add dynamic year statistics. For each year watched display amount of films, average rating.
 
