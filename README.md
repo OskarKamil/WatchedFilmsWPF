@@ -9,7 +9,7 @@
 
 ## Screenshots
 
-![Main page](https://github.com/OskarKamil/WatchedFilmsWPF/blob/main/External/versions/0.010.png?raw=true)
+![Main page](https://github.com/OskarKamil/WatchedFilmsWPF/blob/main/External/versions/0.011.png?raw=true)
 *Screenshot 1: Main interface displaying list of films*
 
 ## Requirements

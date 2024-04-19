@@ -27,6 +27,7 @@
     <None Remove="Assets\Icons\revert.png" />
     <None Remove="Assets\Icons\save2.png" />
     <None Remove="Assets\Icons\saveAs2.png" />
+    <None Remove="Assets\Icons\saveChanges.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +50,7 @@
     <Resource Include="Assets\Icons\revert.png" />
     <Resource Include="Assets\Icons\save2.png" />
     <Resource Include="Assets\Icons\saveAs2.png" />
+    <Resource Include="Assets\Icons\saveChanges.png" />
   </ItemGroup>
 
   <ItemGroup>

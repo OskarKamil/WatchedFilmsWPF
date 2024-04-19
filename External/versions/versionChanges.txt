@@ -1,5 +1,5 @@
 Java - JavaFX
-0.001 - First scene in JavaFX. Titled window. Displays most recent watched film as Label.
+0.001 - First scene in JavaFX.Titled window. Displays most recent watched film as Label.
 0.002 - Shows a scrollable tableView with complete list of films from the file. Icon in the titled window.
 0.003 - Quick actions pane. Statistics pane. Separate pane for tableView. About modal window with link to GitHub page and program information.
 0.004 - New quick actions buttons with icons. Editable cells in the tableView.
@@ -11,3 +11,4 @@ C# - .NET WPF
 0.008 - Transition to another programming language. New GUI and visuals. Downgrade in functionality and compa. Some features are not working properly or not working at all. Program can be compiled on Windows only. Executable file can run without installing any JRE since .NET runtime is installed by default on Windows machines.
 0.009 - The window size and position stays the same between program runs. Column order and width fixed. Editing cells works now. Deleting single row selects next row after deletion. Closing new file with unsaved changes will ask if save changes instead of opening file picker.
 0.010 - First time running program the window size and position is more comfortable, also example file should open by default. Button to reset columns width and order to default. Opening new file while current file has unsaved changes will ask if wanna save changes first. Statistics update when adding, removing or changing film details. More statistics details based on what decade film belongs to. Other fixes and minor improvements.
+0.011 - Save icon no longer blurry. Table of watched films is now scrollable - works much faster on large lists. Settings section moved on top. Table of watched films expands with window size. Fixed statistics update when film details change. Fixed columns width. Nicer display of decadal statistics with sortable values. Fixed slow updates to decades when removing or adding record. Yearly statistics breakdown added. Improved about window. Fixed film Id in table is properly refreshed now. On long table with scrollbar, adding new record with select and scroll to the new record. Improved visuals for save changes dialog.

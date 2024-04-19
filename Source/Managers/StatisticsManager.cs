@@ -6,6 +6,7 @@ namespace WatchedFilmsTracker.Source.Managers
 {
     internal class StatisticsManager
     {
+        private ObservableCollection<DecadalStatistic> decadesList;
         private ObservableCollection<FilmRecord> filmRecords;
 
         public StatisticsManager(ObservableCollection<FilmRecord> filmsObservableList)
@@ -13,55 +14,13 @@ namespace WatchedFilmsTracker.Source.Managers
             filmRecords = filmsObservableList;
         }
 
-        public String FormattedRating(double rating)
+        public static String FormattedRating(double rating)
         {
-            string formattedRating = rating.ToString("#.##") + "/4";
+            string formattedRating = rating.ToString("#.00") + "/4";
             return formattedRating;
         }
 
-        public Dictionary<int, List<FilmRecord>> GetAllDecadesStatistics()
-        {
-            List<FilmRecord> sortedFilms = filmRecords.OrderBy(o => o.ReleaseYear).ToList();
-            Dictionary<int, List<FilmRecord>> decades = new Dictionary<int, List<FilmRecord>>();
-
-            foreach (FilmRecord film in sortedFilms)
-            {
-                int filmYear;
-                double filmRating;
-
-                try
-                {
-                    filmYear = int.Parse(film.ReleaseYear);
-                    filmRating = double.Parse(film.Rating);
-                }
-                catch (Exception e)
-                {
-                    continue;
-                }
-
-                int decade = (filmYear / 10) * 10;
-
-                if (!decades.ContainsKey(decade))
-                {
-                    decades[decade] = new List<FilmRecord> { film };
-                }
-                else
-                {
-                    decades[decade].Add(film);
-                }
-            }
-            //var sortedDecades = decades.OrderBy(d => d.Key);
-            //films were sorted before so decades should be chronological by now
-
-            return decades;
-        }
-
-        public double GetAverageFilmRating()
-        {
-            return GetAverageFilmRating(filmRecords);
-        }
-
-        public double GetAverageFilmRating(Collection<FilmRecord> listOfFilms)
+        public static double GetAverageFilmRating(Collection<FilmRecord> listOfFilms)
         {
             double averageRating = 0;
             int correction = 0;
@@ -81,8 +40,19 @@ namespace WatchedFilmsTracker.Source.Managers
             return averageRating;
         }
 
+        public static int GetNumberOfTotalWatchedFilms(Collection<FilmRecord> listOfFilms)
+        {
+            return listOfFilms.Count;
+        }
+
+        public double GetAverageFilmRating()
+        {
+            return GetAverageFilmRating(filmRecords);
+        }
+
         public string GetAverageWatchStatistics()
         {
+            //  not in use for now
             if (filmRecords.Count == 0)
                 return "0";
 
@@ -118,9 +88,21 @@ namespace WatchedFilmsTracker.Source.Managers
             return statisticsString;
         }
 
-        public void GetAverageWatchStatisticsByYear()
+        public ObservableCollection<DecadalStatistic> GetDecadalReport()
         {
-            //throw new NotImplementedException();
+            ObservableCollection<DecadalStatistic> decadalStatistics = new ObservableCollection<DecadalStatistic>();
+
+            var dictionary = GetDecadalDictionary();
+            foreach (var decadeGroup in dictionary)
+            {
+                Collection<FilmRecord> filmsInDecade = new Collection<FilmRecord>(decadeGroup.Value);
+                int decade = decadeGroup.Key;
+                int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInDecade);
+                double averageRating = StatisticsManager.GetAverageFilmRating(filmsInDecade);
+                decadalStatistics.Add(new DecadalStatistic(decade, numberOfFilms, averageRating));
+            }
+
+            return decadalStatistics;
         }
 
         public int GetNumberOfTotalWatchedFilms()
@@ -128,9 +110,90 @@ namespace WatchedFilmsTracker.Source.Managers
             return GetNumberOfTotalWatchedFilms(filmRecords);
         }
 
-        public int GetNumberOfTotalWatchedFilms(Collection<FilmRecord> listOfFilms)
+        public ObservableCollection<YearlyStatistic> GetYearlyReport()
         {
-            return listOfFilms.Count;
+            ObservableCollection<YearlyStatistic> yearlyStatistics = new ObservableCollection<YearlyStatistic>();
+
+            var dictionary = GetYearyDictionary();
+            foreach (var yearGroup in dictionary)
+            {
+                Collection<FilmRecord> filmsInYear = new Collection<FilmRecord>(yearGroup.Value);
+                int year = yearGroup.Key;
+                int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInYear);
+                double averageRating = StatisticsManager.GetAverageFilmRating(filmsInYear);
+                yearlyStatistics.Add(new YearlyStatistic(year, numberOfFilms, averageRating));
+            }
+
+            return yearlyStatistics;
+        }
+
+        private Dictionary<int, List<FilmRecord>> GetDecadalDictionary()
+        {
+            List<FilmRecord> sortedFilms = filmRecords.OrderBy(o => o.ReleaseYear).ToList();
+            Dictionary<int, List<FilmRecord>> decades = new Dictionary<int, List<FilmRecord>>();
+
+            foreach (FilmRecord film in sortedFilms)
+            {
+                int filmYear;
+                double filmRating;
+
+                try
+                {
+                    filmYear = int.Parse(film.ReleaseYear);
+                    filmRating = double.Parse(film.Rating);
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
+
+                int decade = (filmYear / 10) * 10;
+
+                if (!decades.ContainsKey(decade))
+                {
+                    decades[decade] = new List<FilmRecord> { film };
+                }
+                else
+                {
+                    decades[decade].Add(film);
+                }
+            }
+            return decades;
+        }
+
+        private Dictionary<int, List<FilmRecord>> GetYearyDictionary()
+        {
+            List<FilmRecord> sortedFilms = filmRecords.OrderBy(o => o.ReleaseYear).ToList();
+            Dictionary<int, List<FilmRecord>> years = new Dictionary<int, List<FilmRecord>>();
+
+            foreach (FilmRecord film in sortedFilms)
+            {
+                int watchedYear;
+                if (!(film.WatchDate == null) && film.WatchDate.Length >= 4)
+                {
+                    try
+                    {
+                        watchedYear = int.Parse(film.WatchDate.Substring(film.WatchDate.Length - 4));
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
+
+                    if (!years.ContainsKey(watchedYear))
+                    {
+                        years[watchedYear] = new List<FilmRecord> { film };
+                    }
+                    else
+                    {
+                        years[watchedYear].Add(film);
+                    }
+                }
+            }
+
+            var sortedYears = years.OrderBy(pair => pair.Key).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+            return sortedYears;
         }
     }
 }

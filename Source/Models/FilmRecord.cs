@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.ComponentModel;
 
 namespace WatchedFilmsTracker.Source.Models
 {
@@ -24,7 +22,6 @@ namespace WatchedFilmsTracker.Source.Models
 
         public FilmRecord(string englishTitle, string originalTitle, string type, string releaseYear, string rating, string watchDate, string comments)
         {
-            // You can add validation or conversion logic here if needed
             this.englishTitle = englishTitle;
             this.originalTitle = originalTitle;
             this.type = type;
@@ -166,7 +163,8 @@ namespace WatchedFilmsTracker.Source.Models
 
         private void OnPropertyChanged(string propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+      
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

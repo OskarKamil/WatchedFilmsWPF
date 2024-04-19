@@ -6,19 +6,21 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
-        private ColumnsManager columnsManager;
+        private DecadalStatisticsTableManager decadalStatisticsTableManager;
         private string filePath;
+        private FilmsTableColumnManager filmsColumnsManager;
         private RecordManager filmsFile;
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
         private StatisticsManager statisticsManager;
+        private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
         public MainWindow()
         {
@@ -68,67 +70,14 @@ namespace WatchedFilmsTracker
             this.Width = SettingsManager.WindowWidth;
             this.Height = SettingsManager.WindowHeight;
 
-            //TABLEVIEW DISPLAY VALUES
-            DataGridTextColumn id = new DataGridTextColumn();
-            id.Header = "#";
-            id.Binding = new Binding("IdInList");
-            filmsGrid.Columns.Add(id);
-            id.IsReadOnly = true;
-            //  id.Width = 0;
+            //STATISTICS DISPLAY COLUMNS
+            decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
+            yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
 
-            DataGridTextColumn englishTitle = new DataGridTextColumn();
-            englishTitle.Header = "English title";
-            englishTitle.Binding = new Binding("EnglishTitle");
-            filmsGrid.Columns.Add(englishTitle);
-            // englishTitle.Width = 0;
-
-            DataGridTextColumn originalTitle = new DataGridTextColumn();
-            originalTitle.Header = "Original title";
-            originalTitle.Binding = new Binding("OriginalTitle");
-            filmsGrid.Columns.Add(originalTitle);
-            // originalTitle.Width = 50;
-
-            DataGridTextColumn type = new DataGridTextColumn();
-            type.Header = "Type";
-            type.Binding = new Binding("Type");
-            filmsGrid.Columns.Add(type);
-            // type.Width = 50;
-
-            DataGridTextColumn releaseYear = new DataGridTextColumn();
-            releaseYear.Header = "Release year";
-            releaseYear.Binding = new Binding("ReleaseYear");
-            filmsGrid.Columns.Add(releaseYear);
-            // releaseYear.Width = 50;
-
-            DataGridTextColumn rating = new DataGridTextColumn();
-            rating.Header = "Rating";
-            rating.Binding = new Binding("Rating");
-            filmsGrid.Columns.Add(rating);
-            //   rating.Width = 50;
-
-            DataGridTextColumn watchDate = new DataGridTextColumn();
-            watchDate.Header = "Watch date";
-            watchDate.Binding = new Binding("WatchDate");
-            filmsGrid.Columns.Add(watchDate);
-            //   watchDate.Width = 50;
-
-            DataGridTextColumn comments = new DataGridTextColumn();
-            comments.Header = "Comments";
-            comments.Binding = new Binding("Comments");
-            filmsGrid.Columns.Add(comments);
-            comments.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
-
-            columnsManager = new ColumnsManager(filmsGrid);
+            //FILMS TABLEVIEW DISPLAY VALUES
+            filmsColumnsManager = new FilmsTableColumnManager(filmsGrid); // constructor builds columns and binds values
 
             OpenFilepath(SettingsManager.LastPath);
-            filmsGrid.ItemsSource = filmsObservableList;
-            filmsObservableList.CollectionChanged += filmsListHasChanged;
-
-            // Subscribe to PropertyChanged event of each FilmRecord instance
-            foreach (var filmRecord in filmsObservableList)
-            {
-                filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
-            }
 
             //GRIDLIST SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;
@@ -144,6 +93,14 @@ namespace WatchedFilmsTracker
         {
             filmsObservableList = filmsFile.ListOfFilms;
             filmsGrid.ItemsSource = filmsObservableList;
+
+            // Subscribe to PropertyChanged event of each FilmRecord instance
+            filmsObservableList.CollectionChanged += filmsListHasChanged;
+            foreach (var filmRecord in filmsObservableList)
+            {
+                filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
+            }
+
             SettingsManager.LastPath = (filePath);
             ProgramStateManager.IsUnsavedChange = (false);
             ProgramStateManager.IsAnyChange = (false);
@@ -174,24 +131,21 @@ namespace WatchedFilmsTracker
 
         public bool ShowSaveChangesDialog()
         {
-            MessageBoxResult result = MessageBox.Show("Save changes in this file?", "Save changes", MessageBoxButton.YesNoCancel);
-            if (result == MessageBoxResult.Yes)
+            SaveChangesDialog dialog = new SaveChangesDialog();
+            dialog.Owner = Application.Current.MainWindow;
+            dialog.ShowDialog();
+
+            switch (dialog.Result)
             {
-                bool saved = Save();
-                return saved;
-            }
-            else if (result == MessageBoxResult.No)
-            {
-                return true;
-            }
-            else if (result == MessageBoxResult.Cancel)
-            {
-                Debug.WriteLine("Option Cancel");
-                return false;
-            }
-            else
-            {
-                return false;
+                case SaveChangesDialog.CustomDialogResult.Save:
+                    return Save();
+
+                case SaveChangesDialog.CustomDialogResult.NotSave:
+                    return true;
+
+                case SaveChangesDialog.CustomDialogResult.Cancel:
+                default:
+                    return false;
             }
         }
 
@@ -233,8 +187,8 @@ namespace WatchedFilmsTracker
 
         private void BuildDynamicStatistics()
         {
-            UpdateDecadesOfFilms();
-            UpdateAverageYearlyReport();
+            UpdateDecadesOfFilmsStatistics();
+            UpdateYearlyReportStatistics();
         }
 
         private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
@@ -277,7 +231,10 @@ namespace WatchedFilmsTracker
 
         private void FilmRecord_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            AnyChangeHappen();
+            if (e.PropertyName != "IdInList")
+            {
+                AnyChangeHappen();
+            }
         }
 
         private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -340,6 +297,7 @@ namespace WatchedFilmsTracker
             newRecord.PropertyChanged += FilmRecord_PropertyChanged;
             filmsObservableList.Add(newRecord);
             filmsGrid.SelectedItem = newRecord;
+            filmsGrid.ScrollIntoView(filmsGrid.SelectedItem);
 
             if (SettingsManager.DefaultDateIsToday)
             {
@@ -406,8 +364,7 @@ namespace WatchedFilmsTracker
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
         {
-            columnsManager.ResetToDefault();
-            filmsGrid.Items.Refresh();
+            filmsColumnsManager.ResetToDefault();
         }
 
         private void RevertChanges(object sender, RoutedEventArgs e)
@@ -467,16 +424,6 @@ namespace WatchedFilmsTracker
             return false;
         }
 
-        private void tester(object sender, RoutedEventArgs e)
-        {
-            // statisticsManager.GetAllDecadesStatistics();
-        }
-
-        private void UpdateAverageFilmPerDay()
-        {
-            //averageFilmPerDayLabel.Content = statisticsManager.GetAverageWatchStatistics();
-        }
-
         private void UpdateAverageFilmRating()
         {
             if (filmsFile.ListOfFilms.Count == 0)
@@ -486,61 +433,28 @@ namespace WatchedFilmsTracker
             else
             {
                 double averageRating = statisticsManager.GetAverageFilmRating();
-                averageRatingLabel.Content = statisticsManager.FormattedRating(averageRating);
+                averageRatingLabel.Content = StatisticsManager.FormattedRating(averageRating);
             }
         }
 
-        private void UpdateAverageYearlyReport()
+        private void UpdateDecadesOfFilmsStatistics()
         {
-            //throw new NotImplementedException();
-        }
-
-        private void UpdateDecadesOfFilms()
-        {
-            Dictionary<int, List<FilmRecord>> decades = statisticsManager.GetAllDecadesStatistics();
-
-            // Clear all old decades
-            decadePanel.Children.Clear();
-            totalFilmPanel.Children.Clear();
-            averageRatingPanel.Children.Clear();
-
-            //GroupBox decadalBox = new GroupBox();
-            //MainPanelDecadal
-
-            Label decadeL = new Label();
-            decadeL.Content = "Decade";
-            Label averageRating = new Label();
-            averageRating.Content = "Average rating";
-            Label totalFilms = new Label();
-            totalFilms.Content = "Total films";
-            decadePanel.Children.Add(decadeL);
-            totalFilmPanel.Children.Add(totalFilms);
-            averageRatingPanel.Children.Add(averageRating);
-
-            foreach (var decadeGroup in decades)
-            {
-                int decade = decadeGroup.Key;
-                Collection<FilmRecord> filmsInDecade = new Collection<FilmRecord>(decadeGroup.Value);
-
-                Label decadeLabel = new Label();
-                decadeLabel.Content = decade + "s";
-                Label averageRatingLabel = new Label();
-                averageRatingLabel.Content = statisticsManager.FormattedRating(statisticsManager.GetAverageFilmRating(filmsInDecade));
-                Label totalFilmsLabel = new Label();
-                totalFilmsLabel.Content = statisticsManager.GetNumberOfTotalWatchedFilms(filmsInDecade);
-                decadePanel.Children.Add(decadeLabel);
-                averageRatingPanel.Children.Add(averageRatingLabel);
-                totalFilmPanel.Children.Add(totalFilmsLabel);
-            }
+            ObservableCollection<DecadalStatistic> decadesOfFilms = statisticsManager.GetDecadalReport();
+            decadalGrid.ItemsSource = decadesOfFilms;
         }
 
         private void UpdateStatistics()
         {
             UpdateNumberOfFilms();
             UpdateAverageFilmRating();
-            UpdateAverageFilmPerDay();
-            UpdateDecadesOfFilms();
-            UpdateAverageYearlyReport();
+            UpdateDecadesOfFilmsStatistics();
+            UpdateYearlyReportStatistics();
+        }
+
+        private void UpdateYearlyReportStatistics()
+        {
+            ObservableCollection<YearlyStatistic> yearsOfFilms = statisticsManager.GetYearlyReport();
+            yearlyGrid.ItemsSource = yearsOfFilms;
         }
     }
 }

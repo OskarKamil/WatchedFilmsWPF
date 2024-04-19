@@ -1,18 +1,13 @@
 **Immediate (NOW):**
-- Save icon on button seems blurry. Investigate.
-- User should be able to expand tablegrid. Some titles can be very long and they should expand it as they please.
-- Button to expand/shrink datagrid to titles and other data lenght.
-- Try to display data in nicer way. Maybe datagrid with source to the arraylist?
-- Add dynamic year statistics. For each year watched display amount of films, average rating.
-- The film table can be very long. Make it scrollable both directions.
-- Save changes dialog. Add save icon and make look more modern.
+- todo
 
 **Upcoming (SOON):**
-- Extremely slow on big files. 2k films. Investigate.
-  - Maybe in issue with displaying. Check if scroll fixed the issue.
-- Update save file icon to indicate changes.
-- Record modifications in a text file within the version folder.
 - If button is disabled, grayscale the icon.
+- If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
+- If release year or watch date is icorrect (unassigned from above), make the cell red but only after deselecting it, not in the middle of adding.
+- Clear all and autosave can result in losing all data if uncareful.
+	- Clear all and save should save current list as archived list to easy find if accidental loss.
+- Search option to find film titles.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.
@@ -31,3 +26,5 @@
 - When cell selected, mouse wheel changes year, date, rating.
 - In settings, user can choose rating system, max 4, 5, maybe 10 stars.
 - Rating system will affect GUI and other things.
+- When entering film title, show propositions in case film already in list.
+- Selecting a yearly/decadal row would highlight the rows in main datagrid.

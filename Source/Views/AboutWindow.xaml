@@ -1,30 +1,37 @@
 ﻿<Window x:Class="WatchedFilmsTracker.AboutWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WatchedFilmsTracker"
         mc:Ignorable="d"
         Title="About" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
-    <Grid>
-        <StackPanel Orientation="Vertical" Margin="25,25,25,25">
-            <StackPanel Orientation="Horizontal">
-                <Image Source="/Assets/Icons/icon2.png"  Width="48" Height="48" Margin="0,0,25,0" />
-                <StackPanel Orientation="Vertical">
-                    <Label x:Name="LabelProgramName" Margin="0,0,0,-10">Watched films tracker</Label>
-                    <Label x:Name="LabelAuthor" Margin="0,0,0,-10">© 2024 Oskar Jargilo</Label>
-                    <Label Margin="0,0,0,-10"></Label>
-                    <Label>
-                        <Hyperlink NavigateUri="http://github.com/OskarKamil" RequestNavigate="Hyperlink_RequestNavigate">
-                            GitHub page
-                        </Hyperlink>
-                    </Label>
-                    <Label></Label>
-                    <Label x:Name="LabelVersion">Version 0.001</Label>
+    <Grid Margin="15,15,15,15">
+        <StackPanel Orientation="Vertical">
+            <GroupBox>
+                <GroupBox.Header>About program</GroupBox.Header>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Image Source="/Assets/Icons/icon2.png"  Width="48" Height="48" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,0,25,0" />
+                        <StackPanel Orientation="Vertical">
+                            <Label x:Name="LabelProgramName" Margin="0,0,0,-10">Watched films tracker</Label>
+                            <Label x:Name="LabelAuthor" Margin="0,0,0,-10">© 2024 Oskar Jargilo</Label>
+                            <Label Margin="0,0,0,-10"></Label>
+                            <Label>
+                                <Hyperlink NavigateUri="http://github.com/OskarKamil" RequestNavigate="Hyperlink_RequestNavigate">
+                                    GitHub page
+                                </Hyperlink>
+                            </Label>
+                            <Label x:Name="LabelVersion">Version 0.001</Label>
+                        </StackPanel>
+                    </StackPanel>
+                    <Separator />
+                    <TextBlock TextWrapping="Wrap" Width="300">Thank you for using this software. If you like it and would like to contribute, please visit our project's GitHub page. 💖❤️</TextBlock>
                 </StackPanel>
-            </StackPanel>
-            <Button Background="#FF97D6FF" Width="75" Margin="0,10,0,0" Click="CloseWindow" >OK</Button>
-        </StackPanel>
+            </GroupBox>
+            <StackPanel Orientation="Vertical">
 
+                <Button Background="#FF97D6FF" Width="75" Margin="0,10,0,0" Click="CloseWindow" >OK</Button>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>
