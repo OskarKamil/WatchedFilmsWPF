@@ -28,3 +28,4 @@
 - Rating system will affect GUI and other things.
 - When entering film title, show propositions in case film already in list.
 - Selecting a yearly/decadal row would highlight the rows in main datagrid.
+- Colour cells depending on change. New cells green, modified blue, removed red.
