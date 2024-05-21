@@ -1,5 +1,5 @@
 **Immediate (NOW):**
-- todo
+- Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.
@@ -28,3 +28,6 @@
 - Rating system will affect GUI and other things.
 - When entering film title, show propositions in case film already in list.
 - Selecting a yearly/decadal row would highlight the rows in main datagrid.
+- (big) Reorganise how film records are stored. When adding a film record, editing release year or watch date, it assigns a film to proper statistics group.
+	- This will work much faster than current solution. Currently all lists and maps are made with each change.
+- A link to imdb film.
