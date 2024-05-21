@@ -30,4 +30,5 @@
 - Selecting a yearly/decadal row would highlight the rows in main datagrid.
 - (big) Reorganise how film records are stored. When adding a film record, editing release year or watch date, it assigns a film to proper statistics group.
 	- This will work much faster than current solution. Currently all lists and maps are made with each change.
-- A link to imdb film.
+- A link to imdb film. (new property in filmrecord model)
+- Colour cells depending on change. New cells green, modified blue, removed red.
