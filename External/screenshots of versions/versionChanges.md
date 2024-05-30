@@ -80,4 +80,7 @@
 
 #### 0.012 
 - When a new version is available, the panel will turn yellow and display information about new version. Hyperlink will open release GitHub page.
-- If button is disabled, the icon of the button will be 50% opaque.
+- If any button is disabled, the icon of the button will be 50% opaque.
+- Check for update button in settings.
+- Results of checking the update in settings.
+- Checkbox to check update on startup.

@@ -4,7 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="MainWindow"  KeyDown="Window_KeyDown"
         MinHeight="225" MinWidth="1000" ScrollViewer.CanContentScroll="True" Height="396">
     <Grid>
 
@@ -19,10 +19,19 @@
                     <GroupBox.Header>Settings</GroupBox.Header>
                     <StackPanel Orientation="Vertical">
                         <CheckBox x:Name="defaultDateBox" Content="Default date is today" Click="CheckBoxDefaultDate" />
+                        <CheckBox x:Name="updateStartUpBox" Content="Check update on startup" Click="CheckBoxUpdateStartup" />
                         <CheckBox x:Name="autosaveBox" Content="Autosave changes on close" Click="CheckBoxAutoSave" />
                         <Grid>
-                            <Label Content="Columns order and width"></Label>
+                            <TextBlock Text="Columns order and width" HorizontalAlignment="Left" VerticalAlignment="Center" />
                             <Button Content="Reset to default" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ResetColumnsWidthAndOrder" />
+                        </Grid>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <Image x:Name="ImageNewVersionSettings" Source="\Assets\Icons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,0,5,0" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.RowSpan="1" Grid.ColumnSpan="1" Visibility="Collapsed" />
+                                <TextBlock x:Name="SettingsUpdateBlock" Text="Program update" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" />
+                            </StackPanel>
+                            <Button x:Name="CheckUpdatesButton" Content="Check for update" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ManualCheckForUpdate" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="1" />
+
                         </Grid>
                     </StackPanel>
                 </GroupBox>

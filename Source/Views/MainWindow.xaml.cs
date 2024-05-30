@@ -7,11 +7,13 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Services;
 using WatchedFilmsTracker.Source.Views;
+using static WatchedFilmsTracker.Source.Services.NewestVersionChecker;
 
 namespace WatchedFilmsTracker
 {
@@ -33,8 +35,6 @@ namespace WatchedFilmsTracker
             LabelVersion.Content = ProgramInformation.VERSION;
             this.Title = ProgramInformation.PROGRAM_NAME;
             Closing += MainWindow_Closing; // override closing window
-
-            UpdateVersionInformationAsync();
 
             //PROGRAM STATE MANAGER
             ProgramStateManager programStateManager = new ProgramStateManager(this);
@@ -67,13 +67,11 @@ namespace WatchedFilmsTracker
             //   buttonManager.TestButtons(true); // TESTING
 
             //SETTINGS
-            SettingsManager.ReadSettingsFile();
-            autosaveBox.IsChecked = SettingsManager.AutoSave;
-            defaultDateBox.IsChecked = SettingsManager.DefaultDateIsToday;
-            this.Left = SettingsManager.WindowLeft;
-            this.Top = SettingsManager.WindowTop;
-            this.Width = SettingsManager.WindowWidth;
-            this.Height = SettingsManager.WindowHeight;
+            ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
+
+            //Check update on startup
+            if (SettingsManager.CheckUpdateOnStartup)
+                ManualCheckForUpdate(CheckUpdatesButton, null);
 
             //STATISTICS DISPLAY COLUMNS
             decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
@@ -190,6 +188,17 @@ namespace WatchedFilmsTracker
             UpdateStatistics();
         }
 
+        private void ApplyUserSettingsToTheProgram()
+        {
+            autosaveBox.IsChecked = SettingsManager.AutoSave;
+            defaultDateBox.IsChecked = SettingsManager.DefaultDateIsToday;
+            updateStartUpBox.IsChecked = SettingsManager.CheckUpdateOnStartup;
+            this.Left = SettingsManager.WindowLeft;
+            this.Top = SettingsManager.WindowTop;
+            this.Width = SettingsManager.WindowWidth;
+            this.Height = SettingsManager.WindowHeight;
+        }
+
         private void BuildDynamicStatistics()
         {
             UpdateDecadesOfFilmsStatistics();
@@ -199,15 +208,21 @@ namespace WatchedFilmsTracker
         private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
-            SettingsManager.AutoSave = (bool)checkBox.IsChecked; ;
+            SettingsManager.AutoSave = (bool)checkBox.IsChecked;
             checkBox.IsChecked = SettingsManager.AutoSave;
         }
 
         private void CheckBoxDefaultDate(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
-            SettingsManager.DefaultDateIsToday = (bool)checkBox.IsChecked; ;
+            SettingsManager.DefaultDateIsToday = (bool)checkBox.IsChecked;
             checkBox.IsChecked = SettingsManager.DefaultDateIsToday;
+        }
+
+        private void CheckBoxUpdateStartup(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = (CheckBox)(sender);
+            SettingsManager.CheckUpdateOnStartup = (bool)checkBox.IsChecked;
         }
 
         private void ClearAll(object sender, RoutedEventArgs e)
@@ -288,6 +303,15 @@ namespace WatchedFilmsTracker
             SettingsManager.WindowTop = Top;
             SettingsManager.WindowWidth = Width;
             SettingsManager.WindowHeight = Height;
+        }
+
+        private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
+        {
+            // Checking for update
+            CheckUpdatesButton.IsEnabled = false;
+            SettingsUpdateBlock.Text = "Checking for update...";
+            ImageNewVersionSettings.Visibility = Visibility.Collapsed;
+            await UpdateVersionInformationAsync();
         }
 
         private void NewFile(object sender, RoutedEventArgs e)
@@ -458,10 +482,10 @@ namespace WatchedFilmsTracker
 
         private async Task UpdateVersionInformationAsync()
         {
-            bool isNewVersionAvailable = await NewestVersionChecker.IsNewerVersionOnGitHubAsync();
-            await Task.Delay(TimeSpan.FromSeconds(2));
-            // if (isNewVersionAvailable)
-            if (true) //TODO delete and replace with above
+            UpdateStatusCheck isNewVersionAvailable = await NewestVersionChecker.IsNewerVersionOnGitHubAsync();
+            await Task.Delay(TimeSpan.FromSeconds(2)); // imitate long checking, just in case
+
+            if (isNewVersionAvailable == UpdateStatusCheck.UpdateAvailable)
             {
                 // Apply colour and display icon
                 ImageNewVersion.Visibility = System.Windows.Visibility.Visible;
@@ -479,16 +503,48 @@ namespace WatchedFilmsTracker
                 {
                     Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
                 };
-                // releasesPage.Inlines.Add($"{NewestVersionChecker.NewVersionString} is available. Click here to open download page.");
-                releasesPage.Inlines.Add($"0.013 is available. Click here to open download page."); // TODO delete and replace with above
+                releasesPage.Inlines.Add($"{NewestVersionChecker.NewVersionString} is available. Click here to open download page.");
+
                 TextBlockNewVersion.Inlines.Add(releasesPage);
+
+                CheckUpdatesButton.IsEnabled = true;
+                CheckUpdatesButton.Content = "Download page";
+                SettingsUpdateBlock.Text = "Update found.";
+                ImageNewVersionSettings.Visibility = Visibility.Visible;
+                CheckUpdatesButton.Click -= ManualCheckForUpdate;
+                CheckUpdatesButton.Click += (sender, e) =>
+                {
+                    Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
+                };
             }
+            else if (isNewVersionAvailable == UpdateStatusCheck.NoUpdate)
+            {
+                CheckUpdatesButton.IsEnabled = true;
+                ImageNewVersionSettings.Visibility = Visibility.Collapsed;
+                SettingsUpdateBlock.Text = "No update found.";
+            }
+            else if (isNewVersionAvailable == UpdateStatusCheck.ErrorChecking)
+            {
+                CheckUpdatesButton.IsEnabled = true; SettingsUpdateBlock.Text = "Error checking.";
+            }
+            return;
         }
 
         private void UpdateYearlyReportStatistics()
         {
             ObservableCollection<YearlyStatistic> yearsOfFilms = statisticsManager.GetYearlyReport();
             yearlyGrid.ItemsSource = yearsOfFilms;
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Check if Control+D is pressed
+            if (Keyboard.IsKeyDown(Key.D) && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                // Set the window size to 1200x600
+                Width = 1200;
+                Height = 600;
+            }
         }
     }
 }

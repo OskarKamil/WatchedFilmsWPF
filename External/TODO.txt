@@ -1,9 +1,4 @@
 **Immediate (NOW):**
-- Create checkbox to check update on startup.
-- Save settings and settings manager to store update preferences.
-- Create button to check for update manually.
-- Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
-- Rename folder versions into version screentshots or something similar.
 - Create folder with different versions of a program.
 - There is dll config file and pdb filer in the publish output folder, however the program runs fine without those files. Check what they are and why they are in the output.
 - (maybe) Capture a snapshot each time you open a csv/txt. The program can be buggy and sometimes can overwrite or not save data properly.
@@ -15,6 +10,8 @@
 - When many records over 3K, adding new records makes the program a bit slow. Disable statistics and check if it's because of the hash sets and all the decadal statistics.
  	- If so, try to fix it maybe. Try making it async, but in the long run, assign film record to decadal statistics on the creation and the edit. Do not reiterate all lists and sets on an edit.
 	- Currently each edit, makes new sets and lists from the beignning. Instead change the current edited/added record to the correct list and set.
+- Divide settings panel by categories.
+- Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.

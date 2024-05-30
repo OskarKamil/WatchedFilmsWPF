@@ -1,20 +1,21 @@
 ﻿using Octokit;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.Windows.Controls;
-using System.Windows.Media;
 using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Services
 {
     internal class NewestVersionChecker
     {
+        public enum UpdateStatusCheck
+        {
+            NoUpdate, UpdateAvailable, ErrorChecking
+        }
 
-        private static string newVersionString;
+        public static string NewVersionString { get; set; }
+        public static UpdateStatusCheck updateStatus { get; set; }
 
-        public static string NewVersionString { get => newVersionString; set => newVersionString = value; }
-
-        public static async Task<bool> IsNewerVersionOnGitHubAsync()
+        public static async Task<UpdateStatusCheck> IsNewerVersionOnGitHubAsync()
         {
             var client = new GitHubClient(new ProductHeaderValue("WatchedFilmsWPF"));
             try
@@ -32,19 +33,21 @@ namespace WatchedFilmsTracker.Source.Services
                     if (githubVersion > localVersion)
                     {
                         Debug.WriteLine($"Update is available.");
-                        return true;
+                        updateStatus = UpdateStatusCheck.UpdateAvailable;
                     }
                     else
                     {
                         Debug.WriteLine($"Update not available.");
-                        return false;
+                        updateStatus = UpdateStatusCheck.NoUpdate;
                     }
+                    return updateStatus;
                 }
                 throw new Exception("Latest release name is null");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error occured while checking for the latest relaese: {ex.Message}"); return false;
+                Debug.WriteLine($"An error occured while checking for the latest relaese: {ex.Message}");
+                return UpdateStatusCheck.ErrorChecking;
             }
         }
     }

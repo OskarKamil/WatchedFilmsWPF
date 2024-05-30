@@ -1,8 +1,4 @@
-﻿using System;
-using System.Configuration;
-using System.Diagnostics;
-using System.Drawing;
-using WatchedFilmsTracker.Properties;
+﻿using WatchedFilmsTracker.Properties;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
@@ -14,6 +10,16 @@ namespace WatchedFilmsTracker.Source.Managers
             set
             {
                 Settings.Default.DefaultDateIsToday = value;
+                Settings.Default.Save();
+            }
+        }
+
+        public static bool CheckUpdateOnStartup
+        {
+            get => Settings.Default.CheckUpdateOnStartup;
+            set
+            {
+                Settings.Default.CheckUpdateOnStartup = value;
                 Settings.Default.Save();
             }
         }
@@ -76,17 +82,6 @@ namespace WatchedFilmsTracker.Source.Managers
                 Settings.Default.LastPath = value;
                 Settings.Default.Save();
             }
-        }
-
-        public static string GetValues()
-        {
-            return $"defaultDateIsToday {DefaultDateIsToday}\nautoSave {AutoSave}\nlastPath {LastPath}";
-        }
-
-        public static void ReadSettingsFile()
-        {
-            Settings.Default.Reload();
-            Debug.WriteLine("Settings file read successfully");
         }
     }
 }
