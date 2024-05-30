@@ -1,4 +1,7 @@
 **Immediate (NOW):**
+- Create checkbox to check update on startup.
+- Save settings and settings manager to store update preferences.
+- Create button to check for update manually.
 - Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
 
 **Upcoming (SOON):**

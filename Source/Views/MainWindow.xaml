@@ -142,7 +142,11 @@ ScrollViewer.HorizontalScrollBarVisibility="Auto" HorizontalScrollBarVisibility=
 
         <!--Version bottom panel-->
         <DockPanel Background="#FFAFAFAF" DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
-            <Label x:Name="LabelVersion" Content="Version 0.001" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top"></Label>
+            <StackPanel x:Name="PanelVersion" Orientation="Horizontal" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Label x:Name="LabelVersion" Content="Version 0.001" ></Label>
+                <Image x:Name="ImageNewVersion" Source="\Assets\Icons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Visibility="Collapsed" Margin="0,0,5,0" />
+                <TextBlock x:Name="TextBlockNewVersion" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0"></TextBlock>
+            </StackPanel>
             <Label x:Name="LabelAuthor" DockPanel.Dock="Right" Content="© 2024 Oskar Jargilo" HorizontalAlignment="Right" VerticalAlignment="Center" />
         </DockPanel>
     </Grid>

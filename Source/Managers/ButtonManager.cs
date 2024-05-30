@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
@@ -20,11 +17,22 @@ namespace WatchedFilmsTracker.Source.Managers
             button.IsEnabled = false;
         }
 
-        public static void  DisableButtons(List<Button> buttons)
+        public static void DisableButtons(List<Button> buttons)
         {
             foreach (Button button in buttons)
             {
                 button.IsEnabled = false;
+                StackPanel stackPanel = button.Content as StackPanel;
+                if (stackPanel != null)
+                {
+                    foreach (var child in stackPanel.Children)
+                    {
+                        if (child is Image image)
+                        {
+                            image.Opacity = 0.50;
+                        }
+                    }
+                }
             }
         }
 
@@ -38,6 +46,17 @@ namespace WatchedFilmsTracker.Source.Managers
             foreach (Button button in buttons)
             {
                 button.IsEnabled = true;
+                StackPanel stackPanel = button.Content as StackPanel;
+                if (stackPanel != null)
+                {
+                    foreach (var child in stackPanel.Children)
+                    {
+                        if (child is Image image)
+                        {
+                            image.Opacity = 1.0;
+                        }
+                    }
+                }
             }
         }
 

@@ -6,8 +6,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source.Services;
 using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker
@@ -25,11 +28,13 @@ namespace WatchedFilmsTracker
         public MainWindow()
         {
             //General GUI adjustments
-            InitializeComponent();
+            InitializeComponent(); // must be first line always
             LabelAuthor.Content = ProgramInformation.COPYRIGHT;
             LabelVersion.Content = ProgramInformation.VERSION;
             this.Title = ProgramInformation.PROGRAM_NAME;
             Closing += MainWindow_Closing; // override closing window
+
+            UpdateVersionInformationAsync();
 
             //PROGRAM STATE MANAGER
             ProgramStateManager programStateManager = new ProgramStateManager(this);
@@ -132,7 +137,7 @@ namespace WatchedFilmsTracker
         public bool ShowSaveChangesDialog()
         {
             SaveChangesDialog dialog = new SaveChangesDialog();
-            dialog.Owner = Application.Current.MainWindow;
+            dialog.Owner = System.Windows.Application.Current.MainWindow;
             dialog.ShowDialog();
 
             switch (dialog.Result)
@@ -449,6 +454,35 @@ namespace WatchedFilmsTracker
             UpdateAverageFilmRating();
             UpdateDecadesOfFilmsStatistics();
             UpdateYearlyReportStatistics();
+        }
+
+        private async Task UpdateVersionInformationAsync()
+        {
+            bool isNewVersionAvailable = await NewestVersionChecker.IsNewerVersionOnGitHubAsync();
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            // if (isNewVersionAvailable)
+            if (true) //TODO delete and replace with above
+            {
+                // Apply colour and display icon
+                ImageNewVersion.Visibility = System.Windows.Visibility.Visible;
+                RadialGradientBrush updateBrush = new RadialGradientBrush();
+                updateBrush.GradientOrigin = new Point(0.5, 0.5);
+                updateBrush.GradientStops.Add(new GradientStop(Colors.Yellow, 0.5));
+                updateBrush.GradientStops.Add(new GradientStop(Colors.Gold, 1.0));
+                PanelVersion.Background = updateBrush;
+
+                // Set hyperlink to open release page
+                string uri = "https://github.com/OskarKamil/WatchedFilmsWPF/releases/tag/" + NewestVersionChecker.NewVersionString;
+                TextBlockNewVersion.Visibility = System.Windows.Visibility.Visible;
+                Hyperlink releasesPage = new Hyperlink() { NavigateUri = new Uri(uri) };
+                releasesPage.RequestNavigate += (sender, e) =>
+                {
+                    Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+                };
+                // releasesPage.Inlines.Add($"{NewestVersionChecker.NewVersionString} is available. Click here to open download page.");
+                releasesPage.Inlines.Add($"0.013 is available. Click here to open download page."); // TODO delete and replace with above
+                TextBlockNewVersion.Inlines.Add(releasesPage);
+            }
         }
 
         private void UpdateYearlyReportStatistics()

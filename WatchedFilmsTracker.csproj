@@ -21,6 +21,7 @@
     <None Remove="Assets\Icons\icon2.png" />
     <None Remove="Assets\Icons\icon_old.png" />
     <None Remove="Assets\Icons\newFile.png" />
+    <None Remove="Assets\Icons\newVersion.png" />
     <None Remove="Assets\Icons\off2.png" />
     <None Remove="Assets\Icons\on2.png" />
     <None Remove="Assets\Icons\openFile.png" />
@@ -35,6 +36,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Octokit" Version="11.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Assets\Icons\about2.png" />
     <Resource Include="Assets\Icons\addRecord.png" />
     <Resource Include="Assets\Icons\clear2.png" />
@@ -44,6 +49,7 @@
     <Resource Include="Assets\Icons\icon2.png" />
     <Resource Include="Assets\Icons\icon_old.png" />
     <Resource Include="Assets\Icons\newFile.png" />
+    <Resource Include="Assets\Icons\newVersion.png" />
     <Resource Include="Assets\Icons\off2.png" />
     <Resource Include="Assets\Icons\on2.png" />
     <Resource Include="Assets\Icons\openFile.png" />
