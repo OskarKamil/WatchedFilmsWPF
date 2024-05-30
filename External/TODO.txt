@@ -3,6 +3,8 @@
 - Rename folder versions into version screentshots or something similar.
 - Create folder with different versions of a program.
 - There is dll config file and pdb filer in the publish output folder, however the program runs fine without those files. Check what they are and why they are in the output.
+- (maybe) Capture a snapshot each time you open a csv/txt. The program can be buggy and sometimes can overwrite or not save data properly.
+	- Create a folder of snapshot files each time you open a file. Limit the number of snapshots to maybe 10 per folder. Also add option to disable in settings and settings manager to store it.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.
