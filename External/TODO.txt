@@ -5,6 +5,7 @@
 - There is dll config file and pdb filer in the publish output folder, however the program runs fine without those files. Check what they are and why they are in the output.
 - (maybe) Capture a snapshot each time you open a csv/txt. The program can be buggy and sometimes can overwrite or not save data properly.
 	- Create a folder of snapshot files each time you open a file. Limit the number of snapshots to maybe 10 per folder. Also add option to disable in settings and settings manager to store it.
+- Titlebar displays relative path to the opened file instead of absolute. Make it display full footpath instead of footpath relative to the exe file location.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.
