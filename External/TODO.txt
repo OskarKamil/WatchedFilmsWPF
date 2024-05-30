@@ -1,5 +1,8 @@
 **Immediate (NOW):**
 - Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
+- Rename folder versions into version screentshots or something similar.
+- Create folder with different versions of a program.
+- There is dll config file and pdb filer in the publish output folder, however the program runs fine without those files. Check what they are and why they are in the output.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.
