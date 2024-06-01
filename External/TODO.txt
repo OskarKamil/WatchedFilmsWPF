@@ -20,6 +20,8 @@
 - Clear all and autosave can result in losing all data if uncareful.
 	- Clear all and save should save current list as archived list to easy find if accidental loss.
 - Search option to find film titles.
+- Clear all data is too accessible. When pressed ask for confirmation and maybe move it somewhere else.
+- Revamp settings. Make settings button. Keep some preferences on main screen and some settings in the separate window.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.
@@ -44,3 +46,7 @@
 	- This will work much faster than current solution. Currently all lists and maps are made with each change.
 - A link to imdb film. (new property in filmrecord model)
 - Colour cells depending on change. New cells green, modified blue, removed red.
+- Introduce Series record. Not only films, but can also add series, and in the future books etc.
+- Entering google result or imbd or another website for films link as english title in the program, will result in parsing the data from webpage to fill out the film details.
+- Buttons to move record up or down. It will affect record ID. The records IDs must be by watch date. Create button maybe to apply IDs based on watch date.
+	- Some watch dates are the same. For some watch dates if DAY is the same, set up hour but not display it.
