@@ -52,3 +52,5 @@
 - Entering google result or imbd or another website for films link as english title in the program, will result in parsing the data from webpage to fill out the film details.
 - Buttons to move record up or down. It will affect record ID. The records IDs must be by watch date. Create button maybe to apply IDs based on watch date.
 	- Some watch dates are the same. For some watch dates if DAY is the same, set up hour but not display it.
+- Create separate class CsvColumns that will be used to store default films columns but also will help csv reader and writer to read and save columns.
+	- Also if youm need make changes like adding new columns like personal review, it will be easier to implement new columns, or custom user made ones.
