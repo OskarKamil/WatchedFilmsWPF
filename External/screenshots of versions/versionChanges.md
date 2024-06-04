@@ -84,3 +84,7 @@
 - Check for update button in settings.
 - Results of checking the update in settings.
 - Checkbox to check update on startup.
+
+#### 0.013
+- filesSnapshot folder keeps last 5 saves of a file in case of accidental overwritting or data loss.
+- 

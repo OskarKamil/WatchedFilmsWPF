@@ -1,10 +1,4 @@
 **Immediate (NOW):**
-- Create folder with different versions of a program.
-- There is dll config file and pdb filer in the publish output folder, however the program runs fine without those files. Check what they are and why they are in the output.
-- (maybe) Capture a snapshot each time you open a csv/txt. The program can be buggy and sometimes can overwrite or not save data properly.
-	- Create a folder of snapshot files each time you open a file. Limit the number of snapshots to maybe 10 per folder. Also add option to disable in settings and settings manager to store it.
-- Titlebar displays relative path to the opened file instead of absolute. Make it display full filepath instead of filepath relative to the exe file location.
-	- Happens sometimes. Maybe because the default properties value is MyFilms and that's what displays in the title bar instead of proper filepath.
 - When last opened file is x. You close the program. Move the file somewhere else. The program cannot find it but still displays the old filepath in the title bar.
 - Add settings. When opening new file, go to the last position in the list.
 - When many records over 3K, adding new records makes the program a bit slow. Disable statistics and check if it's because of the hash sets and all the decadal statistics.

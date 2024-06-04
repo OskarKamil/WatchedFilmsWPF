@@ -66,6 +66,10 @@ namespace WatchedFilmsTracker
             ButtonManager.SetAnyChangeButtons(anyChangeButtons);
             //   buttonManager.TestButtons(true); // TESTING
 
+            //SNAPSHOT SERVICE
+            FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
+            FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
+
             //SETTINGS
             ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
 
@@ -91,6 +95,8 @@ namespace WatchedFilmsTracker
                 ProgramStateManager.IsSelectedCells = filmsGrid.SelectedItem != null;
             };
         }
+
+        public event EventHandler<RecordManager> SavedComplete;
 
         public void AfterFileHasBeenLoaded()
         {
@@ -171,6 +177,11 @@ namespace WatchedFilmsTracker
 
             // Assuming `this` refers to the current window instance
             this.Title = stageTitle;
+        }
+
+        protected void OnSaveCompleted(RecordManager filmsFile)
+        {
+            SavedComplete?.Invoke(this, filmsFile);
         }
 
         private void AboutButton(object sender, RoutedEventArgs e)
@@ -418,6 +429,7 @@ namespace WatchedFilmsTracker
             }
 
             filmsFile.StartWriter(filePath);
+            OnSaveCompleted(filmsFile);
             ProgramStateManager.IsUnsavedChange = (false);
 
             // Return true if saving was successful
