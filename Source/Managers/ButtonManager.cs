@@ -1,16 +1,22 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+﻿using System.Windows.Controls;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
     public static class ButtonManager
     {
         private static List<Button> alwaysActiveButtons = new List<Button>();
+        private static List<Button> anyChangeButtons = new List<Button>();
+        private static List<Button> atLeastOneRecordButtons = new List<Button>();
         private static List<Button> openedFileButtons = new List<Button>();
         private static List<Button> selectedCellsButtons = new List<Button>();
         private static List<Button> unsavedChangeButtons = new List<Button>();
-        private static List<Button> anyChangeButtons = new List<Button>();
+
+        public static List<Button> AlwaysActiveButtons { get => alwaysActiveButtons; set => alwaysActiveButtons = value; }
+        public static List<Button> AnyChangeButtons { get => anyChangeButtons; set => anyChangeButtons = value; }
+        public static List<Button> AtLeastOneRecordButtons { get => atLeastOneRecordButtons; set => atLeastOneRecordButtons = value; }
+        public static List<Button> OpenedFileButtons { get => openedFileButtons; set => openedFileButtons = value; }
+        public static List<Button> SelectedCellsButtons { get => selectedCellsButtons; set => selectedCellsButtons = value; }
+        public static List<Button> UnsavedChangeButtons { get => unsavedChangeButtons; set => unsavedChangeButtons = value; }
 
         public static void DisableButton(Button button)
         {
@@ -60,64 +66,14 @@ namespace WatchedFilmsTracker.Source.Managers
             }
         }
 
-        public static List<Button> GetAlwaysActiveButtons()
-        {
-            return alwaysActiveButtons;
-        }
-
-        public static void SetAlwaysActiveButtons(List<Button> alwaysActiveButtons)
-        {
-            ButtonManager.alwaysActiveButtons = alwaysActiveButtons;
-        }
-
-        public static List<Button> GetAnyChangeButtons()
-        {
-            return anyChangeButtons;
-        }
-
-        public static void SetAnyChangeButtons(List<Button> anyChangeButtons)
-        {
-            ButtonManager.anyChangeButtons = anyChangeButtons;
-        }
-
-        public static List<Button> GetOpenedFileButtons()
-        {
-            return openedFileButtons;
-        }
-
-        public static void SetOpenedFileButtons(List<Button> openedFileButtons)
-        {
-            ButtonManager.openedFileButtons = openedFileButtons;
-        }
-
-        public static List<Button> GetSelectedCellsButtons()
-        {
-            return selectedCellsButtons;
-        }
-
-        public static void SetSelectedCellsButtons(List<Button> selectedCellsButtons)
-        {
-            ButtonManager.selectedCellsButtons = selectedCellsButtons;
-        }
-
-        public static List<Button> GetUnsavedChangeButtons()
-        {
-            return unsavedChangeButtons;
-        }
-
-        public static void SetUnsavedChangeButtons(List<Button> unsavedChangeButtons)
-        {
-            ButtonManager.unsavedChangeButtons = unsavedChangeButtons;
-        }
-
         public static void TestButtons(bool b)
         {
             List<Button> allButtons = new List<Button>();
-            allButtons.AddRange(alwaysActiveButtons);
+            allButtons.AddRange(AlwaysActiveButtons);
             allButtons.AddRange(openedFileButtons);
-            allButtons.AddRange(selectedCellsButtons);
-            allButtons.AddRange(unsavedChangeButtons);
-            allButtons.AddRange(anyChangeButtons);
+            allButtons.AddRange(SelectedCellsButtons);
+            allButtons.AddRange(UnsavedChangeButtons);
+            allButtons.AddRange(AnyChangeButtons);
             foreach (Button button in allButtons)
             {
                 button.Content = "Good";

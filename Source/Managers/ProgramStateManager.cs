@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WatchedFilmsTracker.Source.Managers
+﻿namespace WatchedFilmsTracker.Source.Managers
 {
     internal class ProgramStateManager
     {
@@ -13,6 +7,7 @@ namespace WatchedFilmsTracker.Source.Managers
         private static bool openedFile;
         private static bool selectedCells;
         private static bool unsavedChange;
+        private static bool atLeastOneRecord;
 
         public ProgramStateManager(MainWindow mainWindow)
         {
@@ -27,10 +22,10 @@ namespace WatchedFilmsTracker.Source.Managers
             set
             {
                 if (!value)
-                    ButtonManager.DisableButtons(ButtonManager.GetAnyChangeButtons());
+                    ButtonManager.DisableButtons(ButtonManager.AnyChangeButtons);
                 else
                 {
-                    ButtonManager.EnableButtons(ButtonManager.GetAnyChangeButtons());
+                    ButtonManager.EnableButtons(ButtonManager.AnyChangeButtons);
                     unsavedChange = true;
                 }
 
@@ -47,9 +42,9 @@ namespace WatchedFilmsTracker.Source.Managers
                 mainWindow.UpdateStageTitle();
 
                 if (openedFile)
-                    ButtonManager.EnableButtons(ButtonManager.GetOpenedFileButtons());
+                    ButtonManager.EnableButtons(ButtonManager.OpenedFileButtons);
                 else
-                    ButtonManager.DisableButtons(ButtonManager.GetOpenedFileButtons());
+                    ButtonManager.DisableButtons(ButtonManager.OpenedFileButtons);
             }
         }
 
@@ -60,9 +55,9 @@ namespace WatchedFilmsTracker.Source.Managers
             {
                 selectedCells = value;
                 if (selectedCells)
-                    ButtonManager.EnableButtons(ButtonManager.GetSelectedCellsButtons());
+                    ButtonManager.EnableButtons(ButtonManager.SelectedCellsButtons);
                 else
-                    ButtonManager.DisableButtons(ButtonManager.GetSelectedCellsButtons());
+                    ButtonManager.DisableButtons(ButtonManager.SelectedCellsButtons);
             }
         }
 
@@ -71,9 +66,9 @@ namespace WatchedFilmsTracker.Source.Managers
             get
             {
                 if (unsavedChange)
-                    ButtonManager.EnableButtons(ButtonManager.GetUnsavedChangeButtons());
+                    ButtonManager.EnableButtons(ButtonManager.UnsavedChangeButtons);
                 else
-                    ButtonManager.DisableButtons(ButtonManager.GetUnsavedChangeButtons());
+                    ButtonManager.DisableButtons(ButtonManager.UnsavedChangeButtons);
 
                 return unsavedChange;
             }
@@ -81,6 +76,19 @@ namespace WatchedFilmsTracker.Source.Managers
             {
                 unsavedChange = value;
                 mainWindow.UpdateStageTitle();
+            }
+        }
+
+        public static bool AtLeastOneRecord
+        {
+            get => atLeastOneRecord;
+            set
+            {
+                atLeastOneRecord = value;
+                if (atLeastOneRecord)
+                    ButtonManager.EnableButtons(ButtonManager.AtLeastOneRecordButtons);
+                else
+                    ButtonManager.DisableButtons(ButtonManager.AtLeastOneRecordButtons);
             }
         }
     }

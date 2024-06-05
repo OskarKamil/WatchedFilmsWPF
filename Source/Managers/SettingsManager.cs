@@ -24,6 +24,16 @@ namespace WatchedFilmsTracker.Source.Managers
             }
         }
 
+        public static bool ScrollLastPosition
+        {
+            get => Settings.Default.ScrollLastPosition;
+            set
+            {
+                Settings.Default.ScrollLastPosition = value;
+                Settings.Default.Save();
+            }
+        }
+
         public static double WindowTop
         {
             get => Settings.Default.WindowTop;

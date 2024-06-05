@@ -90,6 +90,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public ObservableCollection<DecadalStatistic> GetDecadalReport()
         {
+            /* Very heavy method. Instead of generating new dictionaries and collections each time a property of film record is changed, generate them when needed. For example generate years and decades and keep track of them when a list or property is being changed. Check TODO.txt file.  */
             ObservableCollection<DecadalStatistic> decadalStatistics = new ObservableCollection<DecadalStatistic>();
 
             var dictionary = GetDecadalDictionary();
@@ -112,6 +113,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public ObservableCollection<YearlyStatistic> GetYearlyReport()
         {
+            /* Very heavy method. Instead of generating new dictionaries and collections each time a property of film record is changed, generate them when needed. For example generate years and decades and keep track of them when a list or property is being changed. Check TODO.txt file.  */
             ObservableCollection<YearlyStatistic> yearlyStatistics = new ObservableCollection<YearlyStatistic>();
 
             var dictionary = GetYearyDictionary();

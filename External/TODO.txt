@@ -1,6 +1,4 @@
 **Immediate (NOW):**
-- When last opened file is x. You close the program. Move the file somewhere else. The program cannot find it but still displays the old filepath in the title bar.
-- Add settings. When opening new file, go to the last position in the list.
 - When many records over 3K, adding new records makes the program a bit slow. Disable statistics and check if it's because of the hash sets and all the decadal statistics.
  	- If so, try to fix it maybe. Try making it async, but in the long run, assign film record to decadal statistics on the creation and the edit. Do not reiterate all lists and sets on an edit.
 	- Currently each edit, makes new sets and lists from the beignning. Instead change the current edited/added record to the correct list and set.

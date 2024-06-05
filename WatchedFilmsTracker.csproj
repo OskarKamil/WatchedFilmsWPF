@@ -29,6 +29,8 @@
     <None Remove="Assets\Icons\save2.png" />
     <None Remove="Assets\Icons\saveAs2.png" />
     <None Remove="Assets\Icons\saveChanges.png" />
+    <None Remove="Assets\Icons\selectLast.png" />
+    <None Remove="Assets\Icons\selectLast2.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +59,8 @@
     <Resource Include="Assets\Icons\save2.png" />
     <Resource Include="Assets\Icons\saveAs2.png" />
     <Resource Include="Assets\Icons\saveChanges.png" />
+    <Resource Include="Assets\Icons\selectLast.png" />
+    <Resource Include="Assets\Icons\selectLast2.png" />
   </ItemGroup>
 
   <ItemGroup>

@@ -21,6 +21,7 @@
                         <CheckBox x:Name="defaultDateBox" Content="Default date is today" Click="CheckBoxDefaultDate" />
                         <CheckBox x:Name="updateStartUpBox" Content="Check update on startup" Click="CheckBoxUpdateStartup" />
                         <CheckBox x:Name="autosaveBox" Content="Autosave changes on close" Click="CheckBoxAutoSave" />
+                        <CheckBox x:Name="scrollLastPositionBox" Content="Scroll to last film position" Click="CheckBoxLastFilmPosition" />
                         <Grid>
                             <TextBlock Text="Columns order and width" HorizontalAlignment="Left" VerticalAlignment="Center" />
                             <Button Content="Reset to default" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ResetColumnsWidthAndOrder" />
@@ -123,6 +124,13 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="\Assets\Icons\clear2.png" Stretch="None"  RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Clear all" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                            <Button x:Name="buttonSelectLast"  HorizontalAlignment="Left"  VerticalAlignment="Top" Click="SelectLastButton">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Icons/selectLast2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <TextBlock Text="Go to last" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />

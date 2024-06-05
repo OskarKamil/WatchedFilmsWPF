@@ -33,7 +33,6 @@ namespace WatchedFilmsTracker
             InitializeComponent(); // must be first line always
             LabelAuthor.Content = ProgramInformation.COPYRIGHT;
             LabelVersion.Content = ProgramInformation.VERSION;
-            this.Title = ProgramInformation.PROGRAM_NAME;
             Closing += MainWindow_Closing; // override closing window
 
             //PROGRAM STATE MANAGER
@@ -53,17 +52,21 @@ namespace WatchedFilmsTracker
             openedFileButtons.Add(buttonNewFilmRecord);
             openedFileButtons.Add(buttonClearAll);
 
+            List<Button> atLeastOneRecordButtons = new List<Button>();
+            atLeastOneRecordButtons.Add(buttonSelectLast);
+
             List<Button> selectedCellsButtons = new List<Button>();
             selectedCellsButtons.Add(buttonDeleteFilmRecord);
 
             List<Button> anyChangeButtons = new List<Button>();
             anyChangeButtons.Add(buttonRevertChanges);
 
-            ButtonManager.SetAlwaysActiveButtons(alwaysActiveButtons);
-            ButtonManager.SetUnsavedChangeButtons(unsavedChangeButtons);
-            ButtonManager.SetOpenedFileButtons(openedFileButtons);
-            ButtonManager.SetSelectedCellsButtons(selectedCellsButtons);
-            ButtonManager.SetAnyChangeButtons(anyChangeButtons);
+            ButtonManager.AlwaysActiveButtons = (alwaysActiveButtons);
+            ButtonManager.UnsavedChangeButtons = (unsavedChangeButtons);
+            ButtonManager.OpenedFileButtons = (openedFileButtons);
+            ButtonManager.SelectedCellsButtons = (selectedCellsButtons);
+            ButtonManager.AnyChangeButtons = (anyChangeButtons);
+            ButtonManager.AtLeastOneRecordButtons = (atLeastOneRecordButtons);
             //   buttonManager.TestButtons(true); // TESTING
 
             //SNAPSHOT SERVICE
@@ -105,6 +108,7 @@ namespace WatchedFilmsTracker
 
             // Subscribe to PropertyChanged event of each FilmRecord instance
             filmsObservableList.CollectionChanged += filmsListHasChanged;
+
             foreach (var filmRecord in filmsObservableList)
             {
                 filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
@@ -113,9 +117,13 @@ namespace WatchedFilmsTracker
             SettingsManager.LastPath = (filePath);
             ProgramStateManager.IsUnsavedChange = (false);
             ProgramStateManager.IsAnyChange = (false);
+            ProgramStateManager.AtLeastOneRecord = filmsObservableList.Count > 0;
             statisticsManager = new StatisticsManager(filmsObservableList);
             UpdateStageTitle();
             filmsFile.CloseReader();
+
+            if (SettingsManager.ScrollLastPosition)
+                ScrollToBottomOfList();
 
             UpdateStatistics();
         }
@@ -204,6 +212,7 @@ namespace WatchedFilmsTracker
             autosaveBox.IsChecked = SettingsManager.AutoSave;
             defaultDateBox.IsChecked = SettingsManager.DefaultDateIsToday;
             updateStartUpBox.IsChecked = SettingsManager.CheckUpdateOnStartup;
+            scrollLastPositionBox.IsChecked = SettingsManager.ScrollLastPosition;
             this.Left = SettingsManager.WindowLeft;
             this.Top = SettingsManager.WindowTop;
             this.Width = SettingsManager.WindowWidth;
@@ -228,6 +237,13 @@ namespace WatchedFilmsTracker
             CheckBox checkBox = (CheckBox)sender;
             SettingsManager.DefaultDateIsToday = (bool)checkBox.IsChecked;
             checkBox.IsChecked = SettingsManager.DefaultDateIsToday;
+        }
+
+        private void CheckBoxLastFilmPosition(object sender, RoutedEventArgs e)
+        {
+            CheckBox checkBox = (CheckBox)sender;
+            SettingsManager.ScrollLastPosition = (bool)checkBox.IsChecked;
+            checkBox.IsChecked = SettingsManager.ScrollLastPosition;
         }
 
         private void CheckBoxUpdateStartup(object sender, RoutedEventArgs e)
@@ -271,6 +287,7 @@ namespace WatchedFilmsTracker
         private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             Debug.Print("list changed listener");
+            ProgramStateManager.AtLeastOneRecord = filmsObservableList.Count > 0;
             AnyChangeHappen();
         }
 
@@ -379,7 +396,8 @@ namespace WatchedFilmsTracker
         private void OpenFilepath(string? newFilePath)
         {
             Debug.WriteLine("Trying to open new file");
-            if (string.IsNullOrEmpty(newFilePath))
+            Debug.WriteLine($"{newFilePath} is trying to open");
+            if (string.IsNullOrEmpty(newFilePath) || !(File.Exists(newFilePath)))
             {
                 Debug.WriteLine("Trying to create new file");
                 if (CloseFileAndAskToSave())
@@ -463,6 +481,18 @@ namespace WatchedFilmsTracker
                 return true;
             }
             return false;
+        }
+
+        private void ScrollToBottomOfList()
+        {
+            if (filmsObservableList.Count > 0)
+                filmsGrid.ScrollIntoView(filmsObservableList.ElementAt(filmsObservableList.Count - 1));
+        }
+
+        private void SelectLastButton(object sender, RoutedEventArgs e)
+
+        {
+            ScrollToBottomOfList();
         }
 
         private void UpdateAverageFilmRating()
