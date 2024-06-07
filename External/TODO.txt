@@ -1,7 +1,5 @@
 **Immediate (NOW):**
-- When many records over 3K, adding new records makes the program a bit slow. Disable statistics and check if it's because of the hash sets and all the decadal statistics.
- 	- If so, try to fix it maybe. Try making it async, but in the long run, assign film record to decadal statistics on the creation and the edit. Do not reiterate all lists and sets on an edit.
-	- Currently each edit, makes new sets and lists from the beignning. Instead change the current edited/added record to the correct list and set.
+- Use async to generate yearly and decadal statistics.
 - Divide settings panel by categories.
 - Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
 - When updating to new newer version, the user may copy paste the MyFilms.csv file overwritting the current list of their watched films.
@@ -46,3 +44,5 @@
 	- Some watch dates are the same. For some watch dates if DAY is the same, set up hour but not display it.
 - Create separate class CsvColumns that will be used to store default films columns but also will help csv reader and writer to read and save columns.
 	- Also if youm need make changes like adding new columns like personal review, it will be easier to implement new columns, or custom user made ones.
+- StatisticsManager has 2 heavy methods. GetDecadalReport and GetYearlyReport. Both generate new dictionaries and collections on each change of film record or the observable list.
+	- Maybe create a class StatisticsOfRecord and each FilmRecord object will have object of StatisticsOfRecord. And this class would have a decade and year property that will be easier to change and manage on per film basis. Each change would result in removing this object from the dictionary if change in watch date or release date would change the decade or the year.

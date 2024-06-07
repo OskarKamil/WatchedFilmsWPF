@@ -13,7 +13,7 @@ using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Services;
 using WatchedFilmsTracker.Source.Views;
-using static WatchedFilmsTracker.Source.Services.NewestVersionChecker;
+using static WatchedFilmsTracker.Source.Services.CheckForUpdateService;
 
 namespace WatchedFilmsTracker
 {
@@ -26,6 +26,7 @@ namespace WatchedFilmsTracker
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
         private StatisticsManager statisticsManager;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
+        private CancellationTokenSource cancellationTokenSourceForReportStatistics;
 
         public MainWindow()
         {
@@ -219,11 +220,12 @@ namespace WatchedFilmsTracker
             this.Height = SettingsManager.WindowHeight;
         }
 
-        private void BuildDynamicStatistics()
-        {
-            UpdateDecadesOfFilmsStatistics();
-            UpdateYearlyReportStatistics();
-        }
+        // not in use for now
+        //private void BuildDynamicStatistics()
+        //{
+        //    UpdateReportDecadalStatistics();
+        //    UpdateReportYearlyStatistics();
+        //}
 
         private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
         {
@@ -335,7 +337,7 @@ namespace WatchedFilmsTracker
 
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
         {
-            // Checking for update
+            // Disable the button and update the UI
             CheckUpdatesButton.IsEnabled = false;
             SettingsUpdateBlock.Text = "Checking for update...";
             ImageNewVersionSettings.Visibility = Visibility.Collapsed;
@@ -508,23 +510,50 @@ namespace WatchedFilmsTracker
             }
         }
 
-        private void UpdateDecadesOfFilmsStatistics()
+        private async Task UpdateReportDecadalStatistics(CancellationTokenSource cancellationTokenSourceForReportStatistics)
         {
-            ObservableCollection<DecadalStatistic> decadesOfFilms = statisticsManager.GetDecadalReport();
+            ObservableCollection<DecadalStatistic> decadesOfFilms = statisticsManager.GetDecadalReport(); // todo maybe make this await, but then there is error that can't convert some type, same with the method below
             decadalGrid.ItemsSource = decadesOfFilms;
+        }
+
+        private async Task UpdateReportYearlyStatistics(CancellationTokenSource cancellationTokenSourceForReportStatistics)
+        {
+            ObservableCollection<YearlyStatistic> yearsOfFilms = statisticsManager.GetYearlyReport();
+            yearlyGrid.ItemsSource = yearsOfFilms;
         }
 
         private void UpdateStatistics()
         {
             UpdateNumberOfFilms();
             UpdateAverageFilmRating();
-            UpdateDecadesOfFilmsStatistics();
-            UpdateYearlyReportStatistics();
+
+            // todo works as before, no effect, still slow, but at least it doesn't show an error, work more on it and unlock the ui while the dicionaries are being created
+            if (cancellationTokenSourceForReportStatistics is null)
+            {
+                cancellationTokenSourceForReportStatistics = new CancellationTokenSource();
+            }
+            else
+            {
+                cancellationTokenSourceForReportStatistics.Cancel();
+            }
+
+            // Heavy tasks
+            UpdateReportDecadalStatistics(cancellationTokenSourceForReportStatistics);
+            UpdateReportYearlyStatistics(cancellationTokenSourceForReportStatistics);
         }
 
         private async Task UpdateVersionInformationAsync()
         {
-            UpdateStatusCheck isNewVersionAvailable = await NewestVersionChecker.IsNewerVersionOnGitHubAsync();
+            UpdateStatusCheck isNewVersionAvailable;
+            try
+            {
+                isNewVersionAvailable = await CheckForUpdateService.IsNewerVersionOnGitHubAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error has occured: {ex.Message}");
+                isNewVersionAvailable = UpdateStatusCheck.ErrorChecking;
+            }
             await Task.Delay(TimeSpan.FromSeconds(2)); // imitate long checking, just in case
 
             if (isNewVersionAvailable == UpdateStatusCheck.UpdateAvailable)
@@ -538,14 +567,14 @@ namespace WatchedFilmsTracker
                 PanelVersion.Background = updateBrush;
 
                 // Set hyperlink to open release page
-                string uri = "https://github.com/OskarKamil/WatchedFilmsWPF/releases/tag/" + NewestVersionChecker.NewVersionString;
+                string uri = "https://github.com/OskarKamil/WatchedFilmsWPF/releases/tag/" + CheckForUpdateService.NewVersionString;
                 TextBlockNewVersion.Visibility = System.Windows.Visibility.Visible;
                 Hyperlink releasesPage = new Hyperlink() { NavigateUri = new Uri(uri) };
                 releasesPage.RequestNavigate += (sender, e) =>
                 {
                     Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
                 };
-                releasesPage.Inlines.Add($"{NewestVersionChecker.NewVersionString} is available. Click here to open download page.");
+                releasesPage.Inlines.Add($"{CheckForUpdateService.NewVersionString} is available. Click here to open download page.");
 
                 TextBlockNewVersion.Inlines.Add(releasesPage);
 
@@ -570,12 +599,6 @@ namespace WatchedFilmsTracker
                 CheckUpdatesButton.IsEnabled = true; SettingsUpdateBlock.Text = "Error checking.";
             }
             return;
-        }
-
-        private void UpdateYearlyReportStatistics()
-        {
-            ObservableCollection<YearlyStatistic> yearsOfFilms = statisticsManager.GetYearlyReport();
-            yearlyGrid.ItemsSource = yearsOfFilms;
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

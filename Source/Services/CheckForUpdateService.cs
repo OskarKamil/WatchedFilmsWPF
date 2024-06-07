@@ -5,7 +5,7 @@ using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Services
 {
-    internal class NewestVersionChecker
+    internal class CheckForUpdateService
     {
         public enum UpdateStatusCheck
         {
