@@ -1,6 +1,4 @@
 **Immediate (NOW):**
-- Use async to generate yearly and decadal statistics.
-- Divide settings panel by categories.
 - Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
 - When updating to new newer version, the user may copy paste the MyFilms.csv file overwritting the current list of their watched films.
 	- All csv films should be stored inside the folder data in the program directory.

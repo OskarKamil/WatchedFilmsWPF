@@ -19,20 +19,21 @@
                     <GroupBox.Header>Settings</GroupBox.Header>
                     <StackPanel Orientation="Vertical">
                         <CheckBox x:Name="defaultDateBox" Content="Default date is today" Click="CheckBoxDefaultDate" />
-                        <CheckBox x:Name="updateStartUpBox" Content="Check update on startup" Click="CheckBoxUpdateStartup" />
                         <CheckBox x:Name="autosaveBox" Content="Autosave changes on close" Click="CheckBoxAutoSave" />
-                        <CheckBox x:Name="scrollLastPositionBox" Content="Scroll to last film position" Click="CheckBoxLastFilmPosition" />
                         <Grid>
                             <TextBlock Text="Columns order and width" HorizontalAlignment="Left" VerticalAlignment="Center" />
                             <Button Content="Reset to default" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ResetColumnsWidthAndOrder" />
                         </Grid>
+                        <Separator />
+                        <CheckBox x:Name="scrollLastPositionBox" Content="Scroll to last film position" Click="CheckBoxLastFilmPosition" />
+                        <CheckBox x:Name="updateStartUpBox" Content="Check update on startup" Click="CheckBoxUpdateStartup" />
+                        <Separator />
                         <Grid>
                             <StackPanel Orientation="Horizontal">
                                 <Image x:Name="ImageNewVersionSettings" Source="\Assets\Icons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,0,5,0" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.RowSpan="1" Grid.ColumnSpan="1" Visibility="Collapsed" />
                                 <TextBlock x:Name="SettingsUpdateBlock" Text="Program update" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" />
                             </StackPanel>
                             <Button x:Name="CheckUpdatesButton" Content="Check for update" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ManualCheckForUpdate" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="1" />
-
                         </Grid>
                     </StackPanel>
                 </GroupBox>
@@ -140,6 +141,7 @@
                                     <TextBlock Text="About" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
+                            <RadioButton Content="RadioButton" />
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>

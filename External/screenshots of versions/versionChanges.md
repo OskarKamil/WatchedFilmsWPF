@@ -90,4 +90,5 @@
 - When last opened file is deleted. The title of the window doesn't display old path anymore. It displays new file now.
 - New option to automatically scroll to last film record on file open.
 - New button that takes you to last film record in a file.
-- 
+- Statistics works faster on long lists and don't block the user interface.
+- Slight change in Settings panel.

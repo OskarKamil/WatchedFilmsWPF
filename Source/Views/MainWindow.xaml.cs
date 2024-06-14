@@ -518,8 +518,12 @@ namespace WatchedFilmsTracker
 
             try
             {
-                ObservableCollection<DecadalStatistic> decadesOfFilms = await statisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token);
-                decadalGrid.ItemsSource = decadesOfFilms;
+                ObservableCollection<DecadalStatistic> decadesOfFilms = await statisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
+
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    decadalGrid.ItemsSource = decadesOfFilms;
+                });
             }
             catch (Exception ex)
             {
@@ -533,8 +537,11 @@ namespace WatchedFilmsTracker
             cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
             try
             {
-                ObservableCollection<YearlyStatistic> yearsOfFilms = await statisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token);
-                yearlyGrid.ItemsSource = yearsOfFilms;
+                ObservableCollection<YearlyStatistic> yearsOfFilms = await statisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    yearlyGrid.ItemsSource = yearsOfFilms;
+                });
             }
             catch (Exception ex)
             {
@@ -548,8 +555,18 @@ namespace WatchedFilmsTracker
             UpdateAverageFilmRating();
 
             // Heavy tasks
-            await UpdateReportDecadalStatistics();
-            await UpdateReportYearlyStatistics();
+            var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
+            var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
+
+            try
+            {
+                // Await both tasks to complete
+                await Task.WhenAll(decadalTask, yearlyTask);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error occurred while updating statistics: {ex}");
+            }
         }
 
         private async Task UpdateVersionInformationAsync()
