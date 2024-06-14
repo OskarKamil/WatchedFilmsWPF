@@ -1,7 +1,7 @@
 **Immediate (NOW):**
-- Refactor CSV reader/writer, mainwindow. Apply single source of truth. Centralise filepath and make these classes get filepath from filmRecordmanager instead of each class has its own filepath string object.
-- When updating to new newer version, the user may copy paste the MyFilms.csv file overwritting the current list of their watched films.
-	- All csv films should be stored inside the folder data in the program directory.
+- Save locally button works only if the opened file is not from the program folder. Pressing it, will result saving this file is the MyData folder. Checking if the file already doesn't exist.
+- Open locally will try to open the file in the local MyData folder.
+- If any issue happens like no folder or file already exists, show dialog window with explanation.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.

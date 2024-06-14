@@ -19,6 +19,8 @@ namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
+        private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
+        private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
         private string filePath;
         private FilmsTableColumnManager filmsColumnsManager;
@@ -26,9 +28,6 @@ namespace WatchedFilmsTracker
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
         private StatisticsManager statisticsManager;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
-        private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
-        private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
-
         public MainWindow()
         {
             //General GUI adjustments
@@ -127,7 +126,7 @@ namespace WatchedFilmsTracker
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
-            UpdateStatistics();
+            _ = UpdateStatistics();
         }
 
         public bool CloseFileAndAskToSave()
@@ -206,7 +205,7 @@ namespace WatchedFilmsTracker
         {
             ProgramStateManager.IsAnyChange = true;
             ProgramStateManager.IsUnsavedChange = true;
-            UpdateStatistics();
+            _ = UpdateStatistics();
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -637,6 +636,16 @@ namespace WatchedFilmsTracker
                 Width = 1200;
                 Height = 600;
             }
+        }
+
+
+        private void SaveLocally(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void LoadLocally(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

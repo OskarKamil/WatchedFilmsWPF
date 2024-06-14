@@ -20,6 +20,7 @@
     <None Remove="Assets\Icons\icon2.ico" />
     <None Remove="Assets\Icons\icon2.png" />
     <None Remove="Assets\Icons\icon_old.png" />
+    <None Remove="Assets\Icons\loadLocally.png" />
     <None Remove="Assets\Icons\newFile.png" />
     <None Remove="Assets\Icons\newVersion.png" />
     <None Remove="Assets\Icons\off2.png" />
@@ -29,8 +30,10 @@
     <None Remove="Assets\Icons\save2.png" />
     <None Remove="Assets\Icons\saveAs2.png" />
     <None Remove="Assets\Icons\saveChanges.png" />
+    <None Remove="Assets\Icons\saveLocally.png" />
     <None Remove="Assets\Icons\selectLast.png" />
     <None Remove="Assets\Icons\selectLast2.png" />
+    <None Remove="Source\Views\loadLocally.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +53,7 @@
     <Resource Include="Assets\Icons\icon.png" />
     <Resource Include="Assets\Icons\icon2.png" />
     <Resource Include="Assets\Icons\icon_old.png" />
+    <Resource Include="Assets\Icons\loadLocally.png" />
     <Resource Include="Assets\Icons\newFile.png" />
     <Resource Include="Assets\Icons\newVersion.png" />
     <Resource Include="Assets\Icons\off2.png" />
@@ -59,6 +63,7 @@
     <Resource Include="Assets\Icons\save2.png" />
     <Resource Include="Assets\Icons\saveAs2.png" />
     <Resource Include="Assets\Icons\saveChanges.png" />
+    <Resource Include="Assets\Icons\saveLocally.png" />
     <Resource Include="Assets\Icons\selectLast.png" />
     <Resource Include="Assets\Icons\selectLast2.png" />
   </ItemGroup>

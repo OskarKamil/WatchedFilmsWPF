@@ -97,6 +97,7 @@ namespace WatchedFilmsTracker.Source.Managers
                 ObservableCollection<DecadalStatistic> decadalStatistics = new ObservableCollection<DecadalStatistic>();
 
                 var dictionary = GetDecadalDictionary();
+                // await Task.Delay(1000);
                 foreach (var decadeGroup in dictionary)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -126,6 +127,7 @@ namespace WatchedFilmsTracker.Source.Managers
                 ObservableCollection<YearlyStatistic> yearlyStatistics = new ObservableCollection<YearlyStatistic>();
 
                 var dictionary = GetYearyDictionary();
+                // await Task.Delay(1000);
                 foreach (var yearGroup in dictionary)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
