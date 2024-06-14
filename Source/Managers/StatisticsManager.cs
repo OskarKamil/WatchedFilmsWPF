@@ -88,22 +88,28 @@ namespace WatchedFilmsTracker.Source.Managers
             return statisticsString;
         }
 
-        public ObservableCollection<DecadalStatistic> GetDecadalReport()
+        public async Task<ObservableCollection<DecadalStatistic>> GetDecadalReport(CancellationToken cancellationToken)
         {
             /* Very heavy method. Instead of generating new dictionaries and collections each time a property of film record is changed, generate them when needed. For example generate years and decades and keep track of them when a list or property is being changed. Check TODO.txt file.  */
-            ObservableCollection<DecadalStatistic> decadalStatistics = new ObservableCollection<DecadalStatistic>();
 
-            var dictionary = GetDecadalDictionary();
-            foreach (var decadeGroup in dictionary)
+            return await Task.Run(() =>
             {
-                Collection<FilmRecord> filmsInDecade = new Collection<FilmRecord>(decadeGroup.Value);
-                int decade = decadeGroup.Key;
-                int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInDecade);
-                double averageRating = StatisticsManager.GetAverageFilmRating(filmsInDecade);
-                decadalStatistics.Add(new DecadalStatistic(decade, numberOfFilms, averageRating));
-            }
+                ObservableCollection<DecadalStatistic> decadalStatistics = new ObservableCollection<DecadalStatistic>();
 
-            return decadalStatistics;
+                var dictionary = GetDecadalDictionary();
+                foreach (var decadeGroup in dictionary)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    Collection<FilmRecord> filmsInDecade = new Collection<FilmRecord>(decadeGroup.Value);
+                    int decade = decadeGroup.Key;
+                    int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInDecade);
+                    double averageRating = StatisticsManager.GetAverageFilmRating(filmsInDecade);
+                    decadalStatistics.Add(new DecadalStatistic(decade, numberOfFilms, averageRating));
+                }
+
+                return decadalStatistics;
+            }, cancellationToken);
         }
 
         public int GetNumberOfTotalWatchedFilms()
@@ -111,22 +117,28 @@ namespace WatchedFilmsTracker.Source.Managers
             return GetNumberOfTotalWatchedFilms(filmRecords);
         }
 
-        public ObservableCollection<YearlyStatistic> GetYearlyReport()
+        public async Task<ObservableCollection<YearlyStatistic>> GetYearlyReport(CancellationToken cancellationToken)
         {
             /* Very heavy method. Instead of generating new dictionaries and collections each time a property of film record is changed, generate them when needed. For example generate years and decades and keep track of them when a list or property is being changed. Check TODO.txt file.  */
-            ObservableCollection<YearlyStatistic> yearlyStatistics = new ObservableCollection<YearlyStatistic>();
 
-            var dictionary = GetYearyDictionary();
-            foreach (var yearGroup in dictionary)
+            return await Task.Run(() =>
             {
-                Collection<FilmRecord> filmsInYear = new Collection<FilmRecord>(yearGroup.Value);
-                int year = yearGroup.Key;
-                int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInYear);
-                double averageRating = StatisticsManager.GetAverageFilmRating(filmsInYear);
-                yearlyStatistics.Add(new YearlyStatistic(year, numberOfFilms, averageRating));
-            }
+                ObservableCollection<YearlyStatistic> yearlyStatistics = new ObservableCollection<YearlyStatistic>();
 
-            return yearlyStatistics;
+                var dictionary = GetYearyDictionary();
+                foreach (var yearGroup in dictionary)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    Collection<FilmRecord> filmsInYear = new Collection<FilmRecord>(yearGroup.Value);
+                    int year = yearGroup.Key;
+                    int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInYear);
+                    double averageRating = StatisticsManager.GetAverageFilmRating(filmsInYear);
+                    yearlyStatistics.Add(new YearlyStatistic(year, numberOfFilms, averageRating));
+                }
+
+                return yearlyStatistics;
+            }, cancellationToken);
         }
 
         private Dictionary<int, List<FilmRecord>> GetDecadalDictionary()

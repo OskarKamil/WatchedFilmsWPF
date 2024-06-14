@@ -26,7 +26,8 @@ namespace WatchedFilmsTracker
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
         private StatisticsManager statisticsManager;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
-        private CancellationTokenSource cancellationTokenSourceForReportStatistics;
+        private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
+        private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
 
         public MainWindow()
         {
@@ -510,36 +511,45 @@ namespace WatchedFilmsTracker
             }
         }
 
-        private async Task UpdateReportDecadalStatistics(CancellationTokenSource cancellationTokenSourceForReportStatistics)
+        private async Task UpdateReportDecadalStatistics()
         {
-            ObservableCollection<DecadalStatistic> decadesOfFilms = statisticsManager.GetDecadalReport(); // todo maybe make this await, but then there is error that can't convert some type, same with the method below
-            decadalGrid.ItemsSource = decadesOfFilms;
+            cancellationTokenSourceForDecadalStatistics?.Cancel();
+            cancellationTokenSourceForDecadalStatistics = new CancellationTokenSource();
+
+            try
+            {
+                ObservableCollection<DecadalStatistic> decadesOfFilms = await statisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token);
+                decadalGrid.ItemsSource = decadesOfFilms;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
-        private async Task UpdateReportYearlyStatistics(CancellationTokenSource cancellationTokenSourceForReportStatistics)
+        private async Task UpdateReportYearlyStatistics()
         {
-            ObservableCollection<YearlyStatistic> yearsOfFilms = statisticsManager.GetYearlyReport();
-            yearlyGrid.ItemsSource = yearsOfFilms;
+            cancellationTokenSourceForYearlyStatistics?.Cancel();
+            cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
+            try
+            {
+                ObservableCollection<YearlyStatistic> yearsOfFilms = await statisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token);
+                yearlyGrid.ItemsSource = yearsOfFilms;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
-        private void UpdateStatistics()
+        private async Task UpdateStatistics()
         {
             UpdateNumberOfFilms();
             UpdateAverageFilmRating();
 
-            // todo works as before, no effect, still slow, but at least it doesn't show an error, work more on it and unlock the ui while the dicionaries are being created
-            if (cancellationTokenSourceForReportStatistics is null)
-            {
-                cancellationTokenSourceForReportStatistics = new CancellationTokenSource();
-            }
-            else
-            {
-                cancellationTokenSourceForReportStatistics.Cancel();
-            }
-
             // Heavy tasks
-            UpdateReportDecadalStatistics(cancellationTokenSourceForReportStatistics);
-            UpdateReportYearlyStatistics(cancellationTokenSourceForReportStatistics);
+            await UpdateReportDecadalStatistics();
+            await UpdateReportYearlyStatistics();
         }
 
         private async Task UpdateVersionInformationAsync()
