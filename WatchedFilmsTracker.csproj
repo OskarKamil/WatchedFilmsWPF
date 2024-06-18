@@ -25,7 +25,9 @@
     <None Remove="Assets\Icons\newVersion.png" />
     <None Remove="Assets\Icons\off2.png" />
     <None Remove="Assets\Icons\on2.png" />
+    <None Remove="Assets\Icons\openContainingFolder.png" />
     <None Remove="Assets\Icons\openFile.png" />
+    <None Remove="Assets\Icons\openLocalFolder.png" />
     <None Remove="Assets\Icons\revert.png" />
     <None Remove="Assets\Icons\save2.png" />
     <None Remove="Assets\Icons\saveAs2.png" />
@@ -33,6 +35,7 @@
     <None Remove="Assets\Icons\saveLocally.png" />
     <None Remove="Assets\Icons\selectLast.png" />
     <None Remove="Assets\Icons\selectLast2.png" />
+    <None Remove="Assets\openContainingFolder.png" />
     <None Remove="Source\Views\loadLocally.png" />
   </ItemGroup>
 
@@ -59,6 +62,7 @@
     <Resource Include="Assets\Icons\off2.png" />
     <Resource Include="Assets\Icons\on2.png" />
     <Resource Include="Assets\Icons\openFile.png" />
+    <Resource Include="Assets\Icons\openLocalFolder.png" />
     <Resource Include="Assets\Icons\revert.png" />
     <Resource Include="Assets\Icons\save2.png" />
     <Resource Include="Assets\Icons\saveAs2.png" />
@@ -66,6 +70,7 @@
     <Resource Include="Assets\Icons\saveLocally.png" />
     <Resource Include="Assets\Icons\selectLast.png" />
     <Resource Include="Assets\Icons\selectLast2.png" />
+    <Resource Include="Assets\Icons\openContainingFolder.png" />
   </ItemGroup>
 
   <ItemGroup>

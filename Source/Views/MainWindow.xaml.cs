@@ -28,6 +28,7 @@ namespace WatchedFilmsTracker
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
         private StatisticsManager statisticsManager;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
+
         public MainWindow()
         {
             //General GUI adjustments
@@ -74,10 +75,13 @@ namespace WatchedFilmsTracker
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
             FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
+            //LOCAL MYFILMS FILE SERVICE
+            LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
+
             //SETTINGS
             ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
 
-            //Check update on startup
+            //CHECK UPDATE ON STARTUP
             if (SettingsManager.CheckUpdateOnStartup)
                 ManualCheckForUpdate(CheckUpdatesButton, null);
 
@@ -638,14 +642,25 @@ namespace WatchedFilmsTracker
             }
         }
 
-
         private void SaveLocally(object sender, RoutedEventArgs e)
         {
-
+            //todo
+            LocalFilmsFilesService.SaveFileInProgramDirectory();
         }
+
         private void LoadLocally(object sender, RoutedEventArgs e)
         {
+            //todo
+        }
 
+        private void OpenContainingFolder(object sender, RoutedEventArgs e)
+        {
+            //todo
+        }
+
+        private void OpenLocalFolder(object sender, RoutedEventArgs e)
+        {
+            LocalFilmsFilesService.OpenMyDataDirectory();
         }
     }
 }

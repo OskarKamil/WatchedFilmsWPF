@@ -92,3 +92,5 @@
 - New button that takes you to last film record in a file.
 - Statistics works faster on long lists and don't block the user interface.
 - Slight change in Settings panel.
+- New option to store your MyFilms list in MyData folder located in the program directory.
+- New buttons that open current opened file directory, open MyData directory, save locally, open locally.
