@@ -3,17 +3,32 @@
     internal class ProgramStateManager
     {
         private static bool anyChange;
+        private static bool atLeastOneRecord;
+        private static bool isFileInLocalMyDataFolder;
+        private static bool isFileSavedOnDisk;
         private static MainWindow mainWindow;
         private static bool openedFile;
         private static bool selectedCells;
         private static bool unsavedChange;
-        private static bool atLeastOneRecord;
 
         public ProgramStateManager(MainWindow mainWindow)
         {
             ProgramStateManager.mainWindow = mainWindow;
             unsavedChange = false;
             anyChange = false;
+        }
+
+        public static bool AtLeastOneRecord
+        {
+            get => atLeastOneRecord;
+            set
+            {
+                atLeastOneRecord = value;
+                if (atLeastOneRecord)
+                    ButtonManager.EnableButtons(ButtonManager.AtLeastOneRecordButtons);
+                else
+                    ButtonManager.DisableButtons(ButtonManager.AtLeastOneRecordButtons);
+            }
         }
 
         public static bool IsAnyChange
@@ -30,6 +45,34 @@
                 }
 
                 anyChange = value;
+            }
+        }
+
+        public static bool IsFileInLocalMyDataFolder
+        {
+            get => isFileInLocalMyDataFolder;
+            set
+            {
+                if (value)
+                    ButtonManager.DisableButtons(ButtonManager.FileIsNotInLocalMyDataDirectoryButtons);
+                else
+                {
+                    ButtonManager.EnableButtons(ButtonManager.FileIsNotInLocalMyDataDirectoryButtons);
+                }
+            }
+        }
+
+        public static bool IsFileSavedOnDisk
+        {
+            get => isFileSavedOnDisk;
+            set
+            {
+                if (value)
+                    ButtonManager.EnableButtons(ButtonManager.FileExistsOnDiskButtons);
+                else
+                {
+                    ButtonManager.DisableButtons(ButtonManager.FileExistsOnDiskButtons);
+                }
             }
         }
 
@@ -76,19 +119,6 @@
             {
                 unsavedChange = value;
                 mainWindow.UpdateStageTitle();
-            }
-        }
-
-        public static bool AtLeastOneRecord
-        {
-            get => atLeastOneRecord;
-            set
-            {
-                atLeastOneRecord = value;
-                if (atLeastOneRecord)
-                    ButtonManager.EnableButtons(ButtonManager.AtLeastOneRecordButtons);
-                else
-                    ButtonManager.DisableButtons(ButtonManager.AtLeastOneRecordButtons);
             }
         }
     }

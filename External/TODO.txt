@@ -1,6 +1,9 @@
 **Immediate (NOW):**
-- Revert changes should not work when new file is opened.
-- Implement new buttons.
+- Implement new button actions
+	- Save locally.
+		- Save file in myData folder and check if doesnt overwrite.
+	- Open locally.
+		- Just open file explorer at myData folder.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.
@@ -43,3 +46,4 @@
 	- Also if youm need make changes like adding new columns like personal review, it will be easier to implement new columns, or custom user made ones.
 - StatisticsManager has 2 heavy methods. GetDecadalReport and GetYearlyReport. Both generate new dictionaries and collections on each change of film record or the observable list.
 	- Maybe create a class StatisticsOfRecord and each FilmRecord object will have object of StatisticsOfRecord. And this class would have a decade and year property that will be easier to change and manage on per film basis. Each change would result in removing this object from the dictionary if change in watch date or release date would change the decade or the year.
+- If opening new file doesn't follow csv and this program style, it should display information that the data may display icorrectly because the file is not supported or sth like this.

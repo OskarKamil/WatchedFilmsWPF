@@ -27,7 +27,8 @@ namespace WatchedFilmsTracker.Source.Services
             }
             else
             {
-                Debug.WriteLine($"{myDataDirectory} cannot be found");
+                CreateMyDataFolderIfNotExist();
+                Process.Start("explorer.exe", @myDataDirectory);
             }
         }
 
@@ -37,7 +38,7 @@ namespace WatchedFilmsTracker.Source.Services
             {
                 return;
             }
-            
+
             //todo implement
             // save only if the file is located outside of local directory
             // check if file doesn't already exist with that name

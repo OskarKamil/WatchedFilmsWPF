@@ -7,13 +7,16 @@ namespace WatchedFilmsTracker.Source.Managers
         private static List<Button> alwaysActiveButtons = new List<Button>();
         private static List<Button> anyChangeButtons = new List<Button>();
         private static List<Button> atLeastOneRecordButtons = new List<Button>();
+        private static List<Button> fileExistsOnDiskButtons = new List<Button>();
+        private static List<Button> fileIsNotInLocalMyDataDirectoryButtons = new List<Button>();
         private static List<Button> openedFileButtons = new List<Button>();
         private static List<Button> selectedCellsButtons = new List<Button>();
         private static List<Button> unsavedChangeButtons = new List<Button>();
-
         public static List<Button> AlwaysActiveButtons { get => alwaysActiveButtons; set => alwaysActiveButtons = value; }
         public static List<Button> AnyChangeButtons { get => anyChangeButtons; set => anyChangeButtons = value; }
         public static List<Button> AtLeastOneRecordButtons { get => atLeastOneRecordButtons; set => atLeastOneRecordButtons = value; }
+        public static List<Button> FileExistsOnDiskButtons { get => fileExistsOnDiskButtons; set => fileExistsOnDiskButtons = value; }
+        public static List<Button> FileIsNotInLocalMyDataDirectoryButtons { get => fileIsNotInLocalMyDataDirectoryButtons; set => fileIsNotInLocalMyDataDirectoryButtons = value; }
         public static List<Button> OpenedFileButtons { get => openedFileButtons; set => openedFileButtons = value; }
         public static List<Button> SelectedCellsButtons { get => selectedCellsButtons; set => selectedCellsButtons = value; }
         public static List<Button> UnsavedChangeButtons { get => unsavedChangeButtons; set => unsavedChangeButtons = value; }
@@ -63,20 +66,6 @@ namespace WatchedFilmsTracker.Source.Managers
                         }
                     }
                 }
-            }
-        }
-
-        public static void TestButtons(bool b)
-        {
-            List<Button> allButtons = new List<Button>();
-            allButtons.AddRange(AlwaysActiveButtons);
-            allButtons.AddRange(openedFileButtons);
-            allButtons.AddRange(SelectedCellsButtons);
-            allButtons.AddRange(UnsavedChangeButtons);
-            allButtons.AddRange(AnyChangeButtons);
-            foreach (Button button in allButtons)
-            {
-                button.Content = "Good";
             }
         }
     }

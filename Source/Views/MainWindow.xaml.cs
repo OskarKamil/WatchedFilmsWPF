@@ -40,35 +40,26 @@ namespace WatchedFilmsTracker
             ProgramStateManager programStateManager = new ProgramStateManager(this);
 
             //BUTTON MANAGER
-            List<Button> alwaysActiveButtons = new List<Button>();
-            alwaysActiveButtons.Add(buttonNewFile);
-            alwaysActiveButtons.Add(buttonOpenFile);
-            alwaysActiveButtons.Add(buttonAbout);
-            alwaysActiveButtons.Add(buttonSaveAs);
+            ButtonManager.AlwaysActiveButtons.Add(buttonOpenFile);
+            ButtonManager.AlwaysActiveButtons.Add(buttonAbout);
+            ButtonManager.AlwaysActiveButtons.Add(buttonSaveAs);
+            ButtonManager.AlwaysActiveButtons.Add(buttonNewFile);
+            ButtonManager.AlwaysActiveButtons.Add(buttonOpenLocally);
 
-            List<Button> unsavedChangeButtons = new List<Button>();
-            unsavedChangeButtons.Add(buttonSave);
+            ButtonManager.UnsavedChangeButtons.Add(buttonSave);
 
-            List<Button> openedFileButtons = new List<Button>();
-            openedFileButtons.Add(buttonNewFilmRecord);
-            openedFileButtons.Add(buttonClearAll);
+            ButtonManager.OpenedFileButtons.Add(buttonNewFilmRecord);
+            ButtonManager.OpenedFileButtons.Add(buttonClearAll);
 
-            List<Button> atLeastOneRecordButtons = new List<Button>();
-            atLeastOneRecordButtons.Add(buttonSelectLast);
+            ButtonManager.AtLeastOneRecordButtons.Add(buttonSelectLast);
 
-            List<Button> selectedCellsButtons = new List<Button>();
-            selectedCellsButtons.Add(buttonDeleteFilmRecord);
+            ButtonManager.SelectedCellsButtons.Add(buttonDeleteFilmRecord);
 
-            List<Button> anyChangeButtons = new List<Button>();
-            anyChangeButtons.Add(buttonRevertChanges);
+            ButtonManager.AnyChangeButtons.Add(buttonRevertChanges);
 
-            ButtonManager.AlwaysActiveButtons = (alwaysActiveButtons);
-            ButtonManager.UnsavedChangeButtons = (unsavedChangeButtons);
-            ButtonManager.OpenedFileButtons = (openedFileButtons);
-            ButtonManager.SelectedCellsButtons = (selectedCellsButtons);
-            ButtonManager.AnyChangeButtons = (anyChangeButtons);
-            ButtonManager.AtLeastOneRecordButtons = (atLeastOneRecordButtons);
-            //   buttonManager.TestButtons(true); // TESTING
+            ButtonManager.FileExistsOnDiskButtons.Add(buttonOpenContainingFolder);
+
+            ButtonManager.FileIsNotInLocalMyDataDirectoryButtons.Add(buttonSaveLocally);
 
             //SNAPSHOT SERVICE
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
@@ -125,6 +116,24 @@ namespace WatchedFilmsTracker
             ProgramStateManager.IsUnsavedChange = (false);
             ProgramStateManager.IsAnyChange = (false);
             ProgramStateManager.AtLeastOneRecord = filmsObservableList.Count > 0;
+
+            if (string.IsNullOrEmpty(filmsFile.FilePath))
+            {
+                ProgramStateManager.IsFileSavedOnDisk = false;
+                ProgramStateManager.IsFileInLocalMyDataFolder = false;
+            }
+            else
+            {
+                ProgramStateManager.IsFileSavedOnDisk = true;
+
+                string lastDirectory = Directory.GetParent(filmsFile.FilePath).Name;
+                Debug.WriteLine($"{lastDirectory} is folder where the file is in");
+                if (lastDirectory == "MyData")
+                    ProgramStateManager.IsFileInLocalMyDataFolder = true;
+                else
+                    ProgramStateManager.IsFileInLocalMyDataFolder = false;
+            }
+
             statisticsManager = new StatisticsManager(filmsObservableList);
             UpdateStageTitle();
             filmsFile.CloseReader();
@@ -381,7 +390,14 @@ namespace WatchedFilmsTracker
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            //todo
+            if (File.Exists(filmsFile.FilePath))
+            {
+                Process.Start("explorer.exe", "/select, " + filmsFile.FilePath);
+            }
+            else
+            {
+                Debug.WriteLine($"{filmsFile.FilePath} cannot be found");
+            }
         }
 
         private void OpenFileChooser(object sender, RoutedEventArgs e)
