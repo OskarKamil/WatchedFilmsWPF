@@ -1,12 +1,6 @@
 **Immediate (NOW):**
-- Save locally button works only if the opened file is not from the program folder. Pressing it, will result saving this file is the MyData folder. Checking if the file already doesn't exist.
-- Open locally will try to open the file in the local MyData folder.
-- If any issue happens like no folder or file already exists, show dialog window with explanation.
-- Button to open current opened file directory.
-- Button to open local myData folder.
-- Revert changes button shouldn't work on new file changes.
-- Make sure all buttons work.
-- Make sure button are disabled accordingly.
+- Revert changes should not work when new file is opened.
+- Implement new buttons.
 
 **Upcoming (SOON):**
 - If button is disabled, grayscale the icon.

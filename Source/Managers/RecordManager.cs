@@ -13,6 +13,16 @@ namespace WatchedFilmsTracker.Source.Managers
         private CSVwriter writer;
         private string filePath;
 
+        public RecordManager(string filePath)
+        {
+            this.filePath = filePath;
+        }
+
+        public RecordManager()
+        {
+            this.filePath = null;
+        }
+
         public void CloseReader()
         {
             reader.CloseFile();
@@ -56,10 +66,9 @@ namespace WatchedFilmsTracker.Source.Managers
             }
         }
 
-        public void StartReader(string newFilePath)
+        public void StartReader()
         {
-            reader = new CSVreader(newFilePath);
-            filePath = newFilePath;
+            reader = new CSVreader(filePath);
             fileColumns = reader.GetFileColumns();
             LoadRecordsFromCSVToArray(reader);
         }
