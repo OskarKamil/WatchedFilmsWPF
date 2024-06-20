@@ -339,7 +339,27 @@ namespace WatchedFilmsTracker
 
         private void LoadLocally(object sender, RoutedEventArgs e)
         {
-            //todo
+            if (CloseFileAndAskToSave())
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Title = "Open file";
+                openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+
+                string programDirectory = Environment.CurrentDirectory;
+                string myDataDirectory = Path.Combine(programDirectory, "MyData");
+                if (!Directory.Exists(myDataDirectory))
+                {
+                    Directory.CreateDirectory(myDataDirectory);
+                }
+
+                openFileDialog.InitialDirectory = myDataDirectory;
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    filmsFile = OpenFilepath(openFileDialog.FileName);
+                    AfterFileHasBeenLoaded();
+                }
+            }
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -529,7 +549,6 @@ namespace WatchedFilmsTracker
 
         private void SaveLocally(object sender, RoutedEventArgs e)
         {
-            //todo
             LocalFilmsFilesService.SaveFileInProgramDirectory();
         }
 

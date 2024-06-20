@@ -1,25 +1,25 @@
-﻿<Window x:Class="WatchedFilmsTracker.Source.Views.SaveChangesDialog"
+﻿<Window x:Class="WatchedFilmsTracker.Source.Views.MoveOriginalDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Save changes?" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow">
+        Title="Move file?" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow">
     <Grid Margin="15,15,15,15">
         <StackPanel Orientation="Vertical">
             <GroupBox>
-                <GroupBox.Header>Save changes?</GroupBox.Header>
+                <GroupBox.Header>Move file?</GroupBox.Header>
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Assets/DialogIcons/saveChanges.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="10,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        <Image Source="/Assets/DialogIcons/moveFile.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="10,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Center" />
 
-                        <TextBlock Text="Do you want to save changes?" Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Text="Do you want to move original file?" Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <Button Content="Yes" Width="80" Margin="0 0 10 0" Click="YesButton_Click" />
-                <Button Content="No" Width="80" Margin="0 0 10 0" Click="NoButton_Click" />
+                <Button Content="Move" Width="80" Margin="0 0 10 0" Click="MoveButton_Click" />
+                <Button Content="Copy" Width="80" Margin="0 0 10 0" Click="CopyButton_Click" />
                 <Button Content="Cancel" Width="80" Click="CancelButton_Click" />
             </StackPanel>
         </StackPanel>

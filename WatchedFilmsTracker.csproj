@@ -6,41 +6,44 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Assets\Icons\icon2.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\ProgramIcon\icon2.ico
+	</ApplicationIcon>
     <StartupObject>WatchedFilmsTracker.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\Icons\about2.png" />
-    <None Remove="Assets\Icons\addRecord.png" />
-    <None Remove="Assets\Icons\clear2.png" />
-    <None Remove="Assets\Icons\deleteRecord.png" />
-    <None Remove="Assets\Icons\exit2.png" />
-    <None Remove="Assets\Icons\icon.png" />
-    <None Remove="Assets\Icons\icon2.ico" />
-    <None Remove="Assets\Icons\icon2.png" />
-    <None Remove="Assets\Icons\icon_old.png" />
-    <None Remove="Assets\Icons\loadLocally.png" />
-    <None Remove="Assets\Icons\newFile.png" />
-    <None Remove="Assets\Icons\newVersion.png" />
-    <None Remove="Assets\Icons\off2.png" />
-    <None Remove="Assets\Icons\on2.png" />
-    <None Remove="Assets\Icons\openContainingFolder.png" />
-    <None Remove="Assets\Icons\openFile.png" />
-    <None Remove="Assets\Icons\openLocalFolder.png" />
-    <None Remove="Assets\Icons\revert.png" />
-    <None Remove="Assets\Icons\save2.png" />
-    <None Remove="Assets\Icons\saveAs2.png" />
-    <None Remove="Assets\Icons\saveChanges.png" />
-    <None Remove="Assets\Icons\saveLocally.png" />
-    <None Remove="Assets\Icons\selectLast.png" />
-    <None Remove="Assets\Icons\selectLast2.png" />
+    <None Remove="Assets\ButtonIcons\about2.png" />
+    <None Remove="Assets\ButtonIcons\addRecord.png" />
+    <None Remove="Assets\ButtonIcons\clear2.png" />
+    <None Remove="Assets\ButtonIcons\deleteRecord.png" />
+    <None Remove="Assets\ButtonIcons\exit2.png" />
+    <None Remove="Assets\ButtonIcons\icon.png" />
+    <None Remove="Assets\ButtonIcons\icon2.ico" />
+    <None Remove="Assets\ButtonIcons\icon2.png" />
+    <None Remove="Assets\ButtonIcons\icon_old.png" />
+    <None Remove="Assets\ButtonIcons\loadLocally.png" />
+    <None Remove="Assets\ButtonIcons\moveFile.png" />
+    <None Remove="Assets\ButtonIcons\newFile.png" />
+    <None Remove="Assets\ButtonIcons\newVersion.png" />
+    <None Remove="Assets\ButtonIcons\off2.png" />
+    <None Remove="Assets\ButtonIcons\on2.png" />
+    <None Remove="Assets\ButtonIcons\openContainingFolder.png" />
+    <None Remove="Assets\ButtonIcons\openFile.png" />
+    <None Remove="Assets\ButtonIcons\openLocalFolder.png" />
+    <None Remove="Assets\ButtonIcons\revert.png" />
+    <None Remove="Assets\ButtonIcons\save2.png" />
+    <None Remove="Assets\ButtonIcons\saveAs2.png" />
+    <None Remove="Assets\ButtonIcons\saveChanges.png" />
+    <None Remove="Assets\ButtonIcons\saveLocally.png" />
+    <None Remove="Assets\ButtonIcons\selectLast.png" />
+    <None Remove="Assets\ButtonIcons\selectLast2.png" />
     <None Remove="Assets\openContainingFolder.png" />
+    <None Remove="Assets\ProgramIcon\icon2.ico" />
     <None Remove="Source\Views\loadLocally.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\Icons\icon2.ico" />
+        <Content Include="Assets\ProgramIcon\icon2.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,29 +51,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\Icons\about2.png" />
-    <Resource Include="Assets\Icons\addRecord.png" />
-    <Resource Include="Assets\Icons\clear2.png" />
-    <Resource Include="Assets\Icons\deleteRecord.png" />
-    <Resource Include="Assets\Icons\exit2.png" />
-    <Resource Include="Assets\Icons\icon.png" />
-    <Resource Include="Assets\Icons\icon2.png" />
-    <Resource Include="Assets\Icons\icon_old.png" />
-    <Resource Include="Assets\Icons\loadLocally.png" />
-    <Resource Include="Assets\Icons\newFile.png" />
-    <Resource Include="Assets\Icons\newVersion.png" />
-    <Resource Include="Assets\Icons\off2.png" />
-    <Resource Include="Assets\Icons\on2.png" />
-    <Resource Include="Assets\Icons\openFile.png" />
-    <Resource Include="Assets\Icons\openLocalFolder.png" />
-    <Resource Include="Assets\Icons\revert.png" />
-    <Resource Include="Assets\Icons\save2.png" />
-    <Resource Include="Assets\Icons\saveAs2.png" />
-    <Resource Include="Assets\Icons\saveChanges.png" />
-    <Resource Include="Assets\Icons\saveLocally.png" />
-    <Resource Include="Assets\Icons\selectLast.png" />
-    <Resource Include="Assets\Icons\selectLast2.png" />
-    <Resource Include="Assets\Icons\openContainingFolder.png" />
+    <Resource Include="Assets\ButtonIcons\about2.png" />
+    <Resource Include="Assets\ButtonIcons\addRecord.png" />
+    <Resource Include="Assets\ButtonIcons\clear2.png" />
+    <Resource Include="Assets\ButtonIcons\deleteRecord.png" />
+    <Resource Include="Assets\ButtonIcons\exit2.png" />
+    <Resource Include="Assets\ButtonIcons\icon.png" />
+    <Resource Include="Assets\ButtonIcons\icon2.png" />
+    <Resource Include="Assets\ButtonIcons\icon_old.png" />
+    <Resource Include="Assets\ButtonIcons\loadLocally.png" />
+    <Resource Include="Assets\DialogIcons\moveFile.png" />
+    <Resource Include="Assets\ButtonIcons\newFile.png" />
+    <Resource Include="Assets\ButtonIcons\newVersion.png" />
+    <Resource Include="Assets\ButtonIcons\off2.png" />
+    <Resource Include="Assets\ButtonIcons\on2.png" />
+    <Resource Include="Assets\ButtonIcons\openFile.png" />
+    <Resource Include="Assets\ButtonIcons\openLocalFolder.png" />
+    <Resource Include="Assets\ButtonIcons\revert.png" />
+    <Resource Include="Assets\DialogIcons\save2.png" />
+    <Resource Include="Assets\ButtonIcons\saveAs2.png" />
+    <Resource Include="Assets\DialogIcons\saveChanges.png" />
+    <Resource Include="Assets\ButtonIcons\saveLocally.png" />
+    <Resource Include="Assets\ButtonIcons\selectLast.png" />
+    <Resource Include="Assets\ButtonIcons\selectLast2.png" />
+    <Resource Include="Assets\ButtonIcons\openContainingFolder.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,6 +82,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Source\Views\MoveOriginalDialog.xaml.cs">
+      <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 

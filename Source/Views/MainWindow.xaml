@@ -39,7 +39,7 @@
                         </Grid>
                         <Grid>
                             <StackPanel Orientation="Horizontal">
-                                <Image x:Name="ImageNewVersionSettings" Source="\Assets\Icons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,0,5,0" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.RowSpan="1" Grid.ColumnSpan="1" Visibility="Collapsed" />
+                                <Image x:Name="ImageNewVersionSettings" Source="\Assets\ButtonIcons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,0,5,0" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.RowSpan="1" Grid.ColumnSpan="1" Visibility="Collapsed" />
                                 <TextBlock x:Name="SettingsUpdateBlock" Text="Program update" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" />
                             </StackPanel>
                             <Button x:Name="CheckUpdatesButton" Content="Check for updates" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ManualCheckForUpdate" Grid.Column="2" Grid.ColumnSpan="1" Grid.RowSpan="1" />
@@ -88,57 +88,57 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
                             <Button x:Name="buttonNewFile"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="NewFile">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icons/newFile.png" Stretch="None"  RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="/Assets/ButtonIcons/newFile.png" Stretch="None"  RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="New file" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonOpenFile"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="OpenFileChooser">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="\Assets\Icons\openFile.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="\Assets\ButtonIcons\openFile.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Open file" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonOpenContainingFolder"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="OpenContainingFolder">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icons/openContainingFolder.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="/Assets/ButtonIcons/openContainingFolder.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Open containing folder" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                             <Button x:Name="buttonOpenLocally"  VerticalAlignment="Top"  Click="LoadLocally">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icons/loadLocally.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="/Assets/ButtonIcons/loadLocally.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Open locally" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonOpenLocalFolder"  VerticalAlignment="Top"  Click="OpenLocalFolder">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icons/openLocalFolder.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="/Assets/ButtonIcons/openLocalFolder.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Open local folder" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonSaveLocally"  VerticalAlignment="Top"  Click="SaveLocally">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icons/saveLocally.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="/Assets/ButtonIcons/saveLocally.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Save locally" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                             <Button x:Name="buttonSave"  VerticalAlignment="Top"  Click="Save">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icons/save2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="/Assets/ButtonIcons/save2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Save" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonSaveAs"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="SaveAs">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="\Assets\Icons\saveas2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="\Assets\ButtonIcons\saveas2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Save as" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonRevertChanges"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="RevertChanges">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="\Assets\Icons\revert.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="\Assets\ButtonIcons\revert.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Revert changes" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
@@ -146,7 +146,7 @@
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                             <Button x:Name="buttonAbout"  HorizontalAlignment="Left"  VerticalAlignment="Top" Click="AboutButton">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="\Assets\Icons\about2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="\Assets\ButtonIcons\about2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="About" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
@@ -157,26 +157,26 @@
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="buttonNewFilmRecord"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="NewFilmRecord">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="\Assets\Icons\addrecord.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="\Assets\ButtonIcons\addrecord.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="New film record" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonDeleteFilmRecord"  HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Click="DeleteFilmRecord">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="\Assets\Icons\deleterecord.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="\Assets\ButtonIcons\deleterecord.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Delete film record" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Button x:Name="buttonClearAll"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="ClearAll">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="\Assets\Icons\clear2.png" Stretch="None"  RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="\Assets\ButtonIcons\clear2.png" Stretch="None"  RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Clear all" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                             <Button x:Name="buttonSelectLast"  HorizontalAlignment="Left"  VerticalAlignment="Top" Click="SelectLastButton">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/Icons/selectLast2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                    <Image Source="/Assets/ButtonIcons/selectLast2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="Go to last" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
@@ -201,7 +201,7 @@ ScrollViewer.HorizontalScrollBarVisibility="Auto" HorizontalScrollBarVisibility=
         <DockPanel Background="#FFAFAFAF" DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
             <StackPanel x:Name="PanelVersion" Orientation="Horizontal" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <Label x:Name="LabelVersion" Content="Version 0.001" ></Label>
-                <Image x:Name="ImageNewVersion" Source="\Assets\Icons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Visibility="Collapsed" Margin="0,0,5,0" />
+                <Image x:Name="ImageNewVersion" Source="\Assets\ButtonIcons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Visibility="Collapsed" Margin="0,0,5,0" />
                 <TextBlock x:Name="TextBlockNewVersion" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0"></TextBlock>
             </StackPanel>
             <Label x:Name="LabelAuthor" DockPanel.Dock="Right" Content="© 2024 Oskar Jargilo" HorizontalAlignment="Right" VerticalAlignment="Center" />

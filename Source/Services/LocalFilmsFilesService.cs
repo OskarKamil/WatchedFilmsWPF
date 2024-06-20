@@ -1,13 +1,14 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.Services
 {
     internal class LocalFilmsFilesService
     {
-        private static string programDirectory;
-        private static string myDataDirectory;
         private static readonly string DEFAULT_WATCHED_FILMS_FILENAME = "MyFilms.txt";
+        private static string myDataDirectory;
+        private static string programDirectory;
 
         public static void CreateMyDataFolderIfNotExist()
         {
@@ -36,14 +37,41 @@ namespace WatchedFilmsTracker.Source.Services
         {
             if (!Directory.Exists(myDataDirectory))
             {
-                return;
+                CreateMyDataFolderIfNotExist();
             }
+            ShowMoveFileDialog();
+        }
 
-            //todo implement
-            // save only if the file is located outside of local directory
-            // check if file doesn't already exist with that name
-            // after saving here, reopen the file so save changes
-            //
+        private static void CopyOriginalFile()
+        {
+            throw new NotImplementedException(); //todo try to use filemanager
+        }
+
+        private static void MoveOriginalFile()
+        {
+            throw new NotImplementedException(); //todo try to use filemanager
+        }
+
+        private static void ShowMoveFileDialog()
+        {
+            MoveOriginalDialog dialog = new MoveOriginalDialog();
+            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            dialog.ShowDialog();
+
+            switch (dialog.Result)
+            {
+                case MoveOriginalDialog.CustomDialogResult.Move:
+                    MoveOriginalFile();
+                    return;
+
+                case MoveOriginalDialog.CustomDialogResult.Copy:
+                    CopyOriginalFile();
+                    return;
+
+                case MoveOriginalDialog.CustomDialogResult.Cancel:
+                default:
+                    return;
+            }
         }
     }
 }

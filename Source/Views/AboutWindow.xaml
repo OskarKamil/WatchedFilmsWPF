@@ -11,7 +11,7 @@
                 <GroupBox.Header>About program</GroupBox.Header>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Image Source="/Assets/Icons/icon2.png"  Width="48" Height="48" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,0,25,0" />
+                        <Image Source="/Assets/ButtonIcons/icon2.png"  Width="48" Height="48" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Margin="0,0,25,0" />
                         <StackPanel Orientation="Vertical">
                             <Label x:Name="LabelProgramName" Margin="0,0,0,-10">Watched films tracker</Label>
                             <Label x:Name="LabelAuthor" Margin="0,0,0,-10">© 2024 Oskar Jargilo</Label>
