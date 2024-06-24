@@ -96,4 +96,6 @@
 - New button that opens file explorer with currently opened file.
 - New button that opens file chooser of MyData folder.
 - New option to store your MyFilms list in MyData folder located in the program directory. This option will ask you if you wanna copy the original file or move it.
+
+#### 0.014
 - 
