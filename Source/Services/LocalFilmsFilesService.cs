@@ -1,14 +1,24 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.Services
 {
     internal class LocalFilmsFilesService
     {
-        private static readonly string DEFAULT_WATCHED_FILMS_FILENAME = "MyFilms.txt";
+        private static readonly int ARBITRATY_MAX_LOCAL_FILES = 20;
+        private static readonly string DEFAULT_FILE_EXTENSION = ".txt";
+        private static readonly string DEFAULT_WATCHED_FILMS_FILENAME = "MyFilms";
+        private static readonly string WATCHED_FILMS_FILENAME_PATTERN = "MyFilms*.*";
         private static string myDataDirectory;
         private static string programDirectory;
+        private FileManager myFileManager;
+
+        public LocalFilmsFilesService(FileManager myFileManager)
+        {
+            this.myFileManager = myFileManager;
+        }
 
         public static void CreateMyDataFolderIfNotExist()
         {
@@ -20,7 +30,7 @@ namespace WatchedFilmsTracker.Source.Services
             }
         }
 
-        public static void OpenMyDataDirectory()
+        public static void OpenMyDataDirectoryFileExplorer()
         {
             if (Directory.Exists(myDataDirectory))
             {
@@ -33,26 +43,50 @@ namespace WatchedFilmsTracker.Source.Services
             }
         }
 
-        public static void SaveFileInProgramDirectory()
+        public bool SaveFileInProgramDirectory()
         {
             if (!Directory.Exists(myDataDirectory))
             {
                 CreateMyDataFolderIfNotExist();
             }
-            ShowMoveFileDialog();
+            return ShowMoveFileDialog();
         }
 
-        private static void CopyOriginalFile()
+        private void CopyOriginalFile()
         {
-            throw new NotImplementedException(); //todo try to use filemanager
+            DirectoryInfo d = new DirectoryInfo(@myDataDirectory);
+            List<FileInfo> files = d.GetFiles(WATCHED_FILMS_FILENAME_PATTERN).ToList();
+            Debug.WriteLine($"here files.arraylist is {files.Count}");
+            if (files.Count == 0)
+            {
+                myFileManager.SaveFileAtLocation(Path.Combine(myDataDirectory, DEFAULT_WATCHED_FILMS_FILENAME + DEFAULT_FILE_EXTENSION));
+                myFileManager.FilmsFile = myFileManager.OpenFilepath(Path.Combine(myDataDirectory, DEFAULT_WATCHED_FILMS_FILENAME + DEFAULT_FILE_EXTENSION));
+                return;
+            }
+            //foreach (FileInfo file in files)
+            //{
+            //    Debug.WriteLine(file.FullName);
+            //}
+            for (int i = 1; i < ARBITRATY_MAX_LOCAL_FILES; i++)
+            {
+                string currentFileNameCheck = Path.Combine(myDataDirectory, DEFAULT_WATCHED_FILMS_FILENAME + $" ({i})" + DEFAULT_FILE_EXTENSION);
+                if (!File.Exists(currentFileNameCheck))
+                {
+                    myFileManager.SaveFileAtLocation(currentFileNameCheck);
+                    myFileManager.FilmsFile = myFileManager.OpenFilepath(currentFileNameCheck);
+                    return;
+                }
+            }
         }
 
-        private static void MoveOriginalFile()
+        private void MoveOriginalFile()
         {
-            throw new NotImplementedException(); //todo try to use filemanager
+            string fileToDelete = myFileManager.FilmsFile.FilePath;
+            CopyOriginalFile();
+            File.Delete(fileToDelete);
         }
 
-        private static void ShowMoveFileDialog()
+        private bool ShowMoveFileDialog()
         {
             MoveOriginalDialog dialog = new MoveOriginalDialog();
             dialog.Owner = System.Windows.Application.Current.MainWindow;
@@ -62,15 +96,15 @@ namespace WatchedFilmsTracker.Source.Services
             {
                 case MoveOriginalDialog.CustomDialogResult.Move:
                     MoveOriginalFile();
-                    return;
+                    return true;
 
                 case MoveOriginalDialog.CustomDialogResult.Copy:
                     CopyOriginalFile();
-                    return;
+                    return true;
 
                 case MoveOriginalDialog.CustomDialogResult.Cancel:
                 default:
-                    return;
+                    return false;
             }
         }
     }

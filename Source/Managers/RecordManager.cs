@@ -7,11 +7,11 @@ namespace WatchedFilmsTracker.Source.Managers
 {
     public class RecordManager
     {
-        private ObservableCollection<FilmRecord> listOfFilms;
         private string fileColumns;
+        private string filePath;
+        private ObservableCollection<FilmRecord> listOfFilms;
         private CSVreader reader;
         private CSVwriter writer;
-        private string filePath;
 
         public RecordManager(string filePath)
         {
@@ -23,24 +23,6 @@ namespace WatchedFilmsTracker.Source.Managers
             this.filePath = null;
         }
 
-        public void CloseReader()
-        {
-            reader.CloseFile();
-        }
-
-        private void CloseWriter()
-        {
-            writer?.Close();
-        }
-
-        public void DeleteRecordFromList(FilmRecord selected)
-        {
-            if (listOfFilms.Count == 0 || selected.IdInList == 0) return;
-            int idOfSelected = selected.IdInList;
-            listOfFilms.Remove(selected);
-            RefreshFurtherIDs(idOfSelected);
-        }
-
         public string FilePath
         {
             get { return filePath; }
@@ -50,6 +32,19 @@ namespace WatchedFilmsTracker.Source.Managers
         public ObservableCollection<FilmRecord> ListOfFilms
         {
             get { return listOfFilms; }
+        }
+
+        public void CloseReader()
+        {
+            reader.CloseFile();
+        }
+
+        public void DeleteRecordFromList(FilmRecord selected)
+        {
+            if (listOfFilms.Count == 0 || selected.IdInList == 0) return;
+            int idOfSelected = selected.IdInList;
+            listOfFilms.Remove(selected);
+            RefreshFurtherIDs(idOfSelected);
         }
 
         public void LoadRecordsFromCSVToArray(CSVreader CSVfile)
@@ -80,6 +75,11 @@ namespace WatchedFilmsTracker.Source.Managers
             writer.SetFileColumn(fileColumns);
             writer.SaveListIntoCSV(listOfFilms.ToList());
             CloseWriter();
+        }
+
+        private void CloseWriter()
+        {
+            writer?.Close();
         }
     }
 }

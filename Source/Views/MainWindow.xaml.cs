@@ -22,9 +22,13 @@ namespace WatchedFilmsTracker
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
+        private FileManager fileManager;
         private FilmsTableColumnManager filmsColumnsManager;
-        private RecordManager filmsFile;
+
+        //  private RecordManager filmsFile;
         private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
+
+        private LocalFilmsFilesService localFilmsFilesService;
         private StatisticsManager statisticsManager;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
@@ -65,9 +69,6 @@ namespace WatchedFilmsTracker
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
             FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
-            //LOCAL MYFILMS FILE SERVICE
-            LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
-
             //SETTINGS
             ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
 
@@ -82,7 +83,12 @@ namespace WatchedFilmsTracker
             //FILMS TABLEVIEW DISPLAY VALUES
             filmsColumnsManager = new FilmsTableColumnManager(filmsGrid); // constructor builds columns and binds values
 
-            filmsFile = OpenFilepath(SettingsManager.LastPath);
+            //FILEMANAGER
+            fileManager = new FileManager();
+            localFilmsFilesService = new LocalFilmsFilesService(fileManager);
+            LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
+
+            fileManager.FilmsFile = OpenFilepath(SettingsManager.LastPath);
             AfterFileHasBeenLoaded();
 
             //GRIDLIST SELECTED LISTENER
@@ -101,7 +107,7 @@ namespace WatchedFilmsTracker
 
         public void AfterFileHasBeenLoaded()
         {
-            filmsObservableList = filmsFile.ListOfFilms;
+            filmsObservableList = fileManager.FilmsFile.ListOfFilms;
             filmsGrid.ItemsSource = filmsObservableList;
 
             // Subscribe to PropertyChanged event of each FilmRecord instance
@@ -112,12 +118,12 @@ namespace WatchedFilmsTracker
                 filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
             }
 
-            SettingsManager.LastPath = (filmsFile.FilePath);
+            SettingsManager.LastPath = (fileManager.FilmsFile.FilePath);
             ProgramStateManager.IsUnsavedChange = (false);
             ProgramStateManager.IsAnyChange = (false);
             ProgramStateManager.AtLeastOneRecord = filmsObservableList.Count > 0;
 
-            if (string.IsNullOrEmpty(filmsFile.FilePath))
+            if (string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
             {
                 ProgramStateManager.IsFileSavedOnDisk = false;
                 ProgramStateManager.IsFileInLocalMyDataFolder = false;
@@ -126,7 +132,7 @@ namespace WatchedFilmsTracker
             {
                 ProgramStateManager.IsFileSavedOnDisk = true;
 
-                string lastDirectory = Directory.GetParent(filmsFile.FilePath).Name;
+                string lastDirectory = Directory.GetParent(fileManager.FilmsFile.FilePath).Name;
                 Debug.WriteLine($"{lastDirectory} is folder where the file is in");
                 if (lastDirectory == "MyData")
                     ProgramStateManager.IsFileInLocalMyDataFolder = true;
@@ -136,7 +142,7 @@ namespace WatchedFilmsTracker
 
             statisticsManager = new StatisticsManager(filmsObservableList);
             UpdateStageTitle();
-            filmsFile.CloseReader();
+            fileManager.FilmsFile.CloseReader();
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
@@ -149,8 +155,8 @@ namespace WatchedFilmsTracker
             Debug.WriteLine("Stop with shutdown");
             if (ProgramStateManager.IsUnsavedChange)
             {
-                Debug.WriteLine(filmsFile.FilePath);
-                if (filmsFile.FilePath == "New File" || !SettingsManager.AutoSave)
+                Debug.WriteLine(fileManager.FilmsFile.FilePath);
+                if (fileManager.FilmsFile.FilePath == "New File" || !SettingsManager.AutoSave)
                 {
                     return ShowSaveChangesDialog();
                 }
@@ -196,12 +202,11 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            if (filmsFile is null || string.IsNullOrEmpty(filmsFile.FilePath))
+            if (fileManager.FilmsFile is null || string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
             else
-                stageTitle += filmsFile.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+                stageTitle += fileManager.FilmsFile.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
 
-            // Assuming `this` refers to the current window instance
             this.Title = stageTitle;
         }
 
@@ -273,17 +278,18 @@ namespace WatchedFilmsTracker
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
-            filmsFile.ListOfFilms.Clear();
+            fileManager.FilmsFile.ListOfFilms.Clear();
             AnyChangeHappen();
         }
 
         private void DeleteFilmRecord(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine($"films file here is: {fileManager.FilmsFile.FilePath}, and filmsfire from filemanager is: {fileManager.FilmsFile.FilePath}");
             FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
             if (selected != null)
             {
                 int selectedIndex = filmsGrid.SelectedIndex;
-                filmsFile.DeleteRecordFromList(selected);
+                fileManager.FilmsFile.DeleteRecordFromList(selected);
                 if (selectedIndex == filmsGrid.Items.Count)
                     filmsGrid.SelectedIndex = selectedIndex - 1;
                 else
@@ -356,7 +362,7 @@ namespace WatchedFilmsTracker
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    filmsFile = OpenFilepath(openFileDialog.FileName);
+                    fileManager.FilmsFile = OpenFilepath(openFileDialog.FileName);
                     AfterFileHasBeenLoaded();
                 }
             }
@@ -387,7 +393,7 @@ namespace WatchedFilmsTracker
 
         private void NewFile(object sender, RoutedEventArgs e)
         {
-            filmsFile = OpenFilepath(null);
+            fileManager.FilmsFile = OpenFilepath(null);
             AfterFileHasBeenLoaded();
         }
 
@@ -410,13 +416,13 @@ namespace WatchedFilmsTracker
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(filmsFile.FilePath))
+            if (File.Exists(fileManager.FilmsFile.FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + filmsFile.FilePath);
+                Process.Start("explorer.exe", "/select, " + fileManager.FilmsFile.FilePath);
             }
             else
             {
-                Debug.WriteLine($"{filmsFile.FilePath} cannot be found");
+                Debug.WriteLine($"{fileManager.FilmsFile.FilePath} cannot be found");
             }
         }
 
@@ -428,13 +434,13 @@ namespace WatchedFilmsTracker
                 openFileDialog.Title = "Open file";
                 openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-                if (string.IsNullOrEmpty(filmsFile.FilePath) || !(File.Exists(filmsFile.FilePath)))
+                if (string.IsNullOrEmpty(fileManager.FilmsFile.FilePath) || !(File.Exists(fileManager.FilmsFile.FilePath)))
                 {
                     openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
                 }
                 else
                 {
-                    string parentDirectory = Directory.GetParent(filmsFile.FilePath)?.FullName;
+                    string parentDirectory = Directory.GetParent(fileManager.FilmsFile.FilePath)?.FullName;
                     if (!string.IsNullOrEmpty(parentDirectory))
                     {
                         openFileDialog.InitialDirectory = parentDirectory;
@@ -443,7 +449,7 @@ namespace WatchedFilmsTracker
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    filmsFile = OpenFilepath(openFileDialog.FileName);
+                    fileManager.FilmsFile = OpenFilepath(openFileDialog.FileName);
                     AfterFileHasBeenLoaded();
                 }
             }
@@ -461,7 +467,7 @@ namespace WatchedFilmsTracker
                 }
                 else
                 {
-                    return filmsFile;
+                    return fileManager.FilmsFile;
                 }
             }
             else
@@ -474,7 +480,7 @@ namespace WatchedFilmsTracker
 
         private void OpenLocalFolder(object sender, RoutedEventArgs e)
         {
-            LocalFilmsFilesService.OpenMyDataDirectory();
+            LocalFilmsFilesService.OpenMyDataDirectoryFileExplorer();
         }
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
@@ -484,12 +490,12 @@ namespace WatchedFilmsTracker
 
         private void RevertChanges(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(filmsFile.FilePath))
+            if (string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
             {
-                filmsFile.ListOfFilms.Clear();
+                fileManager.FilmsFile.ListOfFilms.Clear();
             }
             else
-                filmsFile = OpenFilepath(filmsFile.FilePath);
+                fileManager.FilmsFile = OpenFilepath(fileManager.FilmsFile.FilePath);
             AfterFileHasBeenLoaded();
         }
 
@@ -500,7 +506,7 @@ namespace WatchedFilmsTracker
 
         private bool Save()
         {
-            string filePath = filmsFile.FilePath;
+            string filePath = fileManager.FilmsFile.FilePath;
             bool saved = false;
 
             if (string.IsNullOrEmpty(filePath))
@@ -509,8 +515,8 @@ namespace WatchedFilmsTracker
                 return saved;
             }
 
-            filmsFile.StartWriter(filePath);
-            OnSaveCompleted(filmsFile);
+            fileManager.FilmsFile.StartWriter(filePath);
+            OnSaveCompleted(fileManager.FilmsFile);
             ProgramStateManager.IsUnsavedChange = (false);
 
             // Return true if saving was successful
@@ -528,9 +534,9 @@ namespace WatchedFilmsTracker
             saveFileDialog.Title = "Save file as";
             saveFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-            if (!string.IsNullOrEmpty(filmsFile.FilePath))
+            if (!string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
             {
-                string parentDirectory = Directory.GetParent(filmsFile.FilePath)?.FullName;
+                string parentDirectory = Directory.GetParent(fileManager.FilmsFile.FilePath)?.FullName;
                 if (!string.IsNullOrEmpty(parentDirectory))
                 {
                     saveFileDialog.InitialDirectory = parentDirectory;
@@ -539,8 +545,8 @@ namespace WatchedFilmsTracker
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                filmsFile.StartWriter(saveFileDialog.FileName);
-                filmsFile = OpenFilepath(saveFileDialog.FileName);
+                fileManager.FilmsFile.StartWriter(saveFileDialog.FileName);
+                fileManager.FilmsFile = OpenFilepath(saveFileDialog.FileName);
                 AfterFileHasBeenLoaded();
                 return true;
             }
@@ -549,7 +555,8 @@ namespace WatchedFilmsTracker
 
         private void SaveLocally(object sender, RoutedEventArgs e)
         {
-            LocalFilmsFilesService.SaveFileInProgramDirectory();
+            if (localFilmsFilesService.SaveFileInProgramDirectory())
+                AfterFileHasBeenLoaded();
         }
 
         private void ScrollToBottomOfList()
@@ -566,7 +573,7 @@ namespace WatchedFilmsTracker
 
         private void UpdateAverageFilmRating()
         {
-            if (filmsFile.ListOfFilms.Count == 0)
+            if (fileManager.FilmsFile.ListOfFilms.Count == 0)
             {
                 averageRatingLabel.Content = "No data";
             }

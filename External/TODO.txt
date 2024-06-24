@@ -1,6 +1,13 @@
 **Immediate (NOW):**
 - Implement FileManager class and organise your code.
+	- Make only one instance of FileManager object in MainWindow.
+	- Make RecordManager object in FileManager non static. (so it is only accessed via the FileManager instance.)
+	- Pass the reference of FileManager to SnapshotService and LocalMyDataService. (so it can be accessed only there instead of everywhere.)
+	- Refactor MainWindow class and make all actions on filmsFile to be done via FileManager. (like openfilepath, saveas etc)
+	- The FileManager after loadingFilePath, it can assign new filepath to RecordManager. Then it can call AfterFileLoaded. (now it will work because the FileManager.FilmsFile is properly saved and updating the window title should work.)
+	- Try to organise method AfterFileLoaded, and remove it from mainWindow, and organise it to a proper class.
 - Implement search function.
+- Decide if example file is included, if so, where is located and how it interacts if user runs program for the first time.
 
 **Upcoming (SOON):**
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
@@ -10,6 +17,9 @@
 - Search option to find film titles.
 - Clear all data is too accessible. When pressed ask for confirmation and maybe move it somewhere else.
 - Revamp settings. Make settings button. Keep some preferences on main screen and some settings in the separate window.
+- Protection against super big text files. If file is so big it can block the program, display loading and an option to cancel.
+	- If cancel or unexpected close happens. Do not store the last filepath. It will open big file again on startup. If cancel happens, open new empty file.
+- Investigate exceptions when debugging. The ones with toknes and tasks.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.

@@ -31,7 +31,6 @@
     <None Remove="Assets\ButtonIcons\openFile.png" />
     <None Remove="Assets\ButtonIcons\openLocalFolder.png" />
     <None Remove="Assets\ButtonIcons\revert.png" />
-    <None Remove="Assets\ButtonIcons\save2.png" />
     <None Remove="Assets\ButtonIcons\saveAs2.png" />
     <None Remove="Assets\ButtonIcons\saveChanges.png" />
     <None Remove="Assets\ButtonIcons\saveLocally.png" />
@@ -68,7 +67,7 @@
     <Resource Include="Assets\ButtonIcons\openFile.png" />
     <Resource Include="Assets\ButtonIcons\openLocalFolder.png" />
     <Resource Include="Assets\ButtonIcons\revert.png" />
-    <Resource Include="Assets\DialogIcons\save2.png" />
+    <Resource Include="Assets\ButtonIcons\save2.png" />
     <Resource Include="Assets\ButtonIcons\saveAs2.png" />
     <Resource Include="Assets\DialogIcons\saveChanges.png" />
     <Resource Include="Assets\ButtonIcons\saveLocally.png" />

@@ -92,7 +92,8 @@
 - New button that takes you to last film record in a file.
 - Statistics works faster on long lists and doesn't block the user interface.
 - Slight change in Settings panel.
-- New buttons that opens current opened file in file explorer directory,
+- New buttons that opens current opened file in file explorer directory.
+- New button that opens file explorer with currently opened file.
+- New button that opens file chooser of MyData folder.
+- New option to store your MyFilms list in MyData folder located in the program directory. This option will ask you if you wanna copy the original file or move it.
 - 
-- New option to store your MyFilms list in MyData folder located in the program directory.
-- open MyData directory, save locally, open locally.
