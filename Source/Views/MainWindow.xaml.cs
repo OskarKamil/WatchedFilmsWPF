@@ -23,7 +23,6 @@ namespace WatchedFilmsTracker
         private FileManager fileManager;
         private FilmsTableColumnManager filmsColumnsManager;
         private LocalFilmsFilesService localFilmsFilesService;
-        private StatisticsManager statisticsManager;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
         public MainWindow()
@@ -66,20 +65,19 @@ namespace WatchedFilmsTracker
             if (SettingsManager.CheckUpdateOnStartup)
                 ManualCheckForUpdate(CheckUpdatesButton, null);
 
-            //STATISTICS DISPLAY COLUMNS
-            decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
-            yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
-
             //FILMS TABLEVIEW DISPLAY VALUES
             filmsColumnsManager = new FilmsTableColumnManager(filmsGrid); // constructor builds columns and binds values
 
             //FILEMANAGER
             fileManager = new FileManager();
             fileManager.setUpFilmsDataGrid(filmsGrid);
-            fileManager.setUpStatisticsManager(statisticsManager);
             fileManager.setUpMainWindow(this);
             localFilmsFilesService = new LocalFilmsFilesService(fileManager);
             LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
+
+            //STATISTICS DISPLAY COLUMNS
+            decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
+            yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
 
             //SNAPSHOT SERVICE
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
@@ -103,7 +101,7 @@ namespace WatchedFilmsTracker
 
         public void UpdateNumberOfFilms()
         {
-            filmsTotalLabel.Content = statisticsManager.GetNumberOfTotalWatchedFilms().ToString();
+            filmsTotalLabel.Content = fileManager.StatisticsManager.GetNumberOfTotalWatchedFilms().ToString();
         }
 
         public void UpdateStageTitle()
@@ -311,7 +309,7 @@ namespace WatchedFilmsTracker
             }
         }
 
-        private void OpenFilepath(string? newFilePath) //todo
+        private void OpenFilepath(string? newFilePath)
         {
             fileManager.OpenFilepathButSaveChangesFirst(newFilePath);
         }
@@ -365,7 +363,7 @@ namespace WatchedFilmsTracker
             }
             else
             {
-                double averageRating = statisticsManager.GetAverageFilmRating();
+                double averageRating = fileManager.StatisticsManager.GetAverageFilmRating();
                 averageRatingLabel.Content = StatisticsManager.FormattedRating(averageRating);
             }
         }
@@ -377,7 +375,7 @@ namespace WatchedFilmsTracker
 
             try
             {
-                ObservableCollection<DecadalStatistic> decadesOfFilms = await statisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
+                ObservableCollection<DecadalStatistic> decadesOfFilms = await fileManager.StatisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
 
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
@@ -396,7 +394,7 @@ namespace WatchedFilmsTracker
             cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
             try
             {
-                ObservableCollection<YearlyStatistic> yearsOfFilms = await statisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
+                ObservableCollection<YearlyStatistic> yearsOfFilms = await fileManager.StatisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     yearlyGrid.ItemsSource = yearsOfFilms;

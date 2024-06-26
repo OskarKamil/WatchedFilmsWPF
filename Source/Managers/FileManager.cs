@@ -13,10 +13,10 @@ namespace WatchedFilmsTracker.Source.Managers
     internal class FileManager
     {
         private RecordManager _filmsFile;
-        private ObservableCollection<FilmRecord> filmsObservableList;
-        private StatisticsManager statisticsManager;
-        private DataGrid visualFilmsTable;
-        private MainWindow window;
+        private ObservableCollection<FilmRecord> _filmsObservableList;
+        private StatisticsManager _statisticsManager;
+        private DataGrid _visualFilmsTable;
+        private MainWindow _window;
 
         public FileManager()
         {
@@ -27,12 +27,13 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public RecordManager FilmsFile { get => _filmsFile; set => _filmsFile = value; }
 
-        public ObservableCollection<FilmRecord> FilmsObservableList { get => filmsObservableList; set => filmsObservableList = value; }
+        public ObservableCollection<FilmRecord> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
+        internal StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
 
-        public void AfterFileHasBeenLoaded() //todo try to move this to filemanager
+        public void AfterFileHasBeenLoaded()
         {
             FilmsObservableList = FilmsFile.ListOfFilms;
-            visualFilmsTable.ItemsSource = FilmsObservableList;
+            _visualFilmsTable.ItemsSource = FilmsObservableList;
 
             // Subscribe to PropertyChanged event of each FilmRecord instance
             FilmsObservableList.CollectionChanged += filmsListHasChanged;
@@ -64,21 +65,21 @@ namespace WatchedFilmsTracker.Source.Managers
                     ProgramStateManager.IsFileInLocalMyDataFolder = false;
             }
 
-            statisticsManager = new StatisticsManager(FilmsObservableList);
-            window.UpdateStageTitle();
+            StatisticsManager = new StatisticsManager(FilmsObservableList);
+            _window.UpdateStageTitle();
             FilmsFile.CloseReader();
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
-            _ = window.UpdateStatistics();
+            _ = _window.UpdateStatistics();
         }
 
         public void AnyChangeHappen()
         {
             ProgramStateManager.IsAnyChange = true;
             ProgramStateManager.IsUnsavedChange = true;
-            _ = window.UpdateStatistics();
+            _ = _window.UpdateStatistics();
         }
 
         public bool CloseFileAndAskToSave()
@@ -230,22 +231,22 @@ namespace WatchedFilmsTracker.Source.Managers
         public void ScrollToBottomOfList()
         {
             if (FilmsObservableList.Count > 0)
-                visualFilmsTable.ScrollIntoView(FilmsObservableList.ElementAt(FilmsObservableList.Count - 1));
+                _visualFilmsTable.ScrollIntoView(FilmsObservableList.ElementAt(FilmsObservableList.Count - 1));
         }
 
         public void setUpFilmsDataGrid(DataGrid dataGrid)
         {
-            visualFilmsTable = dataGrid;
+            _visualFilmsTable = dataGrid;
         }
 
         public void setUpMainWindow(MainWindow window)
         {
-            this.window = window;
+            this._window = window;
         }
 
         public void setUpStatisticsManager(StatisticsManager newStatisticsManager)
         {
-            statisticsManager = newStatisticsManager;
+            StatisticsManager = newStatisticsManager;
         }
 
         public bool ShowSaveChangesDialog()

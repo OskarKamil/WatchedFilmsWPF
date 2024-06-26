@@ -1,7 +1,5 @@
 **Immediate (NOW):**
-- Try to move AfterFileHasBeenLoaded to FileManager class. It has methods to update statistics. Maybe incorporate Statistics manager into the FileManager class.
-- The FileManager after loadingFilePath, it can assign new filepath to RecordManager. Then it can call AfterFileLoaded. (now it will work because the FileManager.FilmsFile is properly saved and updating the window title should work.)
-- Try to organise method AfterFileLoaded, and remove it from mainWindow, and organise it to a proper class.
+- Statistics are not working.
 - Implement search function.
 - Decide if example file is included, if so, where is located and how it interacts if user runs program for the first time.
 - Fix when publishing it creates config file and when user updates program, they overwrite their own preferences.
