@@ -54,11 +54,14 @@
             set
             {
                 if (value)
+                {
                     ButtonManager.DisableButtons(ButtonManager.FileIsNotInLocalMyDataDirectoryButtons);
+                }
                 else
                 {
                     ButtonManager.EnableButtons(ButtonManager.FileIsNotInLocalMyDataDirectoryButtons);
                 }
+                isFileInLocalMyDataFolder = value;
             }
         }
 
@@ -70,9 +73,9 @@
                 if (value)
                     ButtonManager.EnableButtons(ButtonManager.FileExistsOnDiskButtons);
                 else
-                {
+
                     ButtonManager.DisableButtons(ButtonManager.FileExistsOnDiskButtons);
-                }
+                isFileSavedOnDisk = value;
             }
         }
 

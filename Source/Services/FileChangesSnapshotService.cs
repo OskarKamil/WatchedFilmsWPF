@@ -7,9 +7,11 @@ namespace WatchedFilmsTracker.Source.Services
     internal class FileChangesSnapshotService
     {
         public const int MAX_NUMBER_OF_SNAPSHOTS = 5;
+        private static FileManager fileManager;
         private static string filePattern = "snapshot_*.txt";
         private static string snapshotDirectory = "";
         private static string[] snapshotFiles = null;
+        internal static FileManager FileManager { get => fileManager; set => fileManager = value; }
 
         public static void CreateNewSnapshot(RecordManager filmsFile)
         {
@@ -75,7 +77,7 @@ namespace WatchedFilmsTracker.Source.Services
 
         public static void SubscribeToSaveCompletedEvent(MainWindow mainWindow)
         {
-            mainWindow.SavedComplete += HandleSaveCompleted;
+            FileManager.SavedComplete += HandleSaveCompleted;
         }
 
         private static void HandleSaveCompleted(object sender, RecordManager filmsFile)

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -12,7 +11,6 @@ using System.Windows.Media;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Services;
-using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.Services.CheckForUpdateService;
 
 namespace WatchedFilmsTracker
@@ -24,10 +22,6 @@ namespace WatchedFilmsTracker
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
         private FileManager fileManager;
         private FilmsTableColumnManager filmsColumnsManager;
-
-        //  private RecordManager filmsFile;
-        private ObservableCollection<FilmRecord> filmsObservableList = new ObservableCollection<FilmRecord>();
-
         private LocalFilmsFilesService localFilmsFilesService;
         private StatisticsManager statisticsManager;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
@@ -65,10 +59,6 @@ namespace WatchedFilmsTracker
 
             ButtonManager.FileIsNotInLocalMyDataDirectoryButtons.Add(buttonSaveLocally);
 
-            //SNAPSHOT SERVICE
-            FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
-            FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
-
             //SETTINGS
             ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
 
@@ -85,11 +75,19 @@ namespace WatchedFilmsTracker
 
             //FILEMANAGER
             fileManager = new FileManager();
+            fileManager.setUpFilmsDataGrid(filmsGrid);
+            fileManager.setUpStatisticsManager(statisticsManager);
+            fileManager.setUpMainWindow(this);
             localFilmsFilesService = new LocalFilmsFilesService(fileManager);
             LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
-            fileManager.FilmsFile = OpenFilepath(SettingsManager.LastPath);
-            AfterFileHasBeenLoaded();
+            //SNAPSHOT SERVICE
+            FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
+            FileChangesSnapshotService.FileManager = fileManager;
+            FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
+
+            //LOAD LAST FILEPATH
+            OpenFilepath(SettingsManager.LastPath);
 
             //GRIDLIST SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;
@@ -102,91 +100,6 @@ namespace WatchedFilmsTracker
         }
 
         public event EventHandler FileOpened;
-
-        public event EventHandler<RecordManager> SavedComplete;
-
-        public void AfterFileHasBeenLoaded()
-        {
-            filmsObservableList = fileManager.FilmsFile.ListOfFilms;
-            filmsGrid.ItemsSource = filmsObservableList;
-
-            // Subscribe to PropertyChanged event of each FilmRecord instance
-            filmsObservableList.CollectionChanged += filmsListHasChanged;
-
-            foreach (var filmRecord in filmsObservableList)
-            {
-                filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
-            }
-
-            SettingsManager.LastPath = (fileManager.FilmsFile.FilePath);
-            ProgramStateManager.IsUnsavedChange = (false);
-            ProgramStateManager.IsAnyChange = (false);
-            ProgramStateManager.AtLeastOneRecord = filmsObservableList.Count > 0;
-
-            if (string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
-            {
-                ProgramStateManager.IsFileSavedOnDisk = false;
-                ProgramStateManager.IsFileInLocalMyDataFolder = false;
-            }
-            else
-            {
-                ProgramStateManager.IsFileSavedOnDisk = true;
-
-                string lastDirectory = Directory.GetParent(fileManager.FilmsFile.FilePath).Name;
-                Debug.WriteLine($"{lastDirectory} is folder where the file is in");
-                if (lastDirectory == "MyData")
-                    ProgramStateManager.IsFileInLocalMyDataFolder = true;
-                else
-                    ProgramStateManager.IsFileInLocalMyDataFolder = false;
-            }
-
-            statisticsManager = new StatisticsManager(filmsObservableList);
-            UpdateStageTitle();
-            fileManager.FilmsFile.CloseReader();
-
-            if (SettingsManager.ScrollLastPosition)
-                ScrollToBottomOfList();
-
-            _ = UpdateStatistics();
-        }
-
-        public bool CloseFileAndAskToSave()
-        {
-            Debug.WriteLine("Stop with shutdown");
-            if (ProgramStateManager.IsUnsavedChange)
-            {
-                Debug.WriteLine(fileManager.FilmsFile.FilePath);
-                if (fileManager.FilmsFile.FilePath == "New File" || !SettingsManager.AutoSave)
-                {
-                    return ShowSaveChangesDialog();
-                }
-                else if (SettingsManager.AutoSave)
-                {
-                    Save();
-                }
-            }
-            return !ProgramStateManager.IsUnsavedChange;
-        }
-
-        public bool ShowSaveChangesDialog()
-        {
-            SaveChangesDialog dialog = new SaveChangesDialog();
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
-            dialog.ShowDialog();
-
-            switch (dialog.Result)
-            {
-                case SaveChangesDialog.CustomDialogResult.Save:
-                    return Save();
-
-                case SaveChangesDialog.CustomDialogResult.NotSave:
-                    return true;
-
-                case SaveChangesDialog.CustomDialogResult.Cancel:
-                default:
-                    return false;
-            }
-        }
 
         public void UpdateNumberOfFilms()
         {
@@ -210,9 +123,24 @@ namespace WatchedFilmsTracker
             this.Title = stageTitle;
         }
 
-        protected void OnSaveCompleted(RecordManager filmsFile)
+        public async Task UpdateStatistics()
         {
-            SavedComplete?.Invoke(this, filmsFile);
+            UpdateNumberOfFilms();
+            UpdateAverageFilmRating();
+
+            // Heavy tasks
+            var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
+            var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
+
+            try
+            {
+                // Await both tasks to complete
+                await Task.WhenAll(decadalTask, yearlyTask);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error occurred while updating statistics: {ex}");
+            }
         }
 
         private void AboutButton(object sender, RoutedEventArgs e)
@@ -221,13 +149,6 @@ namespace WatchedFilmsTracker
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.Owner = this; // Set the owner window to enable modal behavior
             aboutWindow.ShowDialog();
-        }
-
-        private void AnyChangeHappen()
-        {
-            ProgramStateManager.IsAnyChange = true;
-            ProgramStateManager.IsUnsavedChange = true;
-            _ = UpdateStatistics();
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -279,7 +200,7 @@ namespace WatchedFilmsTracker
         private void ClearAll(object sender, RoutedEventArgs e)
         {
             fileManager.FilmsFile.ListOfFilms.Clear();
-            AnyChangeHappen();
+            fileManager.AnyChangeHappen();
         }
 
         private void DeleteFilmRecord(object sender, RoutedEventArgs e)
@@ -296,82 +217,19 @@ namespace WatchedFilmsTracker
                 {
                     filmsGrid.SelectedIndex = selectedIndex;
                 }
-                AnyChangeHappen();
-            }
-        }
-
-        private void FilmRecord_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName != "IdInList")
-            {
-                AnyChangeHappen();
-            }
-        }
-
-        private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            Debug.Print("list changed listener");
-            ProgramStateManager.AtLeastOneRecord = filmsObservableList.Count > 0;
-            AnyChangeHappen();
-        }
-
-        private void FilmsListHasChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                // New items added to the list
-                foreach (var newItem in e.NewItems)
-                {
-                    if (newItem is FilmRecord newRecord)
-                    {
-                        // Subscribe to PropertyChanged event of the new FilmRecord instance
-                        newRecord.PropertyChanged += FilmRecord_PropertyChanged;
-                    }
-                }
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                // Items removed from the list
-                foreach (var oldItem in e.OldItems)
-                {
-                    if (oldItem is FilmRecord oldRecord)
-                    {
-                        // Unsubscribe from PropertyChanged event of the removed FilmRecord instance
-                        oldRecord.PropertyChanged -= FilmRecord_PropertyChanged;
-                    }
-                }
+                fileManager.AnyChangeHappen();
             }
         }
 
         private void LoadLocally(object sender, RoutedEventArgs e)
         {
-            if (CloseFileAndAskToSave())
-            {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Title = "Open file";
-                openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
-
-                string programDirectory = Environment.CurrentDirectory;
-                string myDataDirectory = Path.Combine(programDirectory, "MyData");
-                if (!Directory.Exists(myDataDirectory))
-                {
-                    Directory.CreateDirectory(myDataDirectory);
-                }
-
-                openFileDialog.InitialDirectory = myDataDirectory;
-
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    fileManager.FilmsFile = OpenFilepath(openFileDialog.FileName);
-                    AfterFileHasBeenLoaded();
-                }
-            }
+            fileManager.LoadLocally();
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             // Call the ShutDown method when the window is closing
-            bool canClose = CloseFileAndAskToSave();
+            bool canClose = fileManager.CloseFileAndAskToSave();
 
             // Cancel the closing event if necessary
 
@@ -393,16 +251,15 @@ namespace WatchedFilmsTracker
 
         private void NewFile(object sender, RoutedEventArgs e)
         {
-            fileManager.FilmsFile = OpenFilepath(null);
-            AfterFileHasBeenLoaded();
+            fileManager.NewFile();
         }
 
         private void NewFilmRecord(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("new film record");
-            FilmRecord newRecord = new FilmRecord(filmsObservableList.Count + 1);
-            newRecord.PropertyChanged += FilmRecord_PropertyChanged;
-            filmsObservableList.Add(newRecord);
+            FilmRecord newRecord = new FilmRecord(fileManager.FilmsObservableList.Count + 1);
+            newRecord.PropertyChanged += fileManager.FilmRecord_PropertyChanged;
+            fileManager.FilmsObservableList.Add(newRecord);
             filmsGrid.SelectedItem = newRecord;
             filmsGrid.ScrollIntoView(filmsGrid.SelectedItem);
 
@@ -411,7 +268,7 @@ namespace WatchedFilmsTracker
                 string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
                 newRecord.WatchDate = (formattedString);
             }
-            AnyChangeHappen();
+            fileManager.AnyChangeHappen();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
@@ -428,7 +285,7 @@ namespace WatchedFilmsTracker
 
         private void OpenFileChooser(object sender, RoutedEventArgs e)
         {
-            if (CloseFileAndAskToSave())
+            if (fileManager.CloseFileAndAskToSave())
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Title = "Open file";
@@ -449,33 +306,14 @@ namespace WatchedFilmsTracker
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    fileManager.FilmsFile = OpenFilepath(openFileDialog.FileName);
-                    AfterFileHasBeenLoaded();
+                    OpenFilepath(openFileDialog.FileName);
                 }
             }
         }
 
-        private RecordManager OpenFilepath(string? newFilePath)
+        private void OpenFilepath(string? newFilePath) //todo
         {
-            RecordManager recordManager;
-            if (string.IsNullOrEmpty(newFilePath) || !(File.Exists(newFilePath)))
-            {
-                if (CloseFileAndAskToSave())
-                {
-                    recordManager = new RecordManager();
-                    recordManager.StartReader();
-                }
-                else
-                {
-                    return fileManager.FilmsFile;
-                }
-            }
-            else
-            {
-                recordManager = new RecordManager(newFilePath);
-                recordManager.StartReader();
-            }
-            return recordManager;
+            fileManager.OpenFilepathButSaveChangesFirst(newFilePath);
         }
 
         private void OpenLocalFolder(object sender, RoutedEventArgs e)
@@ -495,80 +333,28 @@ namespace WatchedFilmsTracker
                 fileManager.FilmsFile.ListOfFilms.Clear();
             }
             else
-                fileManager.FilmsFile = OpenFilepath(fileManager.FilmsFile.FilePath);
-            AfterFileHasBeenLoaded();
+                OpenFilepath(fileManager.FilmsFile.FilePath);
         }
 
         private void Save(object sender, RoutedEventArgs e)
         {
-            Save();
-        }
-
-        private bool Save()
-        {
-            string filePath = fileManager.FilmsFile.FilePath;
-            bool saved = false;
-
-            if (string.IsNullOrEmpty(filePath))
-            {
-                saved = SaveAs();
-                return saved;
-            }
-
-            fileManager.FilmsFile.StartWriter(filePath);
-            OnSaveCompleted(fileManager.FilmsFile);
-            ProgramStateManager.IsUnsavedChange = (false);
-
-            // Return true if saving was successful
-            return true;
+            fileManager.Save();
         }
 
         private void SaveAs(object sender, RoutedEventArgs e)
         {
-            SaveAs();
-        }
-
-        private bool SaveAs()
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "Save file as";
-            saveFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
-
-            if (!string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
-            {
-                string parentDirectory = Directory.GetParent(fileManager.FilmsFile.FilePath)?.FullName;
-                if (!string.IsNullOrEmpty(parentDirectory))
-                {
-                    saveFileDialog.InitialDirectory = parentDirectory;
-                }
-            }
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                fileManager.FilmsFile.StartWriter(saveFileDialog.FileName);
-                fileManager.FilmsFile = OpenFilepath(saveFileDialog.FileName);
-                AfterFileHasBeenLoaded();
-                return true;
-            }
-            return false;
+            fileManager.SaveAs();
         }
 
         private void SaveLocally(object sender, RoutedEventArgs e)
         {
-            if (localFilmsFilesService.SaveFileInProgramDirectory())
-                AfterFileHasBeenLoaded();
-        }
-
-        private void ScrollToBottomOfList()
-        {
-            if (filmsObservableList.Count > 0)
-                filmsGrid.ScrollIntoView(filmsObservableList.ElementAt(filmsObservableList.Count - 1));
+            if (localFilmsFilesService.SaveFileInProgramDirectory()) ;
         }
 
         private void SelectLastButton(object sender, RoutedEventArgs e)
 
         {
-            ScrollToBottomOfList();
+            fileManager.ScrollToBottomOfList();
         }
 
         private void UpdateAverageFilmRating()
@@ -619,26 +405,6 @@ namespace WatchedFilmsTracker
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
-            }
-        }
-
-        private async Task UpdateStatistics()
-        {
-            UpdateNumberOfFilms();
-            UpdateAverageFilmRating();
-
-            // Heavy tasks
-            var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
-            var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
-
-            try
-            {
-                // Await both tasks to complete
-                await Task.WhenAll(decadalTask, yearlyTask);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An error occurred while updating statistics: {ex}");
             }
         }
 

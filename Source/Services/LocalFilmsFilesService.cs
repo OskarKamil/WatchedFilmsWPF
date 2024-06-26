@@ -60,7 +60,7 @@ namespace WatchedFilmsTracker.Source.Services
             if (files.Count == 0)
             {
                 myFileManager.SaveFileAtLocation(Path.Combine(myDataDirectory, DEFAULT_WATCHED_FILMS_FILENAME + DEFAULT_FILE_EXTENSION));
-                myFileManager.FilmsFile = myFileManager.OpenFilepath(Path.Combine(myDataDirectory, DEFAULT_WATCHED_FILMS_FILENAME + DEFAULT_FILE_EXTENSION));
+                myFileManager.OpenFilepath(Path.Combine(myDataDirectory, DEFAULT_WATCHED_FILMS_FILENAME + DEFAULT_FILE_EXTENSION));
                 return;
             }
             //foreach (FileInfo file in files)
@@ -73,7 +73,7 @@ namespace WatchedFilmsTracker.Source.Services
                 if (!File.Exists(currentFileNameCheck))
                 {
                     myFileManager.SaveFileAtLocation(currentFileNameCheck);
-                    myFileManager.FilmsFile = myFileManager.OpenFilepath(currentFileNameCheck);
+                    myFileManager.OpenFilepath(currentFileNameCheck);
                     return;
                 }
             }
