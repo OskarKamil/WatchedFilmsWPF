@@ -53,7 +53,7 @@
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
                             <Label>Total films:</Label>
-                            <Label x:Name="filmsTotalLabel">0</Label>
+                            <Label x:Name="filmsTotalLabel" Content="{Binding TotalFilmsWatched}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label>Average rating per film:</Label>
@@ -200,11 +200,11 @@ ScrollViewer.HorizontalScrollBarVisibility="Auto" HorizontalScrollBarVisibility=
         <!--Version bottom panel-->
         <DockPanel Background="#FFAFAFAF" DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
             <StackPanel x:Name="PanelVersion" Orientation="Horizontal" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Label x:Name="LabelVersion" Content="Version 0.001" ></Label>
+                <Label x:Name="LabelVersion" Content="{Binding ProgramVersion}"/>
                 <Image x:Name="ImageNewVersion" Source="\Assets\ButtonIcons\newVersion.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" Visibility="Collapsed" Margin="0,0,5,0" />
                 <TextBlock x:Name="TextBlockNewVersion" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0"></TextBlock>
             </StackPanel>
-            <Label x:Name="LabelAuthor" DockPanel.Dock="Right" Content="© 2024 Oskar Jargilo" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <Label x:Name="LabelAuthor" DockPanel.Dock="Right" Content="{Binding ProgramCopyright}" HorizontalAlignment="Right" VerticalAlignment="Center" />
         </DockPanel>
     </Grid>
 </Window>

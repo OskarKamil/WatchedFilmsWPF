@@ -92,7 +92,7 @@ namespace WatchedFilmsTracker.Source.Managers
         {
             /* Very heavy method. Instead of generating new dictionaries and collections each time a property of film record is changed, generate them when needed. For example generate years and decades and keep track of them when a list or property is being changed. Check TODO.txt file.  */
 
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 ObservableCollection<DecadalStatistic> decadalStatistics = new ObservableCollection<DecadalStatistic>();
 
@@ -107,6 +107,7 @@ namespace WatchedFilmsTracker.Source.Managers
                     int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInDecade);
                     double averageRating = StatisticsManager.GetAverageFilmRating(filmsInDecade);
                     decadalStatistics.Add(new DecadalStatistic(decade, numberOfFilms, averageRating));
+                    await Task.Delay(1, cancellationToken);
                 }
 
                 return decadalStatistics;
@@ -122,7 +123,7 @@ namespace WatchedFilmsTracker.Source.Managers
         {
             /* Very heavy method. Instead of generating new dictionaries and collections each time a property of film record is changed, generate them when needed. For example generate years and decades and keep track of them when a list or property is being changed. Check TODO.txt file.  */
 
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 ObservableCollection<YearlyStatistic> yearlyStatistics = new ObservableCollection<YearlyStatistic>();
 
@@ -137,6 +138,8 @@ namespace WatchedFilmsTracker.Source.Managers
                     int numberOfFilms = StatisticsManager.GetNumberOfTotalWatchedFilms(filmsInYear);
                     double averageRating = StatisticsManager.GetAverageFilmRating(filmsInYear);
                     yearlyStatistics.Add(new YearlyStatistic(year, numberOfFilms, averageRating));
+
+                    await Task.Delay(1, cancellationToken);
                 }
 
                 return yearlyStatistics;

@@ -94,4 +94,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Source\ViewModels\" />
+  </ItemGroup>
+
 </Project>

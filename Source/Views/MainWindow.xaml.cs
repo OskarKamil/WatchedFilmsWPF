@@ -23,14 +23,16 @@ namespace WatchedFilmsTracker
         private FileManager fileManager;
         private FilmsTableColumnManager filmsColumnsManager;
         private LocalFilmsFilesService localFilmsFilesService;
+        private MainWindowViewModel viewModel;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
         public MainWindow()
         {
             //General GUI adjustments
             InitializeComponent(); // must be first line always
-            LabelAuthor.Content = ProgramInformation.COPYRIGHT;
-            LabelVersion.Content = ProgramInformation.VERSION;
+            viewModel = new MainWindowViewModel();
+            this.DataContext = viewModel;
+
             Closing += MainWindow_Closing; // override closing window
 
             //PROGRAM STATE MANAGER
@@ -101,7 +103,7 @@ namespace WatchedFilmsTracker
 
         public void UpdateNumberOfFilms()
         {
-            filmsTotalLabel.Content = fileManager.StatisticsManager.GetNumberOfTotalWatchedFilms().ToString();
+            viewModel.TotalFilmsWatched = fileManager.StatisticsManager.GetNumberOfTotalWatchedFilms();
         }
 
         public void UpdateStageTitle()
