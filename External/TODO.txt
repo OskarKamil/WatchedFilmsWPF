@@ -1,5 +1,4 @@
 **Immediate (NOW):**
-- Statistics are not working.
 - Implement search function.
 - Decide if example file is included, if so, where is located and how it interacts if user runs program for the first time.
 - Fix when publishing it creates config file and when user updates program, they overwrite their own preferences.
