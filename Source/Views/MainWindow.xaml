@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="MainWindow"  KeyDown="Window_KeyDown"
-        MinHeight="225" MinWidth="1000" ScrollViewer.CanContentScroll="True" Height="396">
+        MinHeight="225" MinWidth="1150" ScrollViewer.CanContentScroll="True" Height="396">
     <Grid>
 
         <!-- Upper panel for all data-->
@@ -189,10 +189,10 @@
                         <!--Search border-->
                         <GroupBox HorizontalAlignment="Right">
                             <GroupBox.Header>Search</GroupBox.Header>
-                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                                <Image Source="/Assets/ButtonIcons/search.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" KeyDown="SearchTextBox_KeyDown">
+                                <Image Source="/Assets/ButtonIcons/search.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0" />
 
-                                <TextBox Text="Search" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" />
+                                <TextBox x:Name="searchTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" GotFocus="SearchTextBox_GotFocus" LostFocus="SearchTextBox_LostFocus" FontStyle="Italic" FontFamily="Segoe UI" BorderThickness="0,0,0,0" Text="Search" />
                             </StackPanel>
                         </GroupBox>
                     </DockPanel>

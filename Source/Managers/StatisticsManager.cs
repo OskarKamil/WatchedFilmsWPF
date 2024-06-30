@@ -6,8 +6,7 @@ namespace WatchedFilmsTracker.Source.Managers
 {
     internal class StatisticsManager
     {
-        private ObservableCollection<DecadalStatistic> decadesList;
-        private ObservableCollection<FilmRecord> filmRecords;
+              private ObservableCollection<FilmRecord> filmRecords;
 
         public StatisticsManager(ObservableCollection<FilmRecord> filmsObservableList)
         {
@@ -30,7 +29,7 @@ namespace WatchedFilmsTracker.Source.Managers
                 {
                     averageRating += double.Parse(film.Rating);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     correction++;
                 }
@@ -66,7 +65,7 @@ namespace WatchedFilmsTracker.Source.Managers
                     DateTime date = DateTime.ParseExact(film.WatchDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
                     dates.Add(date);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     correction++;
                     //doesn't do anything yet, but may indicate not valid film so can correct number of films and days

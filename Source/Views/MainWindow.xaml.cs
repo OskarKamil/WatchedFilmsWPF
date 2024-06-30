@@ -17,6 +17,7 @@ namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
+        private const string SearchBoxDefaultText = "Film title, year, specific words";
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
@@ -25,6 +26,7 @@ namespace WatchedFilmsTracker
         private LocalFilmsFilesService localFilmsFilesService;
         private MainWindowViewModel viewModel;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
+        private SearchManager searchManager;
 
         public MainWindow()
         {
@@ -32,6 +34,7 @@ namespace WatchedFilmsTracker
             InitializeComponent(); // must be first line always
             viewModel = new MainWindowViewModel();
             this.DataContext = viewModel;
+            searchTextBox.Text = SearchBoxDefaultText;
 
             Closing += MainWindow_Closing; // override closing window
 
@@ -85,6 +88,9 @@ namespace WatchedFilmsTracker
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
             FileChangesSnapshotService.FileManager = fileManager;
             FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
+
+            //SEARCH MANAGER
+            searchManager = new SearchManager(fileManager, searchTextBox, filmsGrid);
 
             //LOAD LAST FILEPATH
             OpenFilepath(SettingsManager.LastPath);
@@ -349,6 +355,37 @@ namespace WatchedFilmsTracker
         private void SaveLocally(object sender, RoutedEventArgs e)
         {
             if (localFilmsFilesService.SaveFileInProgramDirectory()) ;
+        }
+
+        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (searchTextBox.Text == "Film title, year, specific words")
+            {
+                searchTextBox.Text = string.Empty;
+                // Reset to default font style when the user starts typing
+                searchTextBox.Foreground = new SolidColorBrush(Colors.Black);
+                searchTextBox.FontStyle = FontStyles.Normal;
+                searchTextBox.FontFamily = new FontFamily("Segoe UI");
+            }
+        }
+
+        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            searchManager.SearchFilms();
+            return;
+            
+        }
+
+        private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(searchTextBox.Text))
+            {
+                searchTextBox.Text = "Film title, year, specific words";
+                // Reapply the placeholder style
+                searchTextBox.Foreground = new SolidColorBrush(Color.FromRgb(120, 120, 120)); // Bleak color
+                searchTextBox.FontStyle = FontStyles.Italic;
+                searchTextBox.FontFamily = new FontFamily("Segoe UI");
+            }
         }
 
         private void SelectLastButton(object sender, RoutedEventArgs e)
