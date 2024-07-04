@@ -9,6 +9,7 @@
     <ApplicationIcon>Assets\ProgramIcon\icon2.ico
 	</ApplicationIcon>
     <StartupObject>WatchedFilmsTracker.App</StartupObject>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
 
   <ItemGroup>
@@ -101,5 +102,13 @@
   <ItemGroup>
     <Folder Include="Source\ViewModels\" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="REM Ensure the target directory exists&#xA;mkdir &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ReadMe.txt file to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ReadMe.txt&quot; &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ExampleFile.csv to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ExampleFile.csv&quot; &quot;$(PublishDir)&quot;" />
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="REM Delete all old files&#xD;&#xA;rd /s /q &quot;$(PublishDir)&quot;&#xD;&#xA;" />
+  </Target>
 
 </Project>

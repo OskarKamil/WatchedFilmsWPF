@@ -4,6 +4,7 @@
 	- Make the published version has no preferences and they created only at first run of program if no preferences file is present.
 
 **Upcoming (SOON):**
+- Add a button or right click option to open google search result with film title and year.
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
 - If release year or watch date is icorrect (unassigned from above), make the cell red but only after deselecting it, not in the middle of adding.
 - Clear all and autosave can result in losing all data if uncareful.
