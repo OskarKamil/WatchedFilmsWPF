@@ -64,6 +64,8 @@ namespace WatchedFilmsTracker
             ButtonManager.FileIsNotInLocalMyDataDirectoryButtons.Add(buttonSaveLocally);
 
             //SETTINGS
+            SettingsManager.PrepareDictionary();
+            SettingsManager.LoadFromConfFile();
             ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
 
             //CHECK UPDATE ON STARTUP

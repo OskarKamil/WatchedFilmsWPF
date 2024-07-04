@@ -82,29 +82,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Update="Source\Views\MoveOriginalDialog.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>PublicSettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Source\ViewModels\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\TextFiles\ExampleFile.csv">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\TextFiles\ReadMe.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="REM Ensure the target directory exists&#xA;mkdir &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ReadMe.txt file to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ReadMe.txt&quot; &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ExampleFile.csv to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ExampleFile.csv&quot; &quot;$(PublishDir)&quot;" />
+    <Exec Command="REM Ensure the target directory exists&#xA;mkdir &quot;$(PublishDir)&quot;&#xD;&#xA;&#xA;REM Copy ReadMe.txt file to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ReadMe.txt&quot; &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ExampleFile.csv to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ExampleFile.csv&quot; &quot;$(PublishDir)&quot;" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

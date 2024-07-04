@@ -101,3 +101,5 @@
 - New search bar to quickly find a film in the list. The list of films will be filtered as you type.
 - The program folder contains ReadMe.txt file.
 - The example csv file is now named ExampleFile.csv.
+- The program doesn't containt unncessary files like .pdb or .config anymore.
+- Config file is created with default values if it doesn't exist.

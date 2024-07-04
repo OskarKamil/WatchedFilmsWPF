@@ -1,5 +1,9 @@
 # WatchedFilmsWPF
 
+## About
+
+Watched Films Tracker is a comprehensive application designed to help film enthusiasts track and manage their watched films. With a user-friendly interface, it allows users to record, organize, and search through their film collection with ease. Whether you're keeping track of films you've watched, planning to watch, or compiling detailed statistics about your viewing habits, Watched Films Tracker is the perfect tool for any movie lover.
+
 ## Features
 
 - **Film Information:** Store comprehensive details about each film, including English title, original title, type, release year, personal rating, watch date, and comments.
