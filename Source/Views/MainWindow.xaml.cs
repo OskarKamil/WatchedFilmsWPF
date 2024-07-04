@@ -24,9 +24,9 @@ namespace WatchedFilmsTracker
         private FileManager fileManager;
         private FilmsTableColumnManager filmsColumnsManager;
         private LocalFilmsFilesService localFilmsFilesService;
+        private SearchManager searchManager;
         private MainWindowViewModel viewModel;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
-        private SearchManager searchManager;
 
         public MainWindow()
         {
@@ -357,6 +357,12 @@ namespace WatchedFilmsTracker
             if (localFilmsFilesService.SaveFileInProgramDirectory()) ;
         }
 
+        private void searchClearButton_ClearText(object sender, RoutedEventArgs e)
+        {
+            searchTextBox.Text = SearchBoxDefaultText;
+            searchManager?.SearchFilms();
+        }
+
         private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (searchTextBox.Text == "Film title, year, specific words")
@@ -369,13 +375,6 @@ namespace WatchedFilmsTracker
             }
         }
 
-        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            searchManager.SearchFilms();
-            return;
-            
-        }
-
         private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(searchTextBox.Text))
@@ -386,6 +385,25 @@ namespace WatchedFilmsTracker
                 searchTextBox.FontStyle = FontStyles.Italic;
                 searchTextBox.FontFamily = new FontFamily("Segoe UI");
             }
+        }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (clearSearchButton == null)
+            {
+                return;
+            }
+            if (searchTextBox.Text != SearchBoxDefaultText && searchTextBox.Text.Length > 0)
+            {
+                clearSearchButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                clearSearchButton.Visibility = Visibility.Hidden;
+            }
+            searchManager?.SearchFilms();
+
+            return;
         }
 
         private void SelectLastButton(object sender, RoutedEventArgs e)

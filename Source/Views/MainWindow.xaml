@@ -154,7 +154,7 @@
                     </GroupBox>
 
                     <!--Quick actions border-->
-                    <DockPanel >
+                    <DockPanel>
                         <GroupBox x:Name="groupBoxQuickActions"  HorizontalAlignment="Left">
                             <GroupBox.Header>Quick actions</GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
@@ -185,14 +185,17 @@
                                 </Button>
                             </StackPanel>
                         </GroupBox>
-                        
+
                         <!--Search border-->
                         <GroupBox HorizontalAlignment="Right">
                             <GroupBox.Header>Search</GroupBox.Header>
-                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" KeyDown="SearchTextBox_KeyDown">
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                                 <Image Source="/Assets/ButtonIcons/search.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0" />
 
-                                <TextBox x:Name="searchTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" GotFocus="SearchTextBox_GotFocus" LostFocus="SearchTextBox_LostFocus" FontStyle="Italic" FontFamily="Segoe UI" BorderThickness="0,0,0,0" Text="Search" />
+                                <TextBox x:Name="searchTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" GotFocus="SearchTextBox_GotFocus" LostFocus="SearchTextBox_LostFocus" FontStyle="Italic" FontFamily="Segoe UI" BorderThickness="0,0,0,0" Text="Search" TextChanged="SearchTextBox_TextChanged" />
+                                <Button x:Name="clearSearchButton" BorderThickness="0,0,0,0" Background="{x:Null}" Click="searchClearButton_ClearText">
+                                    <Image Source="/Assets/ButtonIcons/x.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                                </Button>
                             </StackPanel>
                         </GroupBox>
                     </DockPanel>

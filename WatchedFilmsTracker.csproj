@@ -37,6 +37,7 @@
     <None Remove="Assets\ButtonIcons\search.png" />
     <None Remove="Assets\ButtonIcons\selectLast.png" />
     <None Remove="Assets\ButtonIcons\selectLast2.png" />
+    <None Remove="Assets\ButtonIcons\x.png" />
     <None Remove="Assets\openContainingFolder.png" />
     <None Remove="Assets\ProgramIcon\icon2.ico" />
     <None Remove="Source\Views\loadLocally.png" />
@@ -61,6 +62,7 @@
     <Resource Include="Assets\ButtonIcons\icon_old.png" />
     <Resource Include="Assets\ButtonIcons\loadLocally.png" />
     <Resource Include="Assets\ButtonIcons\search.png" />
+    <Resource Include="Assets\ButtonIcons\x.png" />
     <Resource Include="Assets\DialogIcons\moveFile.png" />
     <Resource Include="Assets\ButtonIcons\newFile.png" />
     <Resource Include="Assets\ButtonIcons\newVersion.png" />
