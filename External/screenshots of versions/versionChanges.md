@@ -98,4 +98,5 @@
 - New option to store your MyFilms list in MyData folder located in the program directory. This option will ask you if you wanna copy the original file or move it.
 
 #### 0.014
-- New search bar to quickly find a film in the list.
+- New search bar to quickly find a film in the list. The list of films will be filtered as you type.
+- 

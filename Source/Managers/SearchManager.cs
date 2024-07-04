@@ -7,10 +7,10 @@ namespace WatchedFilmsTracker.Source.Managers
 {
     internal class SearchManager
     {
+        private string defaultSearchText;
         private FileManager fileManager;
         private DataGrid filmsGrid;
         private TextBox searchTextBox;
-        private string defaultSearchText;
 
         public SearchManager(FileManager fileManager, TextBox searchTextBox, DataGrid filmsGrid)
         {
@@ -18,12 +18,9 @@ namespace WatchedFilmsTracker.Source.Managers
             this.searchTextBox = searchTextBox;
             this.filmsGrid = filmsGrid;
             defaultSearchText = searchTextBox.Text;
-        }
 
-        //todo works
-        // make it work only when enter is pressed, or give option to choose
-        // check how adding, and removing films affects search
-        // check how opening new file or revert changes affects the search
+            this.fileManager.AnyChangeHappenedEvent += FileManager_AnyChangeHappenedEvent;
+        }
 
         public void SearchFilms()
         {
@@ -54,6 +51,11 @@ namespace WatchedFilmsTracker.Source.Managers
             }
 
             filmsGrid.ItemsSource = filteredList;
+        }
+
+        private void FileManager_AnyChangeHappenedEvent(object sender, EventArgs e)
+        {
+            SearchFilms();
         }
     }
 }

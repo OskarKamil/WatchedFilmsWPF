@@ -266,8 +266,11 @@ namespace WatchedFilmsTracker
             FilmRecord newRecord = new FilmRecord(fileManager.FilmsObservableList.Count + 1);
             newRecord.PropertyChanged += fileManager.FilmRecord_PropertyChanged;
             fileManager.FilmsObservableList.Add(newRecord);
-            filmsGrid.SelectedItem = newRecord;
-            filmsGrid.ScrollIntoView(filmsGrid.SelectedItem);
+            if (filmsGrid.ItemsSource == fileManager.FilmsObservableList)
+            {
+                filmsGrid.SelectedItem = newRecord;
+                filmsGrid.ScrollIntoView(filmsGrid.SelectedItem);
+            }
 
             if (SettingsManager.DefaultDateIsToday)
             {
@@ -340,6 +343,7 @@ namespace WatchedFilmsTracker
             }
             else
                 OpenFilepath(fileManager.FilmsFile.FilePath);
+            searchManager.SearchFilms();
         }
 
         private void Save(object sender, RoutedEventArgs e)
@@ -359,7 +363,8 @@ namespace WatchedFilmsTracker
 
         private void searchClearButton_ClearText(object sender, RoutedEventArgs e)
         {
-            searchTextBox.Text = SearchBoxDefaultText;
+            searchTextBox.Text = null;
+            SearchTextBox_LostFocus(sender, e);
             searchManager?.SearchFilms();
         }
 

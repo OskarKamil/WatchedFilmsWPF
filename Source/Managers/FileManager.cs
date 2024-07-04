@@ -23,6 +23,8 @@ namespace WatchedFilmsTracker.Source.Managers
             FilmsObservableList = new ObservableCollection<FilmRecord>();
         }
 
+        public event EventHandler AnyChangeHappenedEvent;
+
         public event EventHandler<RecordManager> SavedComplete;
 
         public RecordManager FilmsFile { get => _filmsFile; set => _filmsFile = value; }
@@ -80,6 +82,7 @@ namespace WatchedFilmsTracker.Source.Managers
             ProgramStateManager.IsAnyChange = true;
             ProgramStateManager.IsUnsavedChange = true;
             _ = _window.UpdateStatistics();
+            AnyChangeHappenedEvent?.Invoke(this, EventArgs.Empty);
         }
 
         public bool CloseFileAndAskToSave()
