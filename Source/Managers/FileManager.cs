@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Views;
@@ -27,6 +28,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public event EventHandler<RecordManager> SavedComplete;
 
+        public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
         public RecordManager FilmsFile { get => _filmsFile; set => _filmsFile = value; }
 
         public ObservableCollection<FilmRecord> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
@@ -73,6 +75,23 @@ namespace WatchedFilmsTracker.Source.Managers
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem deleteRecordMenuItem = new MenuItem() { Header = "Delete record" };
+            MenuItem searchFilmOnTheInternet = new MenuItem() { Header = "Search film on the internet" };
+
+            // Check if the action is not null before attaching it
+            if (DeleteRecordAction != null)
+            {
+                deleteRecordMenuItem.Click += (sender, args) => DeleteRecordAction(sender, args);
+            }
+
+            contextMenu.Items.Add(deleteRecordMenuItem);
+            contextMenu.Items.Add(searchFilmOnTheInternet);
+            _visualFilmsTable.LoadingRow += (s, e) =>
+            {
+                e.Row.ContextMenu = contextMenu;
+            };
 
             _ = _window.UpdateStatistics();
         }

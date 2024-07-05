@@ -13,38 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\ButtonIcons\about2.png" />
-    <None Remove="Assets\ButtonIcons\addRecord.png" />
-    <None Remove="Assets\ButtonIcons\clear2.png" />
-    <None Remove="Assets\ButtonIcons\deleteRecord.png" />
-    <None Remove="Assets\ButtonIcons\exit2.png" />
-    <None Remove="Assets\ButtonIcons\icon.png" />
-    <None Remove="Assets\ButtonIcons\icon2.ico" />
-    <None Remove="Assets\ButtonIcons\icon2.png" />
-    <None Remove="Assets\ButtonIcons\icon_old.png" />
-    <None Remove="Assets\ButtonIcons\loadLocally.png" />
-    <None Remove="Assets\ButtonIcons\moveFile.png" />
-    <None Remove="Assets\ButtonIcons\newFile.png" />
-    <None Remove="Assets\ButtonIcons\newVersion.png" />
-    <None Remove="Assets\ButtonIcons\off2.png" />
-    <None Remove="Assets\ButtonIcons\on2.png" />
-    <None Remove="Assets\ButtonIcons\openContainingFolder.png" />
-    <None Remove="Assets\ButtonIcons\openFile.png" />
-    <None Remove="Assets\ButtonIcons\openLocalFolder.png" />
-    <None Remove="Assets\ButtonIcons\revert.png" />
-    <None Remove="Assets\ButtonIcons\saveAs2.png" />
-    <None Remove="Assets\ButtonIcons\saveChanges.png" />
-    <None Remove="Assets\ButtonIcons\saveLocally.png" />
-    <None Remove="Assets\ButtonIcons\search.png" />
-    <None Remove="Assets\ButtonIcons\selectLast.png" />
-    <None Remove="Assets\ButtonIcons\selectLast2.png" />
-    <None Remove="Assets\ButtonIcons\x.png" />
-    <None Remove="Assets\openContainingFolder.png" />
-    <None Remove="Assets\ProgramIcon\icon2.ico" />
-    <None Remove="Source\Views\loadLocally.png" />
-  </ItemGroup>
-
-  <ItemGroup>
         <Content Include="Assets\ProgramIcon\icon2.ico" />
   </ItemGroup>
 

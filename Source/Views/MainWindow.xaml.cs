@@ -79,6 +79,7 @@ namespace WatchedFilmsTracker
             fileManager = new FileManager();
             fileManager.setUpFilmsDataGrid(filmsGrid);
             fileManager.setUpMainWindow(this);
+            fileManager.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
             localFilmsFilesService = new LocalFilmsFilesService(fileManager);
             LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
@@ -209,11 +210,11 @@ namespace WatchedFilmsTracker
         {
             fileManager.FilmsFile.ListOfFilms.Clear();
             fileManager.AnyChangeHappen();
+            fileManager.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
         }
 
-        private void DeleteFilmRecord(object sender, RoutedEventArgs e)
+        public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine($"films file here is: {fileManager.FilmsFile.FilePath}, and filmsfire from filemanager is: {fileManager.FilmsFile.FilePath}");
             FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
             if (selected != null)
             {
@@ -262,7 +263,7 @@ namespace WatchedFilmsTracker
             fileManager.NewFile();
         }
 
-        private void NewFilmRecord(object sender, RoutedEventArgs e)
+        private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("new film record");
             FilmRecord newRecord = new FilmRecord(fileManager.FilmsObservableList.Count + 1);

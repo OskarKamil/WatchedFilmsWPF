@@ -149,6 +149,14 @@
                                     <Image Source="\Assets\ButtonIcons\about2.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                     <TextBlock Text="About" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </StackPanel>
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Check for updates"  />
+                                        <MenuItem Header="Open GitHub page"  />
+                                        <MenuItem Header="Open project page" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                   
                             </Button>
                         </StackPanel>
                     </GroupBox>
@@ -158,13 +166,13 @@
                         <GroupBox x:Name="groupBoxQuickActions"  HorizontalAlignment="Left">
                             <GroupBox.Header>Quick actions</GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <Button x:Name="buttonNewFilmRecord"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="NewFilmRecord">
+                                <Button x:Name="buttonNewFilmRecord"  HorizontalAlignment="Left"  VerticalAlignment="Top" UseLayoutRounding="False" Click="NewFilmRecord_ButtonClick">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\addrecord.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                         <TextBlock Text="New film record" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Button>
-                                <Button x:Name="buttonDeleteFilmRecord"  HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Click="DeleteFilmRecord">
+                                <Button x:Name="buttonDeleteFilmRecord"  HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Click="DeleteFilmRecord_ButtonClick">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\deleterecord.png" Stretch="None" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                                         <TextBlock Text="Delete film record" HorizontalAlignment="Left" VerticalAlignment="Center" />
