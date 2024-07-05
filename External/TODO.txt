@@ -1,5 +1,6 @@
 **Immediate (NOW):**
 - Move addfilmrecord, removefilmrecord to collectionsoffilms.
+	check todo tasks
 - Add a button or right click option to open google search result with film title and year.
 
 **Upcoming (SOON):**

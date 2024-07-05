@@ -104,5 +104,7 @@
 - The program doesn't containt unncessary files like .pdb or .config anymore.
 - Config file is created with default values if it doesn't exist.
 - When updating to the new version, the new version folder doesn't containt config files which would overwrite user preferences.
-- New context menu when you right click on a film record. You can delete a delete record.
+- New context menu when you right click on a film record.
+- New context menu item: it deletes a selected film record.
+- New context menu item: it opens a default internet browser with a google result of selected film: English title and release year.
 - 

@@ -2,7 +2,7 @@
 
 namespace WatchedFilmsTracker.Source.Models
 {
-    internal class DecadalStatistic
+    public class DecadalStatistic
     {
         private double averageRating;
         private string averageRatingString;

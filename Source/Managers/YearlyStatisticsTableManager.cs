@@ -3,7 +3,7 @@ using System.Windows.Data;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
-    internal class YearlyStatisticsTableManager
+    public class YearlyStatisticsTableManager
 
     {
         private DataGrid dataGrid;

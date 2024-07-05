@@ -13,9 +13,9 @@ using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
-    internal class FilmsTextFile
+    public class FilmsTextFile
     {
-        private CollectionOfFilms _filmsFile;
+        private CollectionOfFilms _collectionOfFilms;
         private ObservableCollection<FilmRecord> _filmsObservableList;
         private StatisticsManager _statisticsManager;
         private DataGrid _visualFilmsTable;
@@ -30,16 +30,59 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public event EventHandler<CollectionOfFilms> SavedComplete;
 
+        public CollectionOfFilms CollectionOfFilms { get => _collectionOfFilms; set => _collectionOfFilms = value; }
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
-        public CollectionOfFilms FilmsFile { get => _filmsFile; set => _filmsFile = value; }
-
         public ObservableCollection<FilmRecord> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
-        internal StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
+        public StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
+        public DataGrid VisualFilmsTable { get => _visualFilmsTable; set => _visualFilmsTable = value; }
+
+        public void AddContextMenuForTheItem(DataGrid dataGrid)
+        {
+            dataGrid.LoadingRow += (s, e) =>
+            {
+                FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
+                if (filmRecord == null) return;
+
+                // Create context menu
+                ContextMenu contextMenu = new ContextMenu();
+
+                // Delete record menu item
+                MenuItem deleteRecordMenuItem = new MenuItem()
+                {
+                    Header = "Delete record",
+                    Icon = new Image()
+                    {
+                        Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
+                    }
+                };
+                deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
+                contextMenu.Items.Add(deleteRecordMenuItem);
+
+                // Search film on the internet menu item
+                MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
+                {
+                    Header = "Search film on the internet",
+                    Icon = new Image()
+                    {
+                        Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
+                    }
+                };
+                searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
+                {
+                    string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
+                    string url = $"https://www.google.com/search?q={query}";
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                };
+                contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
+
+                e.Row.ContextMenu = contextMenu;
+            };
+        }
 
         public void AfterFileHasBeenLoaded()
         {
-            FilmsObservableList = FilmsFile.ListOfFilms;
-            _visualFilmsTable.ItemsSource = FilmsObservableList;
+            FilmsObservableList = CollectionOfFilms.ListOfFilms;
+            VisualFilmsTable.ItemsSource = FilmsObservableList;
 
             // Subscribe to PropertyChanged event of each FilmRecord instance
             FilmsObservableList.CollectionChanged += filmsListHasChanged;
@@ -49,12 +92,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
             }
 
-            SettingsManager.LastPath = FilmsFile.FilePath;
+            SettingsManager.LastPath = CollectionOfFilms.FilePath;
             ProgramStateManager.IsUnsavedChange = false;
             ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
 
-            if (string.IsNullOrEmpty(FilmsFile.FilePath))
+            if (string.IsNullOrEmpty(CollectionOfFilms.FilePath))
             {
                 ProgramStateManager.IsFileSavedOnDisk = false;
                 ProgramStateManager.IsFileInLocalMyDataFolder = false;
@@ -63,7 +106,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 ProgramStateManager.IsFileSavedOnDisk = true;
 
-                string lastDirectory = Directory.GetParent(FilmsFile.FilePath).Name;
+                string lastDirectory = Directory.GetParent(CollectionOfFilms.FilePath).Name;
                 Debug.WriteLine($"{lastDirectory} is folder where the file is in");
                 if (lastDirectory == "MyData")
                     ProgramStateManager.IsFileInLocalMyDataFolder = true;
@@ -73,30 +116,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             StatisticsManager = new StatisticsManager(FilmsObservableList);
             _window.UpdateStageTitle();
-            FilmsFile.CloseReader();
+            CollectionOfFilms.CloseReader();
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
-            Image deleteIcon = new Image();
-            deleteIcon.Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"));
-
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem deleteRecordMenuItem = new MenuItem() { Header = "Delete record", Icon = deleteIcon };
-            MenuItem searchFilmOnTheInternet = new MenuItem() { Header = "Search film on the internet" };
-
-            // Check if the action is not null before attaching it
-            if (DeleteRecordAction != null)
-            {
-                deleteRecordMenuItem.Click += (sender, args) => DeleteRecordAction(sender, args);
-            }
-
-            contextMenu.Items.Add(deleteRecordMenuItem);
-            contextMenu.Items.Add(searchFilmOnTheInternet);
-            _visualFilmsTable.LoadingRow += (s, e) =>
-            {
-                e.Row.ContextMenu = contextMenu;
-            };
+            AddContextMenuForTheItem(VisualFilmsTable);
 
             _ = _window.UpdateStatistics();
         }
@@ -114,8 +139,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             Debug.WriteLine("Stop with shutdown");
             if (ProgramStateManager.IsUnsavedChange)
             {
-                Debug.WriteLine(_filmsFile.FilePath);
-                if (_filmsFile.FilePath == "New File" || !SettingsManager.AutoSave)
+                Debug.WriteLine(_collectionOfFilms.FilePath);
+                if (_collectionOfFilms.FilePath == "New File" || !SettingsManager.AutoSave)
                 {
                     return ShowSaveChangesDialog();
                 }
@@ -173,13 +198,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
-                FilmsFile = new CollectionOfFilms();
-                FilmsFile.StartReader();
+                CollectionOfFilms = new CollectionOfFilms(this);
+                CollectionOfFilms.StartReader();
             }
             else
             {
-                FilmsFile = new CollectionOfFilms(newFilePath);
-                FilmsFile.StartReader();
+                CollectionOfFilms = new CollectionOfFilms(newFilePath, this);
+                CollectionOfFilms.StartReader();
             }
             AfterFileHasBeenLoaded();
         }
@@ -190,8 +215,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 if (CloseFileAndAskToSave())
                 {
-                    FilmsFile = new CollectionOfFilms();
-                    FilmsFile.StartReader();
+                    CollectionOfFilms = new CollectionOfFilms(this);
+                    CollectionOfFilms.StartReader();
                 }
                 else
                 {
@@ -200,15 +225,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
             else
             {
-                FilmsFile = new CollectionOfFilms(newFilePath);
-                FilmsFile.StartReader();
+                CollectionOfFilms = new CollectionOfFilms(newFilePath, this);
+                CollectionOfFilms.StartReader();
             }
             AfterFileHasBeenLoaded();
         }
 
         public bool Save()
         {
-            string filePath = _filmsFile.FilePath;
+            string filePath = _collectionOfFilms.FilePath;
             bool saved = false;
 
             if (string.IsNullOrEmpty(filePath))
@@ -217,8 +242,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 return saved;
             }
 
-            _filmsFile.StartWriter(filePath);
-            OnSaveCompleted(_filmsFile);
+            _collectionOfFilms.StartWriter(filePath);
+            OnSaveCompleted(_collectionOfFilms);
             ProgramStateManager.IsUnsavedChange = false;
 
             // Return true if saving was successful
@@ -231,9 +256,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             saveFileDialog.Title = "Save file as";
             saveFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-            if (!string.IsNullOrEmpty(_filmsFile.FilePath))
+            if (!string.IsNullOrEmpty(_collectionOfFilms.FilePath))
             {
-                string parentDirectory = Directory.GetParent(_filmsFile.FilePath)?.FullName;
+                string parentDirectory = Directory.GetParent(_collectionOfFilms.FilePath)?.FullName;
                 if (!string.IsNullOrEmpty(parentDirectory))
                 {
                     saveFileDialog.InitialDirectory = parentDirectory;
@@ -242,7 +267,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                _filmsFile.StartWriter(saveFileDialog.FileName);
+                _collectionOfFilms.StartWriter(saveFileDialog.FileName);
                 OpenFilepath(saveFileDialog.FileName);
                 return true;
             }
@@ -251,19 +276,19 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void SaveFileAtLocation(string filepath)
         {
-            _filmsFile.StartWriter(filepath);
+            _collectionOfFilms.StartWriter(filepath);
             OpenFilepath(filepath);
         }
 
         public void ScrollToBottomOfList()
         {
             if (FilmsObservableList.Count > 0)
-                _visualFilmsTable.ScrollIntoView(FilmsObservableList.ElementAt(FilmsObservableList.Count - 1));
+                VisualFilmsTable.ScrollIntoView(FilmsObservableList.ElementAt(FilmsObservableList.Count - 1));
         }
 
         public void setUpFilmsDataGrid(DataGrid dataGrid)
         {
-            _visualFilmsTable = dataGrid;
+            VisualFilmsTable = dataGrid;
         }
 
         public void setUpMainWindow(MainWindow window)

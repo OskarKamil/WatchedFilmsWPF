@@ -4,9 +4,9 @@ using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
-    internal class StatisticsManager
+    public class StatisticsManager
     {
-              private ObservableCollection<FilmRecord> filmRecords;
+        private ObservableCollection<FilmRecord> filmRecords;
 
         public StatisticsManager(ObservableCollection<FilmRecord> filmsObservableList)
         {

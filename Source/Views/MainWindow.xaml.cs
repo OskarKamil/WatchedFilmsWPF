@@ -22,8 +22,8 @@ namespace WatchedFilmsTracker
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
-        private FilmsTextFile filmsFileHandler;
         private FilmsTableColumnManager filmsColumnsManager;
+        private FilmsTextFile filmsFileHandler;
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
         private MainWindowViewModel viewModel;
@@ -111,6 +111,12 @@ namespace WatchedFilmsTracker
 
         public event EventHandler FileOpened;
 
+        public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
+        {
+            FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
+            filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
+        }
+
         public void UpdateNumberOfFilms()
         {
             viewModel.TotalFilmsWatched = filmsFileHandler.StatisticsManager.GetNumberOfTotalWatchedFilms();
@@ -125,10 +131,10 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            if (filmsFileHandler.FilmsFile is null || string.IsNullOrEmpty(filmsFileHandler.FilmsFile.FilePath))
+            if (filmsFileHandler.CollectionOfFilms is null || string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath))
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
             else
-                stageTitle += filmsFileHandler.FilmsFile.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+                stageTitle += filmsFileHandler.CollectionOfFilms.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
 
             this.Title = stageTitle;
         }
@@ -209,26 +215,8 @@ namespace WatchedFilmsTracker
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.FilmsFile.ListOfFilms.Clear();
-            filmsFileHandler.AnyChangeHappen();
-            filmsFileHandler.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
-        }
+            filmsFileHandler.CollectionOfFilms.DeleteAllRecords();
 
-        public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e)
-        {
-            FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
-            if (selected != null)
-            {
-                int selectedIndex = filmsGrid.SelectedIndex;
-                filmsFileHandler.FilmsFile.DeleteRecordFromList(selected);
-                if (selectedIndex == filmsGrid.Items.Count)
-                    filmsGrid.SelectedIndex = selectedIndex - 1;
-                else
-                {
-                    filmsGrid.SelectedIndex = selectedIndex;
-                }
-                filmsFileHandler.AnyChangeHappen();
-            }
         }
 
         private void LoadLocally(object sender, RoutedEventArgs e)
@@ -264,35 +252,21 @@ namespace WatchedFilmsTracker
             filmsFileHandler.NewFile();
         }
 
-        private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e)
+        private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
         {
-            Debug.WriteLine("new film record");
-            FilmRecord newRecord = new FilmRecord(filmsFileHandler.FilmsObservableList.Count + 1);
-            newRecord.PropertyChanged += filmsFileHandler.FilmRecord_PropertyChanged;
-            filmsFileHandler.FilmsObservableList.Add(newRecord);
-            if (filmsGrid.ItemsSource == filmsFileHandler.FilmsObservableList)
-            {
-                filmsGrid.SelectedItem = newRecord;
-                filmsGrid.ScrollIntoView(filmsGrid.SelectedItem);
-            }
-
-            if (SettingsManager.DefaultDateIsToday)
-            {
-                string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
-                newRecord.WatchDate = (formattedString);
-            }
-            filmsFileHandler.AnyChangeHappen();
+            filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
+           
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(filmsFileHandler.FilmsFile.FilePath))
+            if (File.Exists(filmsFileHandler.CollectionOfFilms.FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + filmsFileHandler.FilmsFile.FilePath);
+                Process.Start("explorer.exe", "/select, " + filmsFileHandler.CollectionOfFilms.FilePath);
             }
             else
             {
-                Debug.WriteLine($"{filmsFileHandler.FilmsFile.FilePath} cannot be found");
+                Debug.WriteLine($"{filmsFileHandler.CollectionOfFilms.FilePath} cannot be found");
             }
         }
 
@@ -304,13 +278,13 @@ namespace WatchedFilmsTracker
                 openFileDialog.Title = "Open file";
                 openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-                if (string.IsNullOrEmpty(filmsFileHandler.FilmsFile.FilePath) || !(File.Exists(filmsFileHandler.FilmsFile.FilePath)))
+                if (string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath) || !(File.Exists(filmsFileHandler.CollectionOfFilms.FilePath)))
                 {
                     openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
                 }
                 else
                 {
-                    string parentDirectory = Directory.GetParent(filmsFileHandler.FilmsFile.FilePath)?.FullName;
+                    string parentDirectory = Directory.GetParent(filmsFileHandler.CollectionOfFilms.FilePath)?.FullName;
                     if (!string.IsNullOrEmpty(parentDirectory))
                     {
                         openFileDialog.InitialDirectory = parentDirectory;
@@ -341,12 +315,12 @@ namespace WatchedFilmsTracker
 
         private void RevertChanges(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(filmsFileHandler.FilmsFile.FilePath))
+            if (string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath))
             {
-                filmsFileHandler.FilmsFile.ListOfFilms.Clear();
+                filmsFileHandler.CollectionOfFilms.ListOfFilms.Clear();
             }
             else
-                OpenFilepath(filmsFileHandler.FilmsFile.FilePath);
+                OpenFilepath(filmsFileHandler.CollectionOfFilms.FilePath);
             searchManager.SearchFilms();
         }
 
@@ -423,7 +397,7 @@ namespace WatchedFilmsTracker
 
         private void UpdateAverageFilmRating()
         {
-            if (filmsFileHandler.FilmsFile.ListOfFilms.Count == 0)
+            if (filmsFileHandler.CollectionOfFilms.ListOfFilms.Count == 0)
             {
                 averageRatingLabel.Content = "No data";
             }
