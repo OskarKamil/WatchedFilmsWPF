@@ -3,9 +3,9 @@ using System.Globalization;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Services.Csv;
 
-namespace WatchedFilmsTracker.Source.Managers
+namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
-    public class RecordManager
+    public class CollectionOfFilms
     {
         private string fileColumns;
         private string filePath;
@@ -13,14 +13,14 @@ namespace WatchedFilmsTracker.Source.Managers
         private CSVreader reader;
         private CSVwriter writer;
 
-        public RecordManager(string filePath)
+        public CollectionOfFilms(string filePath)
         {
             this.filePath = filePath;
         }
 
-        public RecordManager()
+        public CollectionOfFilms()
         {
-            this.filePath = null;
+            filePath = null;
         }
 
         public string FilePath

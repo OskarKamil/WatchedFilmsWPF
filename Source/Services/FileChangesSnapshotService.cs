@@ -1,19 +1,19 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.Services
 {
     internal class FileChangesSnapshotService
     {
         public const int MAX_NUMBER_OF_SNAPSHOTS = 5;
-        private static FileManager fileManager;
+        private static FilmsTextFile fileManager;
         private static string filePattern = "snapshot_*.txt";
         private static string snapshotDirectory = "";
         private static string[] snapshotFiles = null;
-        internal static FileManager FileManager { get => fileManager; set => fileManager = value; }
+        internal static FilmsTextFile FileManager { get => fileManager; set => fileManager = value; }
 
-        public static void CreateNewSnapshot(RecordManager filmsFile)
+        public static void CreateNewSnapshot(CollectionOfFilms filmsFile)
         {
             filmsFile.StartWriter(snapshotDirectory + "/" + $"snapshot_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
             int numberOfSnapshots = GetSnapshotFiles().Length;
@@ -80,7 +80,7 @@ namespace WatchedFilmsTracker.Source.Services
             FileManager.SavedComplete += HandleSaveCompleted;
         }
 
-        private static void HandleSaveCompleted(object sender, RecordManager filmsFile)
+        private static void HandleSaveCompleted(object sender, CollectionOfFilms filmsFile)
         {
             CreateNewSnapshot(filmsFile);
         }

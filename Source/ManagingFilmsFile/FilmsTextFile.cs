@@ -6,30 +6,32 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Views;
 
-namespace WatchedFilmsTracker.Source.Managers
+namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
-    internal class FileManager
+    internal class FilmsTextFile
     {
-        private RecordManager _filmsFile;
+        private CollectionOfFilms _filmsFile;
         private ObservableCollection<FilmRecord> _filmsObservableList;
         private StatisticsManager _statisticsManager;
         private DataGrid _visualFilmsTable;
         private MainWindow _window;
 
-        public FileManager()
+        public FilmsTextFile()
         {
             FilmsObservableList = new ObservableCollection<FilmRecord>();
         }
 
         public event EventHandler AnyChangeHappenedEvent;
 
-        public event EventHandler<RecordManager> SavedComplete;
+        public event EventHandler<CollectionOfFilms> SavedComplete;
 
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
-        public RecordManager FilmsFile { get => _filmsFile; set => _filmsFile = value; }
+        public CollectionOfFilms FilmsFile { get => _filmsFile; set => _filmsFile = value; }
 
         public ObservableCollection<FilmRecord> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
         internal StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
@@ -47,9 +49,9 @@ namespace WatchedFilmsTracker.Source.Managers
                 filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
             }
 
-            SettingsManager.LastPath = (FilmsFile.FilePath);
-            ProgramStateManager.IsUnsavedChange = (false);
-            ProgramStateManager.IsAnyChange = (false);
+            SettingsManager.LastPath = FilmsFile.FilePath;
+            ProgramStateManager.IsUnsavedChange = false;
+            ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
 
             if (string.IsNullOrEmpty(FilmsFile.FilePath))
@@ -76,8 +78,11 @@ namespace WatchedFilmsTracker.Source.Managers
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
+            Image deleteIcon = new Image();
+            deleteIcon.Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"));
+
             ContextMenu contextMenu = new ContextMenu();
-            MenuItem deleteRecordMenuItem = new MenuItem() { Header = "Delete record" };
+            MenuItem deleteRecordMenuItem = new MenuItem() { Header = "Delete record", Icon = deleteIcon };
             MenuItem searchFilmOnTheInternet = new MenuItem() { Header = "Search film on the internet" };
 
             // Check if the action is not null before attaching it
@@ -159,21 +164,21 @@ namespace WatchedFilmsTracker.Source.Managers
             OpenFilepath(null);
         }
 
-        public void OnSaveCompleted(RecordManager filmsFile)
+        public void OnSaveCompleted(CollectionOfFilms filmsFile)
         {
             SavedComplete?.Invoke(this, filmsFile);
         }
 
         public void OpenFilepath(string? newFilePath)
         {
-            if (string.IsNullOrEmpty(newFilePath) || !(File.Exists(newFilePath)))
+            if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
-                FilmsFile = new RecordManager();
+                FilmsFile = new CollectionOfFilms();
                 FilmsFile.StartReader();
             }
             else
             {
-                FilmsFile = new RecordManager(newFilePath);
+                FilmsFile = new CollectionOfFilms(newFilePath);
                 FilmsFile.StartReader();
             }
             AfterFileHasBeenLoaded();
@@ -181,11 +186,11 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public void OpenFilepathButSaveChangesFirst(string? newFilePath)
         {
-            if (string.IsNullOrEmpty(newFilePath) || !(File.Exists(newFilePath)))
+            if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
                 if (CloseFileAndAskToSave())
                 {
-                    FilmsFile = new RecordManager();
+                    FilmsFile = new CollectionOfFilms();
                     FilmsFile.StartReader();
                 }
                 else
@@ -195,7 +200,7 @@ namespace WatchedFilmsTracker.Source.Managers
             }
             else
             {
-                FilmsFile = new RecordManager(newFilePath);
+                FilmsFile = new CollectionOfFilms(newFilePath);
                 FilmsFile.StartReader();
             }
             AfterFileHasBeenLoaded();
@@ -214,7 +219,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             _filmsFile.StartWriter(filePath);
             OnSaveCompleted(_filmsFile);
-            ProgramStateManager.IsUnsavedChange = (false);
+            ProgramStateManager.IsUnsavedChange = false;
 
             // Return true if saving was successful
             return true;
@@ -263,7 +268,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public void setUpMainWindow(MainWindow window)
         {
-            this._window = window;
+            _window = window;
         }
 
         public void setUpStatisticsManager(StatisticsManager newStatisticsManager)
@@ -274,7 +279,7 @@ namespace WatchedFilmsTracker.Source.Managers
         public bool ShowSaveChangesDialog()
         {
             SaveChangesDialog dialog = new SaveChangesDialog();
-            dialog.Owner = System.Windows.Application.Current.MainWindow;
+            dialog.Owner = Application.Current.MainWindow;
             dialog.ShowDialog();
 
             switch (dialog.Result)

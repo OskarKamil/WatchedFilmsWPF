@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.Services
@@ -13,9 +13,9 @@ namespace WatchedFilmsTracker.Source.Services
         private static readonly string WATCHED_FILMS_FILENAME_PATTERN = "MyFilms*.*";
         private static string myDataDirectory;
         private static string programDirectory;
-        private FileManager myFileManager;
+        private FilmsTextFile myFileManager;
 
-        public LocalFilmsFilesService(FileManager myFileManager)
+        public LocalFilmsFilesService(FilmsTextFile myFileManager)
         {
             this.myFileManager = myFileManager;
         }

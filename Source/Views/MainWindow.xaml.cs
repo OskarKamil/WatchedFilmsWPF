@@ -9,6 +9,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Services;
 using static WatchedFilmsTracker.Source.Services.CheckForUpdateService;
@@ -21,7 +22,7 @@ namespace WatchedFilmsTracker
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
-        private FileManager fileManager;
+        private FilmsTextFile filmsFileHandler;
         private FilmsTableColumnManager filmsColumnsManager;
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
@@ -76,11 +77,11 @@ namespace WatchedFilmsTracker
             filmsColumnsManager = new FilmsTableColumnManager(filmsGrid); // constructor builds columns and binds values
 
             //FILEMANAGER
-            fileManager = new FileManager();
-            fileManager.setUpFilmsDataGrid(filmsGrid);
-            fileManager.setUpMainWindow(this);
-            fileManager.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
-            localFilmsFilesService = new LocalFilmsFilesService(fileManager);
+            filmsFileHandler = new FilmsTextFile();
+            filmsFileHandler.setUpFilmsDataGrid(filmsGrid);
+            filmsFileHandler.setUpMainWindow(this);
+            filmsFileHandler.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
+            localFilmsFilesService = new LocalFilmsFilesService(filmsFileHandler);
             LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
             //STATISTICS DISPLAY COLUMNS
@@ -89,11 +90,11 @@ namespace WatchedFilmsTracker
 
             //SNAPSHOT SERVICE
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
-            FileChangesSnapshotService.FileManager = fileManager;
+            FileChangesSnapshotService.FileManager = filmsFileHandler;
             FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
             //SEARCH MANAGER
-            searchManager = new SearchManager(fileManager, searchTextBox, filmsGrid);
+            searchManager = new SearchManager(filmsFileHandler, searchTextBox, filmsGrid);
 
             //LOAD LAST FILEPATH
             OpenFilepath(SettingsManager.LastPath);
@@ -112,7 +113,7 @@ namespace WatchedFilmsTracker
 
         public void UpdateNumberOfFilms()
         {
-            viewModel.TotalFilmsWatched = fileManager.StatisticsManager.GetNumberOfTotalWatchedFilms();
+            viewModel.TotalFilmsWatched = filmsFileHandler.StatisticsManager.GetNumberOfTotalWatchedFilms();
         }
 
         public void UpdateStageTitle()
@@ -124,10 +125,10 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            if (fileManager.FilmsFile is null || string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
+            if (filmsFileHandler.FilmsFile is null || string.IsNullOrEmpty(filmsFileHandler.FilmsFile.FilePath))
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
             else
-                stageTitle += fileManager.FilmsFile.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+                stageTitle += filmsFileHandler.FilmsFile.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
 
             this.Title = stageTitle;
         }
@@ -208,9 +209,9 @@ namespace WatchedFilmsTracker
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
-            fileManager.FilmsFile.ListOfFilms.Clear();
-            fileManager.AnyChangeHappen();
-            fileManager.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
+            filmsFileHandler.FilmsFile.ListOfFilms.Clear();
+            filmsFileHandler.AnyChangeHappen();
+            filmsFileHandler.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
         }
 
         public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e)
@@ -219,26 +220,26 @@ namespace WatchedFilmsTracker
             if (selected != null)
             {
                 int selectedIndex = filmsGrid.SelectedIndex;
-                fileManager.FilmsFile.DeleteRecordFromList(selected);
+                filmsFileHandler.FilmsFile.DeleteRecordFromList(selected);
                 if (selectedIndex == filmsGrid.Items.Count)
                     filmsGrid.SelectedIndex = selectedIndex - 1;
                 else
                 {
                     filmsGrid.SelectedIndex = selectedIndex;
                 }
-                fileManager.AnyChangeHappen();
+                filmsFileHandler.AnyChangeHappen();
             }
         }
 
         private void LoadLocally(object sender, RoutedEventArgs e)
         {
-            fileManager.LoadLocally();
+            filmsFileHandler.LoadLocally();
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             // Call the ShutDown method when the window is closing
-            bool canClose = fileManager.CloseFileAndAskToSave();
+            bool canClose = filmsFileHandler.CloseFileAndAskToSave();
 
             // Cancel the closing event if necessary
 
@@ -260,16 +261,16 @@ namespace WatchedFilmsTracker
 
         private void NewFile(object sender, RoutedEventArgs e)
         {
-            fileManager.NewFile();
+            filmsFileHandler.NewFile();
         }
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("new film record");
-            FilmRecord newRecord = new FilmRecord(fileManager.FilmsObservableList.Count + 1);
-            newRecord.PropertyChanged += fileManager.FilmRecord_PropertyChanged;
-            fileManager.FilmsObservableList.Add(newRecord);
-            if (filmsGrid.ItemsSource == fileManager.FilmsObservableList)
+            FilmRecord newRecord = new FilmRecord(filmsFileHandler.FilmsObservableList.Count + 1);
+            newRecord.PropertyChanged += filmsFileHandler.FilmRecord_PropertyChanged;
+            filmsFileHandler.FilmsObservableList.Add(newRecord);
+            if (filmsGrid.ItemsSource == filmsFileHandler.FilmsObservableList)
             {
                 filmsGrid.SelectedItem = newRecord;
                 filmsGrid.ScrollIntoView(filmsGrid.SelectedItem);
@@ -280,36 +281,36 @@ namespace WatchedFilmsTracker
                 string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
                 newRecord.WatchDate = (formattedString);
             }
-            fileManager.AnyChangeHappen();
+            filmsFileHandler.AnyChangeHappen();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(fileManager.FilmsFile.FilePath))
+            if (File.Exists(filmsFileHandler.FilmsFile.FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + fileManager.FilmsFile.FilePath);
+                Process.Start("explorer.exe", "/select, " + filmsFileHandler.FilmsFile.FilePath);
             }
             else
             {
-                Debug.WriteLine($"{fileManager.FilmsFile.FilePath} cannot be found");
+                Debug.WriteLine($"{filmsFileHandler.FilmsFile.FilePath} cannot be found");
             }
         }
 
         private void OpenFileChooser(object sender, RoutedEventArgs e)
         {
-            if (fileManager.CloseFileAndAskToSave())
+            if (filmsFileHandler.CloseFileAndAskToSave())
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Title = "Open file";
                 openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-                if (string.IsNullOrEmpty(fileManager.FilmsFile.FilePath) || !(File.Exists(fileManager.FilmsFile.FilePath)))
+                if (string.IsNullOrEmpty(filmsFileHandler.FilmsFile.FilePath) || !(File.Exists(filmsFileHandler.FilmsFile.FilePath)))
                 {
                     openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
                 }
                 else
                 {
-                    string parentDirectory = Directory.GetParent(fileManager.FilmsFile.FilePath)?.FullName;
+                    string parentDirectory = Directory.GetParent(filmsFileHandler.FilmsFile.FilePath)?.FullName;
                     if (!string.IsNullOrEmpty(parentDirectory))
                     {
                         openFileDialog.InitialDirectory = parentDirectory;
@@ -325,7 +326,7 @@ namespace WatchedFilmsTracker
 
         private void OpenFilepath(string? newFilePath)
         {
-            fileManager.OpenFilepathButSaveChangesFirst(newFilePath);
+            filmsFileHandler.OpenFilepathButSaveChangesFirst(newFilePath);
         }
 
         private void OpenLocalFolder(object sender, RoutedEventArgs e)
@@ -340,23 +341,23 @@ namespace WatchedFilmsTracker
 
         private void RevertChanges(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(fileManager.FilmsFile.FilePath))
+            if (string.IsNullOrEmpty(filmsFileHandler.FilmsFile.FilePath))
             {
-                fileManager.FilmsFile.ListOfFilms.Clear();
+                filmsFileHandler.FilmsFile.ListOfFilms.Clear();
             }
             else
-                OpenFilepath(fileManager.FilmsFile.FilePath);
+                OpenFilepath(filmsFileHandler.FilmsFile.FilePath);
             searchManager.SearchFilms();
         }
 
         private void Save(object sender, RoutedEventArgs e)
         {
-            fileManager.Save();
+            filmsFileHandler.Save();
         }
 
         private void SaveAs(object sender, RoutedEventArgs e)
         {
-            fileManager.SaveAs();
+            filmsFileHandler.SaveAs();
         }
 
         private void SaveLocally(object sender, RoutedEventArgs e)
@@ -417,18 +418,18 @@ namespace WatchedFilmsTracker
         private void SelectLastButton(object sender, RoutedEventArgs e)
 
         {
-            fileManager.ScrollToBottomOfList();
+            filmsFileHandler.ScrollToBottomOfList();
         }
 
         private void UpdateAverageFilmRating()
         {
-            if (fileManager.FilmsFile.ListOfFilms.Count == 0)
+            if (filmsFileHandler.FilmsFile.ListOfFilms.Count == 0)
             {
                 averageRatingLabel.Content = "No data";
             }
             else
             {
-                double averageRating = fileManager.StatisticsManager.GetAverageFilmRating();
+                double averageRating = filmsFileHandler.StatisticsManager.GetAverageFilmRating();
                 averageRatingLabel.Content = StatisticsManager.FormattedRating(averageRating);
             }
         }
@@ -440,7 +441,7 @@ namespace WatchedFilmsTracker
 
             try
             {
-                ObservableCollection<DecadalStatistic> decadesOfFilms = await fileManager.StatisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
+                ObservableCollection<DecadalStatistic> decadesOfFilms = await filmsFileHandler.StatisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
 
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
@@ -459,7 +460,7 @@ namespace WatchedFilmsTracker
             cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
             try
             {
-                ObservableCollection<YearlyStatistic> yearsOfFilms = await fileManager.StatisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
+                ObservableCollection<YearlyStatistic> yearsOfFilms = await filmsFileHandler.StatisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     yearlyGrid.ItemsSource = yearsOfFilms;

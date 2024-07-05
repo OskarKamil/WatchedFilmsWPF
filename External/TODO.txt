@@ -1,8 +1,8 @@
 **Immediate (NOW):**
-- 
+- Move addfilmrecord, removefilmrecord to collectionsoffilms.
+- Add a button or right click option to open google search result with film title and year.
 
 **Upcoming (SOON):**
-- Add a button or right click option to open google search result with film title and year.
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
 - If release year or watch date is icorrect (unassigned from above), make the cell red but only after deselecting it, not in the middle of adding.
 - Clear all and autosave can result in losing all data if uncareful.

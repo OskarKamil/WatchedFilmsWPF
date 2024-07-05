@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows.Controls;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Managers
@@ -8,11 +9,11 @@ namespace WatchedFilmsTracker.Source.Managers
     internal class SearchManager
     {
         private string defaultSearchText;
-        private FileManager fileManager;
+        private FilmsTextFile fileManager;
         private DataGrid filmsGrid;
         private TextBox searchTextBox;
 
-        public SearchManager(FileManager fileManager, TextBox searchTextBox, DataGrid filmsGrid)
+        public SearchManager(FilmsTextFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
         {
             this.fileManager = fileManager;
             this.searchTextBox = searchTextBox;
