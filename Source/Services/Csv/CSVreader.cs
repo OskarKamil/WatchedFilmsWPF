@@ -8,12 +8,12 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 {
     public class CSVreader
     {
+        private string fileColumns;
         private string filePath;
         private StreamReader filmsFile;
-        private string fileColumns;
+        private IEnumerator<string> iterator;
         private string lineFromFile;
         private List<string> valuesFromLine;
-        private IEnumerator<string> iterator;
 
         public CSVreader(string newFilePath)
         {
@@ -69,12 +69,6 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         public string GetFilePath()
         {
             return filePath;
-        }
-
-        private string ReadFileColumns()
-        {
-            fileColumns = NextLine();
-            return fileColumns;
         }
 
         public FilmRecord GetNextFilmRecordFromFile()
@@ -134,6 +128,12 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             lineFromFile = NextLine();
             valuesFromLine = null;
             return lineFromFile;
+        }
+
+        private string ReadFileColumns()
+        {
+            fileColumns = NextLine();
+            return fileColumns;
         }
     }
 }

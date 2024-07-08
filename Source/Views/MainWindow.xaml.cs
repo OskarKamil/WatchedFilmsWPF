@@ -118,7 +118,6 @@ namespace WatchedFilmsTracker
 
         public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
         {
-            // in future create method to delete multiple records
             if (filmsGrid.SelectedCells.Count > 0)
             {
                 FilmRecord selected = filmsGrid.SelectedCells[0].Item as FilmRecord;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using WatchedFilmsTracker.Source.Models;
 
@@ -8,9 +6,9 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 {
     public class CSVwriter
     {
+        private string fileColumn;
         private string filePath;
         private StreamWriter filmsWriter;
-        private string fileColumn;
 
         public CSVwriter(string newFilePath)
         {
