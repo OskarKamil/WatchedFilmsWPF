@@ -42,12 +42,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             get { return listOfFilms; }
         }
 
-        public void DeleteAllRecords()
-        {
-            filmsFileHandler.CollectionOfFilms.ListOfFilms.Clear();
-            filmsFileHandler.AnyChangeHappen();
-        }
-
         public void AddEmptyRecordToList()
         {
             FilmRecord newRecord = new FilmRecord(listOfFilms.Count + 1);
@@ -72,24 +66,33 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             reader.CloseFile();
         }
 
+        public void DeleteAllRecords()
+        {
+            filmsFileHandler.CollectionOfFilms.ListOfFilms.Clear();
+            filmsFileHandler.AnyChangeHappen();
+        }
+
         public void DeleteRecordFromList(FilmRecord selected)
         {
-            if (selected != null)
-            {
-                int selectedIndex = filmsFileHandler.VisualFilmsTable.SelectedIndex;
-                if (selectedIndex == filmsFileHandler.VisualFilmsTable.Items.Count)
-                    filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 1;
-                else
-                {
-                    filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex;
-                }
-                filmsFileHandler.AnyChangeHappen();
-            }
+            if (selected == null) { return; }
+
+            int selectedIndex = filmsFileHandler.VisualFilmsTable.Items.IndexOf(selected);
 
             if (listOfFilms.Count == 0 || selected.IdInList == 0) return;
             int idOfSelected = selected.IdInList;
             listOfFilms.Remove(selected);
             RefreshFurtherIDs(idOfSelected);
+
+            // selecting the next record
+            filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
+            if (selectedIndex + 0 == filmsFileHandler.VisualFilmsTable.Items.Count)
+            {
+                filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 1;
+            }
+            else
+            {
+                filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 0;
+            }
         }
 
         public void LoadRecordsFromCSVToArray(CSVreader CSVfile)

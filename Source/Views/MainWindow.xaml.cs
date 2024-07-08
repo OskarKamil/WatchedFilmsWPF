@@ -101,11 +101,16 @@ namespace WatchedFilmsTracker
 
             //GRIDLIST SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;
+            filmsGrid.SelectedCellsChanged += (obs, args) =>
+            {
+                ProgramStateManager.IsSelectedCells = filmsGrid.SelectedCells != null;
+                Debug.WriteLine("Selected cells changes");
+            };
             filmsGrid.SelectionChanged += (obs, args) =>
             {
-                // A cell is selected
-                // No cell is selected
+                //   ProgramStateManager.IsSelectedCells = filmsGrid.SelectedCells != null;
                 ProgramStateManager.IsSelectedCells = filmsGrid.SelectedItem != null;
+                Debug.WriteLine("Selected rows changes");
             };
         }
 
@@ -113,8 +118,11 @@ namespace WatchedFilmsTracker
 
         public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
         {
-            FilmRecord selected = filmsGrid.SelectedItem as FilmRecord;
-            filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
+            if (filmsGrid.SelectedCells.Count > 0)
+            {
+                FilmRecord selected = filmsGrid.SelectedCells[0].Item as FilmRecord;
+                filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
+            }
         }
 
         public void UpdateNumberOfFilms()
@@ -216,7 +224,6 @@ namespace WatchedFilmsTracker
         private void ClearAll(object sender, RoutedEventArgs e)
         {
             filmsFileHandler.CollectionOfFilms.DeleteAllRecords();
-
         }
 
         private void LoadLocally(object sender, RoutedEventArgs e)
@@ -255,7 +262,6 @@ namespace WatchedFilmsTracker
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
         {
             filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
-           
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)

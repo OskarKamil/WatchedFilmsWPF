@@ -103,8 +103,9 @@
 - The example csv file is now named ExampleFile.csv.
 - The program doesn't containt unncessary files like .pdb or .config anymore.
 - Config file is created with default values if it doesn't exist.
-- When updating to the new version, the new version folder doesn't containt config files which would overwrite user preferences.
+- When updating to the new version, the new version folder doesn't contain config files which would overwrite user preferences.
 - New context menu when you right click on a film record.
 - New context menu item: it deletes a selected film record.
 - New context menu item: it opens a default internet browser with a google result of selected film: English title and release year.
-- 
+- Now you can select multiple cells in a table. (No use now, but you will be able to delete multiple records at once in the future. WIP)
+- The table now has different colours for alternating 3 rows for better readability.
