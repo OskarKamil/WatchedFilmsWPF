@@ -1,6 +1,5 @@
 **Immediate (NOW):**
-- Selecting one call will work as selecting all cells in the row.
-- Deleting a whole row will select whole next row.
+- 
 
 **Upcoming (SOON):**
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
