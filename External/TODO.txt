@@ -1,6 +1,7 @@
 **Immediate (NOW):**
 - Selecting one call will work as selecting all cells in the row.
 - Deleting a whole row will select whole next row.
+-
 
 **Upcoming (SOON):**
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
@@ -14,6 +15,12 @@
 	- If cancel or unexpected close happens. Do not store the last filepath. It will open big file again on startup. If cancel happens, open new empty file.
 - Investigate exceptions when debugging. The ones with tokens and tasks.
 - More flexible statistics. It requires releaseYear, rating, watchDate. If one of them is missing, it should display information about missing columns.
+- More flexible CSV file format. Start making it more custom.
+	- Datagrid autofill.
+	- Datagrid. User can add columns.
+	- Max film rating.
+	- FilmRecord maybe will have dictionary of values. If it works with datagrid source.
+-
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.
@@ -47,3 +54,4 @@
 - StatisticsManager has 2 heavy methods. GetDecadalReport and GetYearlyReport. Both generate new dictionaries and collections on each change of film record or the observable list.
 	- Maybe create a class StatisticsOfRecord and each FilmRecord object will have object of StatisticsOfRecord. And this class would have a decade and year property that will be easier to change and manage on per film basis. Each change would result in removing this object from the dictionary if change in watch date or release date would change the decade or the year.
 - If opening new file doesn't follow csv and this program style, it should display information that the data may display icorrectly because the file is not supported or sth like this.
+-
