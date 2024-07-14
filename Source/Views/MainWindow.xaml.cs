@@ -36,6 +36,7 @@ namespace WatchedFilmsTracker
             viewModel = new MainWindowViewModel();
             this.DataContext = viewModel;
             searchTextBox.Text = SearchBoxDefaultText;
+            
 
             Closing += MainWindow_Closing; // override closing window
 
@@ -103,14 +104,8 @@ namespace WatchedFilmsTracker
             ProgramStateManager.IsSelectedCells = false;
             filmsGrid.SelectedCellsChanged += (obs, args) =>
             {
-                ProgramStateManager.IsSelectedCells = filmsGrid.SelectedCells != null;
-                Debug.WriteLine("Selected cells changes");
-            };
-            filmsGrid.SelectionChanged += (obs, args) =>
-            {
-                //   ProgramStateManager.IsSelectedCells = filmsGrid.SelectedCells != null;
-                ProgramStateManager.IsSelectedCells = filmsGrid.SelectedItem != null;
-                Debug.WriteLine("Selected rows changes");
+                Debug.WriteLine("Selected cells changes, or deselected if filtered");
+                ProgramStateManager.IsSelectedCells = filmsGrid.SelectedCells.Count > 0;
             };
         }
 

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
@@ -24,6 +25,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public FilmsTextFile()
         {
             FilmsObservableList = new ObservableCollection<FilmRecord>();
+            SystemAccentColour.Initialize();
+            SystemAccentColour.AccentColorChanged += SystemAccentColour_AccentColorChanged;
         }
 
         public event EventHandler AnyChangeHappenedEvent;
@@ -31,9 +34,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public event EventHandler<CollectionOfFilms> SavedComplete;
 
         public CollectionOfFilms CollectionOfFilms { get => _collectionOfFilms; set => _collectionOfFilms = value; }
+
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
+
         public ObservableCollection<FilmRecord> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
+
         public StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
+
         public DataGrid VisualFilmsTable { get => _visualFilmsTable; set => _visualFilmsTable = value; }
 
         public void AddContextMenuForTheItem(DataGrid dataGrid)
@@ -91,6 +98,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
             }
+
+            // Increase the brightness of the brightAccentColour by 80%
+            _visualFilmsTable.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
             SettingsManager.LastPath = CollectionOfFilms.FilePath;
             ProgramStateManager.IsUnsavedChange = false;
@@ -360,6 +370,17 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     }
                 }
             }
+        }
+
+        private void SystemAccentColour_AccentColorChanged(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Accent colour changed");
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // Ensure UI updates happen on the UI thread
+                
+                _visualFilmsTable.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
+            });
         }
     }
 }
