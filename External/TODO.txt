@@ -1,6 +1,5 @@
 **Immediate (NOW):**
-- Selecting record, then filtering, does not disable the delete button. It should. 
-	- When filtering starts or ends, clear selection and check if button if disabled. Or disable button manually.
+-
 
 **Upcoming (SOON):**
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
@@ -19,7 +18,9 @@
 	- Datagrid. User can add columns.
 	- Max film rating.
 	- FilmRecord maybe will have dictionary of values. If it works with datagrid source.
--Use windows 11 accent colour for datagrid and other controls.
+- Use Windows accent colour for buttons and other elements.
+	- Create method that updates selected elements with accent colour.
+- 
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.

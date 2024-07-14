@@ -21,7 +21,7 @@ namespace WatchedFilmsTracker.Source
             // Convert RGB to HSL
             (double h, double s, double l) = RgbToHsl(color.R, color.G, color.B);
             // Set lightness to 80%
-            l = 0.8;
+            l = 0.85;
             // Convert back to RGB
             Color brightColor = HslToRgb(h, s, l);
             return brightColor;

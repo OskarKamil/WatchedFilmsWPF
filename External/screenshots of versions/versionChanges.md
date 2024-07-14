@@ -108,4 +108,8 @@
 - New context menu item: it deletes a selected film record.
 - New context menu item: it opens a default internet browser with a google result of selected film: English title and release year.
 - Now you can select multiple cells in a table. (No use now, but you will be able to delete multiple records at once in the future. WIP)
-- The table now has different colours for alternating 3 rows for better readability.
+- The table now highlights the alternating 3 rows with Windows accent colour for better readability.
+- The table highlight colour changes when Windows accent colour changes.
+
+#### 0.015
+- 

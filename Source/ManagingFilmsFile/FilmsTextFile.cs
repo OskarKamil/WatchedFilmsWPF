@@ -378,7 +378,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             Application.Current.Dispatcher.Invoke(() =>
             {
                 // Ensure UI updates happen on the UI thread
-                
+
                 _visualFilmsTable.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
             });
         }
