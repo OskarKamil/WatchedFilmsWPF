@@ -1,5 +1,8 @@
 **Immediate (NOW):**
--
+- Rename screenshots so blue one is default.
+- Add info in readme about only specific structure of csv or text file works for this program.
+- Post-build script, create folder of program name so it's easier to release.
+- Edit readme file to explain how to run program, how to clone code and run it, and how to update it.
 
 **Upcoming (SOON):**
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
@@ -19,7 +22,7 @@
 	- Max film rating.
 	- FilmRecord maybe will have dictionary of values. If it works with datagrid source.
 - Use Windows accent colour for buttons and other elements.
-	- Create method that updates selected elements with accent colour.
+	- Create method that updates selected elements with accent colour. Maybe use styling file so the style applies to all buttons across this program.
 - 
 
 **Future Plans (FUTURE):**
