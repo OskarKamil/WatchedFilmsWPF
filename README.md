@@ -16,7 +16,7 @@ Watched Films Tracker is a comprehensive application designed to help film enthu
 
 ## Screenshots
 
-![Main page](https://github.com/OskarKamil/WatchedFilmsWPF/blob/main/External/screenshots%20of%20versions/0.014.png?raw=true)
+![Main page](https://github.com/OskarKamil/WatchedFilmsWPF/blob/main/External/screenshots%20of%20versions/0.014.png?raw=true)  
 *Screenshot 1: Main interface displaying the list of films*
 
 ## Requirements
@@ -26,16 +26,36 @@ Watched Films Tracker is a comprehensive application designed to help film enthu
 - **.NET Framework:** The .NET framework is required, which is typically pre-installed on Windows systems.
 - **Additional Libraries:** None
 
-## Usage
+## Limitations
 
-To download and run this project, follow these steps:
+Currently, the application only allows reading text and CSV files with the specific number of columns: English title, original title, type, release year, personal rating, watch date, and comments. The application will not work with files that have a different number of columns or a different column order. If the file has more columns, the application will ignore columns not included in the specifications, which will lead to data loss. Work is ongoing to allow more flexibility in the file reading process. In the upcoming releases, the application will be able to read files with any number of columns and any column order, and it will let users edit the columns in the program interface. Users will be able to delete, add, or remove columns from the file.
 
-1. Navigate to the [Releases](https://github.com/OskarKamil/WatchedFilmsWPF/releases) section on GitHub.
-2. Click on the latest release.
-3. Download the archive file.
-4. Extract the contents of the archive using a tool like 7-Zip.
-5. Open the extracted folder.
-6. Run the executable file (`.exe`). Note that you may need the .NET redistributable installed, but it is usually included by default on recent Windows systems.
+## Usage 
+### 1. Clone Code and Run in Visual Studio
+
+Clone the repository from GitHub:
+```
+git clone https://github.com/OskarKamil/WatchedFilmsWPF.git
+```
+- Open the cloned repository in Visual Studio.
+- Build and run the project within Visual Studio.
+
+### 2. First Time User: Download and Run the Executable
+
+- Navigate to the Releases section on GitHub.
+- Click on the latest release.
+- Download the archive file.
+- Extract the contents of the archive using a tool like 7-Zip.
+- Open the extracted folder.
+- Run the executable file (.exe). Note that you may need the .NET redistributable installed, but it is usually included by default on recent Windows systems.
+
+### 3. Updating the Application
+
+- Navigate to the Releases section on GitHub.
+- Click on the latest release.
+- Download the new executable file (.exe).
+- Copy the new executable file into your program directory, replacing the old one.
+- Optionally, copy the new ExampleFile.txt and ReadMe.txt files if there are updates to these documents.
 
 ## Contributing
 

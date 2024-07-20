@@ -18,10 +18,13 @@ namespace WatchedFilmsTracker.Source
         public static Color GetBrightAccentColourRGB()
         {
             Color color = GetAccentColourRGB();
+
             // Convert RGB to HSL
             (double h, double s, double l) = RgbToHsl(color.R, color.G, color.B);
-            // Set lightness to 80%
+
+            // Set lightness
             l = 0.85;
+
             // Convert back to RGB
             Color brightColor = HslToRgb(h, s, l);
             return brightColor;

@@ -13,3 +13,7 @@ Watched Films Tracker is a comprehensive application designed to help film enthu
 - **Sorting:** Sort films by title, release year, watch date, personal rating, or comments for better organization.
 - **Search:** Utilize the search bar to effortlessly find a film by title, release year, or any other film detail.
 - **Portability:** Store your list of films within the program folder, making the application a portable choice.
+
+## Limitations
+
+Currently the application only allows to read text and csv files with the specific number of columns: English title, original title, type, release year, personal rating, watch date, and comments. The application will not work with files that have a different number of columns or different column order. If the file has more columns, the application will ignore columns not included in the specifications which will lead to lose of data. Currently work is being made to allow more flexibility in the file reading process. In the upccoming releases, the application will be able to read files with any number of columns and any column order. And it will let users edit the columns in the program interface. Users will be able to delete, add or remove columns from the file.

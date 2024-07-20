@@ -74,7 +74,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="REM Ensure the target directory exists&#xA;mkdir &quot;$(PublishDir)&quot;&#xD;&#xA;&#xA;REM Copy ReadMe.txt file to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ReadMe.txt&quot; &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ExampleFile.csv to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ExampleFile.csv&quot; &quot;$(PublishDir)&quot;" />
+    <Exec Command="REM Ensure the target directory exists&#xA;mkdir &quot;$(PublishDir)&quot;&#xD;&#xA;&#xA;REM Copy ReadMe.txt file to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ReadMe.txt&quot; &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ExampleFile.csv to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ExampleFile.csv&quot; &quot;$(PublishDir)&quot;&#xD;&#xA;&#xD;&#xA;REM Create WatchedFilmsTracker directory&#xA;mkdir &quot;$(PublishDir)WatchedFilmsTracker&quot;" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

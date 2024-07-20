@@ -51,6 +51,14 @@
                 <GroupBox>
                     <GroupBox.Header>Total statistics</GroupBox.Header>
                     <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Visibility="Collapsed">
+                            <Label Foreground="Red">Wrong release year:</Label>
+                            <Label x:Name="wrongReleaseYearLanel" Foreground="Red"  />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Visibility="Collapsed">
+                            <Label Foreground="Red">Wrong watch date:</Label>
+                            <Label x:Name="wrongWatchDateLanel" Foreground="Red"  />
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label>Total films:</Label>
                             <Label x:Name="filmsTotalLabel" Content="{Binding TotalFilmsWatched}" />
