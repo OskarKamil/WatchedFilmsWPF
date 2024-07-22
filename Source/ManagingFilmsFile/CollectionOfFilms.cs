@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Controls;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Services.Csv;
@@ -47,6 +48,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             FilmRecord newRecord = new FilmRecord(listOfFilms.Count + 1);
             newRecord.PropertyChanged += filmsFileHandler.FilmRecord_PropertyChanged;
             listOfFilms.Add(newRecord);
+            filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
             if (filmsFileHandler.VisualFilmsTable.ItemsSource == listOfFilms)
             {
                 filmsFileHandler.VisualFilmsTable.SelectedItem = newRecord;
@@ -58,6 +60,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
                 newRecord.WatchDate = (formattedString);
             }
+
+            StartEditingNewRecord();
+
             filmsFileHandler.AnyChangeHappen();
         }
 
@@ -128,6 +133,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private void CloseWriter()
         {
             writer?.Close();
+        }
+
+        private void StartEditingNewRecord()
+        {
+            filmsFileHandler.VisualFilmsTable.CurrentCell = new DataGridCellInfo(filmsFileHandler.VisualFilmsTable.Items[filmsFileHandler.VisualFilmsTable.Items.Count - 1], filmsFileHandler.VisualFilmsTable.Columns[1]);
+
+            filmsFileHandler.VisualFilmsTable.BeginEdit();
         }
     }
 }

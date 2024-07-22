@@ -112,4 +112,5 @@
 - The table highlight colour changes when Windows accent colour changes.
 
 #### 0.015
+- Pressing [New film record] button now opens English Title cell in editing mode.
 - 

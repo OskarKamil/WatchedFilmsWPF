@@ -8,8 +8,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source.RecordValueValidator;
 using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
@@ -17,6 +19,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     public class FilmsTextFile
     {
         private CollectionOfFilms _collectionOfFilms;
+        private FilmRecordPropertyValidator _filmRecordPropertyValidator;
         private ObservableCollection<FilmRecord> _filmsObservableList;
         private StatisticsManager _statisticsManager;
         private DataGrid _visualFilmsTable;
@@ -102,10 +105,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             // Increase the brightness of the brightAccentColour by 80%
             _visualFilmsTable.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
+            _visualFilmsTable.CellEditEnding += CellEditEnding;
+
             SettingsManager.LastPath = CollectionOfFilms.FilePath;
             ProgramStateManager.IsUnsavedChange = false;
             ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
+
+            _filmRecordPropertyValidator = new FilmRecordPropertyValidator(_visualFilmsTable);
 
             if (string.IsNullOrEmpty(CollectionOfFilms.FilePath))
             {
@@ -335,6 +342,30 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private static void TryToOpenFilepath(string? filepath)
         {
             // just like openfilepath from mainwindow, open filepath but first check if unsaved changes
+        }
+
+        private void CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
+        {
+            if (e.EditAction == DataGridEditAction.Commit && "Release year" == e.Column.Header.ToString())
+            {
+                // Get the new value
+                var editedCell = e.EditingElement as TextBox;
+                if (editedCell != null)
+                {
+                    string newValue = editedCell.Text;
+                }
+
+                // Change the cell background color to red
+                DataGridRow row = e.Row;
+                DataGridCell cell = DataGridCellGetter.GetCell(_visualFilmsTable, e.Row.GetIndex(), e.Column.DisplayIndex);
+
+                // Pass the FilmRecord value to the IsReleaseYearValid method
+                if (e.Row.DataContext is FilmRecord filmRecord)
+                {
+                    Debug.WriteLine("committed value is: " + _filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
+                    DataGridCellAppearanceHelper.MakeCellAppearInvalid(cell, !_filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
+                }
+            }
         }
 
         private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)

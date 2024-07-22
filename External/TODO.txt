@@ -1,8 +1,9 @@
 **Immediate (NOW):**
-- 
+- If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
+	- Filtering clears the coloured cells.
+	- Create a counter for invalid cells.
 
 **Upcoming (SOON):**
-- If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
 - If release year or watch date is icorrect (unassigned from above), make the cell red but only after deselecting it, not in the middle of adding.
 - Clear all and autosave can result in losing all data if uncareful.
 	- Clear all and save should save current list as archived list to easy find if accidental loss.
