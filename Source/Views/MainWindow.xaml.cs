@@ -36,7 +36,6 @@ namespace WatchedFilmsTracker
             viewModel = new MainWindowViewModel();
             this.DataContext = viewModel;
             searchTextBox.Text = SearchBoxDefaultText;
-            
 
             Closing += MainWindow_Closing; // override closing window
 
@@ -219,6 +218,13 @@ namespace WatchedFilmsTracker
         private void ClearAll(object sender, RoutedEventArgs e)
         {
             filmsFileHandler.CollectionOfFilms.DeleteAllRecords();
+        }
+
+        private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            
+            Debug.WriteLine("table scroled");
+            // todo 
         }
 
         private void LoadLocally(object sender, RoutedEventArgs e)

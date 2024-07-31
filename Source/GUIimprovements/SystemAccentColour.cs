@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace WatchedFilmsTracker.Source
+namespace WatchedFilmsTracker.Source.GUIimprovements
 {
     internal class SystemAccentColour
     {

@@ -1,4 +1,6 @@
 **Immediate (NOW):**
+- Scrolling list will mix up red cells.
+	- Fix the issue caused by virtualization of rows.
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
 	- Filtering clears the coloured cells.
 	- Create a counter for invalid cells.
