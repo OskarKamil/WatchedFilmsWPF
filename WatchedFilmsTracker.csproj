@@ -13,6 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\ButtonIcons\addColumn.png" />
+    <None Remove="Assets\ButtonIcons\removeColumn.png" />
     <None Remove="Assets\ButtonIcons\searchInternetForFilm.png" />
   </ItemGroup>
 
@@ -26,6 +28,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\ButtonIcons\about2.png" />
+    <Resource Include="Assets\ButtonIcons\addColumn.png" />
     <Resource Include="Assets\ButtonIcons\addRecord.png" />
     <Resource Include="Assets\ButtonIcons\clear2.png" />
     <Resource Include="Assets\ButtonIcons\deleteRecord.png" />
@@ -34,6 +37,7 @@
     <Resource Include="Assets\ButtonIcons\icon2.png" />
     <Resource Include="Assets\ButtonIcons\icon_old.png" />
     <Resource Include="Assets\ButtonIcons\loadLocally.png" />
+    <Resource Include="Assets\ButtonIcons\removeColumn.png" />
     <Resource Include="Assets\ButtonIcons\search.png" />
     <Resource Include="Assets\ButtonIcons\searchInternetForFilm.png" />
     <Resource Include="Assets\ButtonIcons\x.png" />

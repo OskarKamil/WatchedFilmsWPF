@@ -1,19 +1,33 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace WatchedFilmsTracker.Source.Managers
+namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
-    internal class FilmsTableColumnManager
+    internal class DataGridInitialiser
     {
         private readonly List<DataGridTextColumn> columns = new List<DataGridTextColumn>();
         private readonly DataGrid dataGrid;
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
 
-        public FilmsTableColumnManager(DataGrid dataGrid)
+        //public DataGridInitialiser(DataGrid dataGrid)
+        //{
+        //    this.dataGrid = dataGrid;
+        //    CreateDefaultColumnsForCollectionOfFilms();
+        //}
+
+        public DataGridInitialiser(DataGrid dataGrid, bool autoGenerateColumns)
         {
-            this.dataGrid = dataGrid;
-            InitializeColumns();
+            if (autoGenerateColumns)
+            {
+                this.dataGrid = dataGrid;
+                CreateColumnsAutomaticallyBasecOnCSVfile();
+            }
+            else
+            {
+                this.dataGrid = dataGrid;
+                CreateDefaultColumnsForCollectionOfFilms();
+            }
         }
 
         public void ResetToDefault()
@@ -41,7 +55,16 @@ namespace WatchedFilmsTracker.Source.Managers
             }
         }
 
-        private void InitializeColumns()
+        private void CreateColumnsAutomaticallyBasecOnCSVfile()
+        {
+            dataGrid.AutoGenerateColumns = true;
+            // todo
+            // create # column, readonly
+            // create defaultorder list
+            // create defaultwidth list
+        }
+
+        private void CreateDefaultColumnsForCollectionOfFilms()
         {
             columns.Add(new DataGridTextColumn { Header = "#", Binding = new Binding("IdInList"), Width = new DataGridLength(1, DataGridLengthUnitType.Auto), IsReadOnly = true });
             columns.Add(new DataGridTextColumn { Header = "English title", Binding = new Binding("EnglishTitle"), Width = 250 });

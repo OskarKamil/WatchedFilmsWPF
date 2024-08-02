@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
@@ -22,7 +23,7 @@ namespace WatchedFilmsTracker
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
-        private FilmsTableColumnManager filmsColumnsManager;
+        private DataGridInitialiser filmsColumnsManager;
         private FilmsTextFile filmsFileHandler;
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
@@ -74,7 +75,7 @@ namespace WatchedFilmsTracker
                 ManualCheckForUpdate(CheckUpdatesButton, null);
 
             //FILMS TABLEVIEW DISPLAY VALUES
-            filmsColumnsManager = new FilmsTableColumnManager(filmsGrid); // constructor builds columns and binds values
+            filmsColumnsManager = new DataGridInitialiser(filmsGrid, false); // constructor builds columns and binds values
 
             //FILEMANAGER
             filmsFileHandler = new FilmsTextFile();
@@ -222,9 +223,8 @@ namespace WatchedFilmsTracker
 
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            
             Debug.WriteLine("table scroled");
-            // todo 
+            // todo
         }
 
         private void LoadLocally(object sender, RoutedEventArgs e)
@@ -521,6 +521,16 @@ namespace WatchedFilmsTracker
                 Width = 1200;
                 Height = 600;
             }
+        }
+
+        private void RemoveColumnButton(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddColumnButton(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
