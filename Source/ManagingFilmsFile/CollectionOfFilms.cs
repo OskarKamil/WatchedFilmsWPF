@@ -128,8 +128,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             reader = new CSVreader(filePath);
             fileColumns = reader.GetFileColumns();
             LoadRecordsFromCSVToArray(reader);
-
-            // todo noralize filmrecord dictionaries
         }
 
         public void StartWriter(string newFilePath)

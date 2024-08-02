@@ -30,6 +30,11 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             }
         }
 
+        public void CreateColumnsFromList(List<Column> columns)
+        {
+            //todo do as 2 methods below
+        }
+
         public void ResetToDefault()
         {
             for (int i = 0; i < dataGrid.Columns.Count; i++)
@@ -57,6 +62,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
         private void CreateColumnsAutomaticallyBasecOnCSVfile()
         {
+            throw new Exception("do not use");
             dataGrid.AutoGenerateColumns = true;
             // todo
             // create # column, readonly
