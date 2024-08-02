@@ -25,6 +25,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private StatisticsManager _statisticsManager;
         private DataGrid _visualFilmsTable;
         private MainWindow _window;
+       
 
         public FilmsTextFile()
         {
@@ -113,9 +114,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
 
-            _filmRecordPropertyValidator = new FilmRecordPropertyValidator(_visualFilmsTable);
-
-            if (string.IsNullOrEmpty(CollectionOfFilms.FilePath))
+             if (string.IsNullOrEmpty(CollectionOfFilms.FilePath))
             {
                 ProgramStateManager.IsFileSavedOnDisk = false;
                 ProgramStateManager.IsFileInLocalMyDataFolder = false;

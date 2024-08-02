@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Controls;
+using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Services.Csv;
@@ -13,12 +14,25 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     /// </summary>
     public class CollectionOfFilms
     {
+        public string FilePath
+        {
+            get { return filePath; }
+            set { filePath = value; }
+        }
+
+        public ObservableCollection<FilmRecord> ListOfFilms
+        {
+            get { return listOfFilms; }
+        }
+
+        private DataGridManager dataGridManager;
         private string fileColumns;
         private string filePath;
         private FilmsTextFile filmsFileHandler;
         private ObservableCollection<FilmRecord> listOfFilms;
         private CSVreader reader;
         private CSVwriter writer;
+        // todo list of columns
 
         public CollectionOfFilms(string filePath, FilmsTextFile filmsTextFile)
         {
@@ -30,17 +44,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             this.filmsFileHandler = filmsTextFile;
             filePath = null;
-        }
-
-        public string FilePath
-        {
-            get { return filePath; }
-            set { filePath = value; }
-        }
-
-        public ObservableCollection<FilmRecord> ListOfFilms
-        {
-            get { return listOfFilms; }
         }
 
         public void AddEmptyRecordToList()
@@ -114,11 +117,19 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        public void StartNewReader()
+        {
+            reader = new CSVreader();
+            listOfFilms = reader.ReadCsvReturnObservableCollection(filePath);
+        }
+
         public void StartReader()
         {
             reader = new CSVreader(filePath);
             fileColumns = reader.GetFileColumns();
             LoadRecordsFromCSVToArray(reader);
+
+            // todo noralize filmrecord dictionaries
         }
 
         public void StartWriter(string newFilePath)

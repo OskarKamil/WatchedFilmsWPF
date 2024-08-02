@@ -15,6 +15,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             try
             {
                 filmsWriter = new StreamWriter(newFilePath, false, System.Text.Encoding.UTF8);
+                filmsWriter.NewLine = "\r\n"; // Set custom line ending
             }
             catch (IOException e)
             {

@@ -1,46 +1,11 @@
 ﻿using System.ComponentModel;
+using WatchedFilmsTracker.Source.DataGridHelpers;
 
 namespace WatchedFilmsTracker.Source.Models
 {
     public class FilmRecord : INotifyPropertyChanged
     {
-        private string comments;
-
-        private string englishTitle;
-
-        private int idInList = -1;
-
-        private string originalTitle;
-
-        private string rating;
-
-        private string releaseYear;
-
-        private string type;
-
-        private string watchDate;
-
-        public FilmRecord(string englishTitle, string originalTitle, string type, string releaseYear, string rating, string watchDate, string comments)
-        {
-            this.englishTitle = englishTitle;
-            this.originalTitle = originalTitle;
-            this.type = type;
-            this.releaseYear = releaseYear;
-            this.rating = rating;
-            this.watchDate = watchDate;
-            this.comments = comments;
-        }
-
-        public FilmRecord()
-        {
-        }
-
-        public FilmRecord(int id)
-        {
-            idInList = id;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        public Dictionary<Column, Cell> Cells { get; set; } = new Dictionary<Column, Cell>();
 
         public string Comments
         {
@@ -146,6 +111,71 @@ namespace WatchedFilmsTracker.Source.Models
             }
         }
 
+        private string comments;
+
+        private string englishTitle;
+
+        private int idInList = -1;
+
+        private string originalTitle;
+
+        private string rating;
+
+        private string releaseYear;
+
+        private string type;
+
+        private string watchDate;
+
+        public FilmRecord(Dictionary<Column, Cell> cells)
+        {
+            Cells = cells;
+        }
+
+        public FilmRecord(string englishTitle, string originalTitle, string type, string releaseYear, string rating, string watchDate, string comments)
+        {
+            this.englishTitle = englishTitle;
+            this.originalTitle = originalTitle;
+            this.type = type;
+            this.releaseYear = releaseYear;
+            this.rating = rating;
+            this.watchDate = watchDate;
+            this.comments = comments;
+        }
+
+        public FilmRecord()
+        {
+        }
+
+        public FilmRecord(int id)
+        {
+            idInList = id;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void AddOrUpdateCell(Column column, string value)
+        {
+            if (Cells.ContainsKey(column))
+            {
+                Cells[column].UpdateValue(value);
+            }
+            else
+            {
+                Cells[column] = new Cell(value, column);
+            }
+        }
+
+        public string GetValue(Column column)
+        {
+            return Cells.TryGetValue(column, out var cell) ? cell.Value : string.Empty;
+        }
+
+        public bool IsValid(Column column)
+        {
+            return Cells.TryGetValue(column, out var cell) && cell.IsValid;
+        }
+
         public string ToNiceString()
         {
             return $"{englishTitle}\t{originalTitle}\t{type}\t{releaseYear}\t{rating}\t{watchDate}\t{comments}";
@@ -163,8 +193,7 @@ namespace WatchedFilmsTracker.Source.Models
 
         private void OnPropertyChanged(string propertyName)
         {
-      
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
