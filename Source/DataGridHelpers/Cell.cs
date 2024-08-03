@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using WatchedFilmsTracker.Source.RecordValueValidator;
+﻿using WatchedFilmsTracker.Source.RecordValueValidator;
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
@@ -16,6 +15,12 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             Validate();
         }
 
+        public Cell(string value)
+        {
+            Value = value;
+            Validate();
+        }
+
         public void UpdateValue(string newValue)
         {
             Value = newValue;
@@ -24,7 +29,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
         private void Validate()
         {
-            IsValid = FilmRecordPropertyValidator.Validate(Column.Header, Value);
+           // IsValid = FilmRecordPropertyValidator.Validate(Column.Header, Value);
         }
     }
 }

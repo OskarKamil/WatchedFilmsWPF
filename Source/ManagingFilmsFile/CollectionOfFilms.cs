@@ -25,14 +25,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             get { return listOfFilms; }
         }
 
-        private DataGridManager dataGridManager;
+        private DataGridInitialiser dataGridInitialiser;
         private string fileColumns;
         private string filePath;
         private FilmsTextFile filmsFileHandler;
         private ObservableCollection<FilmRecord> listOfFilms;
         private CSVreader reader;
         private CSVwriter writer;
-        // todo list of columns
+        private List<Column> columns;
 
         public CollectionOfFilms(string filePath, FilmsTextFile filmsTextFile)
         {
@@ -121,6 +121,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             reader = new CSVreader();
             listOfFilms = reader.ReadCsvReturnObservableCollection(filePath);
+            columns = reader.GetColumns();
+            DataGridInitialiser.BuildColumnsFromList(columns, filmsFileHandler.VisualFilmsTable);
         }
 
         public void StartReader()

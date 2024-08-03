@@ -30,11 +30,6 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             }
         }
 
-        public void CreateColumnsFromList(List<Column> columns)
-        {
-            //todo do as 2 methods below
-        }
-
         public void ResetToDefault()
         {
             for (int i = 0; i < dataGrid.Columns.Count; i++)
@@ -57,6 +52,27 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 {
                     column.Width = new DataGridLength(defaultWidths[i]);
                 }
+            }
+        }
+
+        internal static void BuildColumnsFromList(List<Column> columns, DataGrid dataGrid)
+        {
+            // Ensure the DataGrid has no pre-existing columns
+            dataGrid.Columns.Clear();
+
+            for (int i = 0; i < columns.Count; i++)
+            {
+                var column = columns[i];
+
+                var dataGridColumn = new DataGridTextColumn
+                {
+                    Header = column.Header,
+                    // Bind to the corresponding index in the Values list of the data model
+                    Binding = new Binding($"Cells[{i}]")
+                };
+
+                // Add the column to the DataGrid
+                dataGrid.Columns.Add(dataGridColumn);
             }
         }
 
