@@ -68,7 +68,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 {
                     Header = column.Header,
                     // Bind to the corresponding index in the Values list of the data model
-                    Binding = new Binding($"Cells[{i}]")
+                    Binding = new Binding($"Cells[{i}].Value")
                 };
 
                 // Add the column to the DataGrid

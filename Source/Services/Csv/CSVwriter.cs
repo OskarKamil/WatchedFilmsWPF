@@ -33,13 +33,13 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             filmsWriter.WriteLine(fileColumn);
             foreach (FilmRecord filmRecord in list)
             {
-                filmsWriter.Write(ToString(filmRecord.EnglishTitle) + "\t");
-                filmsWriter.Write(ToString(filmRecord.OriginalTitle) + "\t");
-                filmsWriter.Write(ToString(filmRecord.Type) + "\t");
-                filmsWriter.Write(ToString(filmRecord.ReleaseYear) + "\t");
-                filmsWriter.Write(ToString(filmRecord.Rating) + "\t");
-                filmsWriter.Write(ToString(filmRecord.WatchDate) + "\t");
-                filmsWriter.Write(ToString(filmRecord.Comments) + "\n");
+                //filmsWriter.Write(ToString(filmRecord.EnglishTitle) + "\t");
+                //filmsWriter.Write(ToString(filmRecord.OriginalTitle) + "\t");
+                //filmsWriter.Write(ToString(filmRecord.Type) + "\t");
+                //filmsWriter.Write(ToString(filmRecord.ReleaseYear) + "\t");
+                //filmsWriter.Write(ToString(filmRecord.Rating) + "\t");
+                //filmsWriter.Write(ToString(filmRecord.WatchDate) + "\t");
+                //filmsWriter.Write(ToString(filmRecord.Comments) + "\n");
             }
             filmsWriter.Close();
             Debug.WriteLine("Saved and closed");

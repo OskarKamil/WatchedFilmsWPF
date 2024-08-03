@@ -46,28 +46,28 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             filePath = null;
         }
 
-        public void AddEmptyRecordToList()
-        {
-            FilmRecord newRecord = new FilmRecord(listOfFilms.Count + 1);
-            newRecord.PropertyChanged += filmsFileHandler.FilmRecord_PropertyChanged;
-            listOfFilms.Add(newRecord);
-            filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
-            if (filmsFileHandler.VisualFilmsTable.ItemsSource == listOfFilms)
-            {
-                filmsFileHandler.VisualFilmsTable.SelectedItem = newRecord;
-                filmsFileHandler.VisualFilmsTable.ScrollIntoView(filmsFileHandler.VisualFilmsTable.SelectedItem);
-            }
+        //public void AddEmptyRecordToList()
+        //{
+        //    FilmRecord newRecord = new FilmRecord(listOfFilms.Count + 1);
+        //    newRecord.PropertyChanged += filmsFileHandler.FilmRecord_PropertyChanged;
+        //    listOfFilms.Add(newRecord);
+        //    filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
+        //    if (filmsFileHandler.VisualFilmsTable.ItemsSource == listOfFilms)
+        //    {
+        //        filmsFileHandler.VisualFilmsTable.SelectedItem = newRecord;
+        //        filmsFileHandler.VisualFilmsTable.ScrollIntoView(filmsFileHandler.VisualFilmsTable.SelectedItem);
+        //    }
 
-            if (SettingsManager.DefaultDateIsToday)
-            {
-                string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
-                newRecord.WatchDate = (formattedString);
-            }
+        //    if (SettingsManager.DefaultDateIsToday)
+        //    {
+        //        string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
+        //        newRecord.WatchDate = (formattedString);
+        //    }
 
-            StartEditingNewRecord();
+        //    StartEditingNewRecord();
 
-            filmsFileHandler.AnyChangeHappen();
-        }
+        //    filmsFileHandler.AnyChangeHappen();
+        //}
 
         public void CloseReader()
         {
@@ -80,42 +80,37 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             filmsFileHandler.AnyChangeHappen();
         }
 
-        public void DeleteRecordFromList(FilmRecord selected)
-        {
-            if (selected == null) { return; }
+        //public void DeleteRecordFromList(FilmRecord selected)
+        //{
+        //    if (selected == null) { return; }
 
-            int selectedIndex = filmsFileHandler.VisualFilmsTable.Items.IndexOf(selected);
+        //    int selectedIndex = filmsFileHandler.VisualFilmsTable.Items.IndexOf(selected);
 
-            if (listOfFilms.Count == 0 || selected.IdInList == 0) return;
-            int idOfSelected = selected.IdInList;
-            listOfFilms.Remove(selected);
-            RefreshFurtherIDs(idOfSelected);
+        //    if (listOfFilms.Count == 0 || selected.IdInList == 0) return;
+        //    int idOfSelected = selected.IdInList;
+        //    listOfFilms.Remove(selected);
+        //    RefreshFurtherIDs(idOfSelected);
 
-            // selecting the next record
-            filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
-            if (selectedIndex + 0 == filmsFileHandler.VisualFilmsTable.Items.Count)
-            {
-                filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 1;
-            }
-            else
-            {
-                filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 0;
-            }
-        }
+        //    // selecting the next record
+        //    filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
+        //    if (selectedIndex + 0 == filmsFileHandler.VisualFilmsTable.Items.Count)
+        //    {
+        //        filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 1;
+        //    }
+        //    else
+        //    {
+        //        filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 0;
+        //    }
+        //}
 
-        public void LoadRecordsFromCSVToArray(CSVreader CSVfile)
-        {
-            listOfFilms = new ObservableCollection<FilmRecord>(CSVfile.GetAllFilmsRecordsFromFile());
-        }
-
-        public void RefreshFurtherIDs(int idOfSelected)
-        {
-            for (int i = 0; i < listOfFilms.Count; i++)
-            {
-                FilmRecord record = listOfFilms[i];
-                if (record.IdInList >= idOfSelected) record.IdInList--;
-            }
-        }
+        //public void RefreshFurtherIDs(int idOfSelected)
+        //{
+        //    for (int i = 0; i < listOfFilms.Count; i++)
+        //    {
+        //        FilmRecord record = listOfFilms[i];
+        //        if (record.IdInList >= idOfSelected) record.IdInList--;
+        //    }
+        //}
 
         public void StartNewReader()
         {
@@ -125,12 +120,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGridInitialiser.BuildColumnsFromList(columns, filmsFileHandler.VisualFilmsTable);
         }
 
-        public void StartReader()
-        {
-            reader = new CSVreader(filePath);
-            fileColumns = reader.GetFileColumns();
-            LoadRecordsFromCSVToArray(reader);
-        }
+
 
         public void StartWriter(string newFilePath)
         {

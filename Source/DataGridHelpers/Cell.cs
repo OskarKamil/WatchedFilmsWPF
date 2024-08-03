@@ -15,6 +15,8 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             Validate();
         }
 
+        public string ToString() { return Value; }
+
         public Cell(string value)
         {
             Value = value;

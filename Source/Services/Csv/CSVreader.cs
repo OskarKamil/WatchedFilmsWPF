@@ -58,19 +58,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 
         public void CloseFile()
         {
-            filmsFile.Close();
-        }
-
-        public List<FilmRecord> GetAllFilmsRecordsFromFile()
-        {
-            List<FilmRecord> listOfAllFilms = new List<FilmRecord>(3000);
-            while (HasNextLine())
-            {
-                FilmRecord newRecord = GetNextFilmRecordFromFile();
-                newRecord.IdInList = listOfAllFilms.Count + 1;
-                listOfAllFilms.Add(newRecord);
-            }
-            return listOfAllFilms;
+            //filmsFile.Close();
         }
 
         public List<Column> GetColumns()
@@ -88,22 +76,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             return filePath;
         }
 
-        public FilmRecord GetNextFilmRecordFromFile()
-        {
-            ReadNextLine();
-            PrepareValuesFromCurrentLine();
-            FilmRecord record = new FilmRecord();
-            if (iterator.MoveNext()) record.EnglishTitle = iterator.Current;
-            if (iterator.MoveNext()) record.OriginalTitle = iterator.Current;
-            if (iterator.MoveNext()) record.Type = iterator.Current;
-            if (iterator.MoveNext()) record.ReleaseYear = iterator.Current;
-            if (iterator.MoveNext()) record.Rating = iterator.Current;
-            if (iterator.MoveNext()) record.WatchDate = iterator.Current;
-            if (iterator.MoveNext()) record.Comments = iterator.Current;
-            return record;
-        }
-
-        public ObservableCollection<FilmRecord> GetRecords()
+             public ObservableCollection<FilmRecord> GetRecords()
         {
             return _records;
         }

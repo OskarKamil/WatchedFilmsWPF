@@ -116,7 +116,7 @@ namespace WatchedFilmsTracker
             if (filmsGrid.SelectedCells.Count > 0)
             {
                 FilmRecord selected = filmsGrid.SelectedCells[0].Item as FilmRecord;
-                filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
+            //    filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
             }
         }
 
@@ -144,17 +144,17 @@ namespace WatchedFilmsTracker
 
         public async Task UpdateStatistics()
         {
-            UpdateNumberOfFilms();
-            UpdateAverageFilmRating();
+         //   UpdateNumberOfFilms();
+         //   UpdateAverageFilmRating();
 
             // Heavy tasks
-            var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
-            var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
+          //  var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
+         //   var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
 
             try
             {
                 // Await both tasks to complete
-                await Task.WhenAll(decadalTask, yearlyTask);
+              //  await Task.WhenAll(decadalTask, yearlyTask);
             }
             catch (Exception ex)
             {
@@ -262,7 +262,7 @@ namespace WatchedFilmsTracker
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
         {
-            filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
+          //  filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
@@ -404,54 +404,54 @@ namespace WatchedFilmsTracker
 
         private void UpdateAverageFilmRating()
         {
-            if (filmsFileHandler.CollectionOfFilms.ListOfFilms.Count == 0)
-            {
-                averageRatingLabel.Content = "No data";
-            }
-            else
-            {
-                double averageRating = filmsFileHandler.StatisticsManager.GetAverageFilmRating();
-                averageRatingLabel.Content = StatisticsManager.FormattedRating(averageRating);
-            }
+            //if (filmsFileHandler.CollectionOfFilms.ListOfFilms.Count == 0)
+            //{
+            //    averageRatingLabel.Content = "No data";
+            //}
+            //else
+            //{
+            //    double averageRating = filmsFileHandler.StatisticsManager.GetAverageFilmRating();
+            //    averageRatingLabel.Content = StatisticsManager.FormattedRating(averageRating);
+            //}
         }
 
-        private async Task UpdateReportDecadalStatistics()
-        {
-            cancellationTokenSourceForDecadalStatistics?.Cancel();
-            cancellationTokenSourceForDecadalStatistics = new CancellationTokenSource();
+        //private async Task UpdateReportDecadalStatistics()
+        //{
+        //    cancellationTokenSourceForDecadalStatistics?.Cancel();
+        //    cancellationTokenSourceForDecadalStatistics = new CancellationTokenSource();
 
-            try
-            {
-                ObservableCollection<DecadalStatistic> decadesOfFilms = await filmsFileHandler.StatisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
+        //    try
+        //    {
+        //        ObservableCollection<DecadalStatistic> decadesOfFilms = await filmsFileHandler.StatisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
 
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    decadalGrid.ItemsSource = decadesOfFilms;
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-        }
+        //        await Application.Current.Dispatcher.InvokeAsync(() =>
+        //        {
+        //            decadalGrid.ItemsSource = decadesOfFilms;
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.ToString());
+        //    }
+        //}
 
-        private async Task UpdateReportYearlyStatistics()
-        {
-            cancellationTokenSourceForYearlyStatistics?.Cancel();
-            cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
-            try
-            {
-                ObservableCollection<YearlyStatistic> yearsOfFilms = await filmsFileHandler.StatisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    yearlyGrid.ItemsSource = yearsOfFilms;
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-        }
+        //private async Task UpdateReportYearlyStatistics()
+        //{
+        //    cancellationTokenSourceForYearlyStatistics?.Cancel();
+        //    cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
+        //    try
+        //    {
+        //        ObservableCollection<YearlyStatistic> yearsOfFilms = await filmsFileHandler.StatisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
+        //        await Application.Current.Dispatcher.InvokeAsync(() =>
+        //        {
+        //            yearlyGrid.ItemsSource = yearsOfFilms;
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.ToString());
+        //    }
+        //}
 
         private async Task UpdateVersionInformationAsync()
         {

@@ -461,7 +461,6 @@
                         <DataGrid x:Name="filmsGrid"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
-                                  HorizontalContentAlignment="Stretch"
                                   VerticalContentAlignment="Stretch"
                                   ColumnWidth="Auto"
                                   CanUserDeleteRows="False"
@@ -469,11 +468,12 @@
                                   ScrollViewer.ScrollChanged="filmsGrid_ScrollChanged"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
+                                  HorizontalScrollBarVisibility="Visible"
                                   AlternatingRowBackground="#FFD6E2FF"
                                   AlternationCount="4"
                                   CanUserResizeRows="False"
-                                  SelectionUnit="CellOrRowHeader" />
+                                  SelectionUnit="CellOrRowHeader"
+                                  HorizontalAlignment="Left" />
                     </Grid>
                 </GroupBox>
             </DockPanel>

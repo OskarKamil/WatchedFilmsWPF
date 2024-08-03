@@ -48,48 +48,48 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public DataGrid VisualFilmsTable { get => _visualFilmsTable; set => _visualFilmsTable = value; }
 
-        public void AddContextMenuForTheItem(DataGrid dataGrid)
-        {
-            dataGrid.LoadingRow += (s, e) =>
-            {
-                FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
-                if (filmRecord == null) return;
+        //public void AddContextMenuForTheItem(DataGrid dataGrid)
+        //{
+        //    dataGrid.LoadingRow += (s, e) =>
+        //    {
+        //        FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
+        //        if (filmRecord == null) return;
 
-                // Create context menu
-                ContextMenu contextMenu = new ContextMenu();
+        //        // Create context menu
+        //        ContextMenu contextMenu = new ContextMenu();
 
-                // Delete record menu item
-                MenuItem deleteRecordMenuItem = new MenuItem()
-                {
-                    Header = "Delete record",
-                    Icon = new Image()
-                    {
-                        Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
-                    }
-                };
-                deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
-                contextMenu.Items.Add(deleteRecordMenuItem);
+        //        // Delete record menu item
+        //        MenuItem deleteRecordMenuItem = new MenuItem()
+        //        {
+        //            Header = "Delete record",
+        //            Icon = new Image()
+        //            {
+        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
+        //            }
+        //        };
+        //        deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
+        //        contextMenu.Items.Add(deleteRecordMenuItem);
 
-                // Search film on the internet menu item
-                MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
-                {
-                    Header = "Search film on the internet",
-                    Icon = new Image()
-                    {
-                        Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
-                    }
-                };
-                searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
-                {
-                    string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
-                    string url = $"https://www.google.com/search?q={query}";
-                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-                };
-                contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
+        //        // Search film on the internet menu item
+        //        MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
+        //        {
+        //            Header = "Search film on the internet",
+        //            Icon = new Image()
+        //            {
+        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
+        //            }
+        //        };
+        //        searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
+        //        {
+        //            string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
+        //            string url = $"https://www.google.com/search?q={query}";
+        //            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        //        };
+        //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
 
-                e.Row.ContextMenu = contextMenu;
-            };
-        }
+        //        e.Row.ContextMenu = contextMenu;
+        //    };
+        //}
 
         public void AfterFileHasBeenLoaded()
         {
@@ -101,7 +101,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             foreach (var filmRecord in FilmsObservableList)
             {
-                filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
+               // filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
             }
 
             // Increase the brightness of the brightAccentColour by 80%
@@ -138,7 +138,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
-            AddContextMenuForTheItem(VisualFilmsTable);
+      //      AddContextMenuForTheItem(VisualFilmsTable);
 
             _ = _window.UpdateStatistics();
         }
@@ -216,12 +216,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
                 CollectionOfFilms = new CollectionOfFilms(this);
-                CollectionOfFilms.StartReader();
+                CollectionOfFilms.StartNewReader();
             }
             else
             {
                 CollectionOfFilms = new CollectionOfFilms(newFilePath, this);
-                CollectionOfFilms.StartReader();
+                CollectionOfFilms.StartNewReader();
             }
             AfterFileHasBeenLoaded();
         }
@@ -233,7 +233,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (CloseFileAndAskToSave())
                 {
                     CollectionOfFilms = new CollectionOfFilms(this);
-                    CollectionOfFilms.StartReader();
+                    CollectionOfFilms.StartNewReader();
                 }
                 else
                 {
@@ -243,7 +243,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             else
             {
                 CollectionOfFilms = new CollectionOfFilms(newFilePath, this);
-                CollectionOfFilms.StartReader();
+                CollectionOfFilms.StartNewReader();
             }
             AfterFileHasBeenLoaded();
         }
@@ -385,7 +385,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     if (newItem is FilmRecord newRecord)
                     {
                         // Subscribe to PropertyChanged event of the new FilmRecord instance
-                        newRecord.PropertyChanged += FilmRecord_PropertyChanged;
+                     //   newRecord.PropertyChanged += FilmRecord_PropertyChanged;
                     }
                 }
             }
@@ -397,7 +397,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     if (oldItem is FilmRecord oldRecord)
                     {
                         // Unsubscribe from PropertyChanged event of the removed FilmRecord instance
-                        oldRecord.PropertyChanged -= FilmRecord_PropertyChanged;
+                       // oldRecord.PropertyChanged -= FilmRecord_PropertyChanged;
                     }
                 }
             }
