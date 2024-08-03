@@ -5,7 +5,7 @@ namespace WatchedFilmsTracker.Source.Models
 {
     public class FilmRecord : INotifyPropertyChanged
     {
-        public Dictionary<Column, Cell> Cells { get; set; } = new Dictionary<Column, Cell>();
+        public List<Cell> Cells { get; set; } = new List<Cell>();
 
         public string Comments
         {
@@ -127,7 +127,7 @@ namespace WatchedFilmsTracker.Source.Models
 
         private string watchDate;
 
-        public FilmRecord(Dictionary<Column, Cell> cells)
+        public FilmRecord(List<Cell> cells)
         {
             Cells = cells;
         }
@@ -154,27 +154,6 @@ namespace WatchedFilmsTracker.Source.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void AddOrUpdateCell(Column column, string value)
-        {
-            if (Cells.ContainsKey(column))
-            {
-                Cells[column].UpdateValue(value);
-            }
-            else
-            {
-                Cells[column] = new Cell(value, column);
-            }
-        }
-
-        public string GetValue(Column column)
-        {
-            return Cells.TryGetValue(column, out var cell) ? cell.Value : string.Empty;
-        }
-
-        public bool IsValid(Column column)
-        {
-            return Cells.TryGetValue(column, out var cell) && cell.IsValid;
-        }
 
         public string ToNiceString()
         {
@@ -189,6 +168,18 @@ namespace WatchedFilmsTracker.Source.Models
         public override string ToString()
         {
             return $"FilmRecord{{englishTitle='{englishTitle}', originalTitle='{originalTitle}', type='{type}', releaseYear='{releaseYear}', rating='{rating}', watchDate='{watchDate}', comments='{comments}', idInList={idInList}}}";
+        }
+
+        public string ToNewString()
+        {
+            return "wip";
+            //todo all
+        }
+
+        public string StringToBeSavedInFile()
+        {
+            return "wip";
+            //todo check which columns exist and what order
         }
 
         private void OnPropertyChanged(string propertyName)

@@ -168,18 +168,17 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                     _columns.Add(new Column($"Column{_columns.Count + 1}"));
                 }
 
-                // Create a dictionary of Column-Cell pairs
-                var cellDictionary = new Dictionary<Column, Cell>();
+                // Create a list of Cell objects
+                var cells = new List<Cell>();
 
                 for (int i = 0; i < _columns.Count; i++)
                 {
                     string cellValue = i < values.Count ? values[i] : string.Empty;
-                    // Pass the corresponding column to the Cell constructor
-                    cellDictionary[_columns[i]] = new Cell(cellValue, _columns[i]);
+                    cells.Add(new Cell(cellValue, _columns[i]));
                 }
 
-                // Create a new FilmRecord with the populated dictionary
-                var record = new FilmRecord(cellDictionary);
+                // Create a new FilmRecord with the populated list
+                var record = new FilmRecord(cells);
                 _records.Add(record);
 
                 // Update max columns if needed
@@ -211,19 +210,15 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 
         private void FillEmptyValues()
         {
-            // Ensure all FilmRecords have the same number of keys in their dictionaries
+            // Ensure all FilmRecords have the same number of Cells
             foreach (var record in _records)
             {
-                foreach (var column in _columns)
+                while (record.Cells.Count < _columns.Count)
                 {
-                    if (!record.Cells.ContainsKey(column))
-                    {
-                        record.Cells[column] = new Cell(string.Empty, column);
-                    }
+                    record.Cells.Add(new Cell(string.Empty, _columns[record.Cells.Count]));
                 }
             }
         }
-
         private string ReadCSVheaders()
         {
             fileColumns = NextLine();
