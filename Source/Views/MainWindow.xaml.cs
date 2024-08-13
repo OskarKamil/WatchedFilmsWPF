@@ -23,7 +23,7 @@ namespace WatchedFilmsTracker
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
-        private DataGridInitialiser filmsColumnsManager;
+        private DataGridManager filmsColumnsManager;
         private WorkingTextFile workingTextFile;
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
@@ -79,6 +79,9 @@ namespace WatchedFilmsTracker
             workingTextFile.setUpFilmsDataGrid(dataGridMainWindow);
             workingTextFile.setUpMainWindow(this);
             workingTextFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
+            OpenFilepath(SettingsManager.LastPath);
+
+            //LOCAL FILES SERVICE
             localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
             LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
@@ -93,9 +96,6 @@ namespace WatchedFilmsTracker
 
             //SEARCH MANAGER
             searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
-
-            //LOAD LAST FILEPATH
-            OpenFilepath(SettingsManager.LastPath);
 
             //GRIDLIST SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;

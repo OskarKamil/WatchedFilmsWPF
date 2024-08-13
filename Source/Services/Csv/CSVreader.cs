@@ -27,35 +27,6 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             _records = new ObservableCollection<RecordModel>();
         }
 
-        public CSVreader(string newFilePath)
-        {
-            filePath = newFilePath;
-            if (File.Exists(newFilePath))
-            {
-                try
-                {
-                    filmsFile = new StreamReader(filePath, System.Text.Encoding.UTF8);
-                }
-                catch (IOException)
-                {
-                    Console.Error.WriteLine("File not found.");
-                }
-            }
-            else
-            {
-                string defaultNewFile = "Title\tOriginal Title\tType\tRelease year\tRating\tWatch date\tComments\t";
-                filmsFile = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(defaultNewFile)));
-                filePath = "";
-                SettingsManager.LastPath = "";
-            }
-
-            ReadFirstLine();
-            PrepareValuesFromCurrentLine();
-            Console.Write("This CSV file's structures is: ");
-            while (iterator.MoveNext()) Console.Write("[" + iterator.Current + "] ");
-            Debug.WriteLine("");
-        }
-
         public void CloseFile()
         {
             //filmsFile.Close();
@@ -76,7 +47,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             return filePath;
         }
 
-             public ObservableCollection<RecordModel> GetRecords()
+        public ObservableCollection<RecordModel> GetRecords()
         {
             return _records;
         }
@@ -147,7 +118,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                 for (int i = 0; i < _columns.Count; i++)
                 {
                     string cellValue = i < values.Count ? values[i] : string.Empty;
-                    cells.Add(new Cell(cellValue, _columns[i]));
+                    cells.Add(new Cell(cellValue));
                 }
 
                 // Create a new FilmRecord with the populated list
@@ -167,20 +138,6 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             return new ObservableCollection<RecordModel>(_records);
         }
 
-        public string ReadFirstLine()
-        {
-            lineFromFile = ReadCSVheaders();
-            valuesFromLine = null;
-            return lineFromFile;
-        }
-
-        public string ReadNextLine()
-        {
-            lineFromFile = NextLine();
-            valuesFromLine = null;
-            return lineFromFile;
-        }
-
         private void FillEmptyValues()
         {
             // Ensure all FilmRecords have the same number of Cells
@@ -188,14 +145,9 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             {
                 while (record.Cells.Count < _columns.Count)
                 {
-                    record.Cells.Add(new Cell(string.Empty, _columns[record.Cells.Count]));
+                    record.Cells.Add(new Cell(string.Empty));
                 }
             }
-        }
-        private string ReadCSVheaders()
-        {
-            fileColumns = NextLine();
-            return fileColumns;
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Windows.Data;
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
-    internal class DataGridInitialiser
+    internal class DataGridManager
     {
         private readonly List<DataGridTextColumn> columns = new List<DataGridTextColumn>();
         private readonly DataGrid dataGrid;
@@ -16,7 +16,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         //    CreateDefaultColumnsForCollectionOfFilms();
         //}
 
-        public DataGridInitialiser(DataGrid dataGrid, bool autoGenerateColumns)
+        public DataGridManager(DataGrid dataGrid, bool autoGenerateColumns)
         {
             if (autoGenerateColumns)
             {
@@ -75,6 +75,58 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 dataGrid.Columns.Add(dataGridColumn);
             }
         }
+
+        //private void RefreshColumns()
+        //{
+        //    dataGrid.Columns.Clear();
+
+        //    for (int i = 0; i < ColumnRepresentation.Count; i++)
+        //    {
+        //        if (ColumnRepresentation[i] != -1)
+        //        {
+        //            var binding = new Binding($"Properties[{ColumnRepresentation[i]}]");
+        //            var column = new DataGridTextColumn
+        //            {
+        //                Header = $"Column {i + 1}",
+        //                Binding = binding
+        //            };
+        //            dataGrid.Columns.Add(column);
+        //        }
+        //    }
+        //}
+
+        //private void AddColumn()
+        //{
+        //    foreach (var model in DataModels)
+        //    {
+        //        model.Properties.Add(""); // Add a new property to each model
+        //    }
+
+        //    ColumnRepresentation.Add(ColumnRepresentation.Count);
+        //    RefreshColumns();
+        //}
+
+        //private void RemoveColumn(int columnIndex)
+        //{
+        //    if (columnIndex >= 0 && columnIndex < ColumnRepresentation.Count)
+        //    {
+        //        ColumnRepresentation[columnIndex] = -1; // Mark column as removed
+        //        RefreshColumns();
+        //    }
+        //}
+
+        //private void SwapColumns(int index1, int index2)
+        //{
+        //    if (index1 >= 0 && index1 < ColumnRepresentation.Count &&
+        //        index2 >= 0 && index2 < ColumnRepresentation.Count)
+        //    {
+        //        var temp = ColumnRepresentation[index1];
+        //        ColumnRepresentation[index1] = ColumnRepresentation[index2];
+        //        ColumnRepresentation[index2] = temp;
+
+        //        RefreshColumns();
+        //    }
+        //}
 
         private void CreateColumnsAutomaticallyBasecOnCSVfile()
         {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.DataGridHelpers;
-using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Services.Csv;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
@@ -13,6 +13,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     /// </summary>
     public class CollectionOfRecords
     {
+        public List<int> ColumnRepresentation
+        {
+            get => _columnRepresentation;
+            set
+            {
+                _columnRepresentation = value;
+            }
+        }
+
         public string FilePath
         {
             get { return filePath; }
@@ -24,26 +33,37 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             get { return listOfFilms; }
         }
 
-        private DataGridInitialiser dataGridInitialiser;
-        private string fileColumns;
+        private List<int> _columnRepresentation;
+        private List<Column> columns;
+
+        private DataGridManager dataGridInitialiser;
+
+        private string fileColumnHeaders;
+
         private string filePath;
         private WorkingTextFile filmsFileHandler;
+
         private ObservableCollection<RecordModel> listOfFilms;
+
         private CSVreader reader;
+
         private CSVwriter writer;
-        private List<Column> columns;
 
         public CollectionOfRecords(string filePath, WorkingTextFile filmsTextFile)
         {
             this.filmsFileHandler = filmsTextFile;
             this.filePath = filePath;
+            _columnRepresentation = new List<int>();
         }
 
         public CollectionOfRecords(WorkingTextFile filmsTextFile)
         {
             this.filmsFileHandler = filmsTextFile;
             filePath = null;
+            _columnRepresentation = new List<int>();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         //public void AddEmptyRecordToList()
         //{
@@ -111,28 +131,39 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //    }
         //}
 
-        public void StartNewReader()
+        public void StartReader()
         {
             reader = new CSVreader();
             listOfFilms = reader.ReadCsvReturnObservableCollection(filePath);
             columns = reader.GetColumns();
-            DataGridInitialiser.BuildColumnsFromList(columns, filmsFileHandler.DataGrid);
+            DataGridManager.BuildColumnsFromList(columns, filmsFileHandler.DataGrid);
         }
-
-
 
         public void StartWriter(string newFilePath)
         {
             if (reader != null) CloseReader();
             writer = new CSVwriter(newFilePath);
-            writer.SetFileColumn(fileColumns);
-            writer.SaveListIntoCSV(listOfFilms.ToList());
+            List<int> visibleColumns = GetIdsOfVisibleProperties();
+
+            
+            writer.SaveListIntoCSV(listOfFilms.ToList(), filmsFileHandler.DataGrid, visibleColumns);
             CloseWriter();
         }
 
         private void CloseWriter()
         {
             writer?.Close();
+        }
+
+        private List<int> GetIdsOfVisibleProperties()
+        {
+            List<int> ids = new List<int>();
+            for (int i = 0; i < _columnRepresentation.Count; i++)
+            {
+                if (_columnRepresentation[i] != -1)
+                    ids.Add(_columnRepresentation[i]);
+            }
+            return ids;
         }
 
         private void StartEditingNewRecord()

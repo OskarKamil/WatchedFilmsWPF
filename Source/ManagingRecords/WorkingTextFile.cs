@@ -99,7 +99,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             foreach (var filmRecord in FilmsObservableList)
             {
-                // filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
+                 filmRecord.CellChanged += FilmRecord_PropertyChanged;
             }
 
             // Increase the brightness of the brightAccentColour by 80%
@@ -167,7 +167,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return !ProgramStateManager.IsUnsavedChange;
         }
 
-        public void FilmRecord_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void FilmRecord_PropertyChanged(object sender, CellChangedEventArgs e)
         {
             if (e.PropertyName != "IdInList")
             {
@@ -214,12 +214,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
                 CollectionOfFilms = new CollectionOfRecords(this);
-                CollectionOfFilms.StartNewReader();
+                CollectionOfFilms.StartReader();
             }
             else
             {
                 CollectionOfFilms = new CollectionOfRecords(newFilePath, this);
-                CollectionOfFilms.StartNewReader();
+                CollectionOfFilms.StartReader();
             }
             AfterFileHasBeenLoaded();
         }
@@ -231,7 +231,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (CloseFileAndAskToSave())
                 {
                     CollectionOfFilms = new CollectionOfRecords(this);
-                    CollectionOfFilms.StartNewReader();
+                    CollectionOfFilms.StartReader();
                 }
                 else
                 {
@@ -241,7 +241,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             else
             {
                 CollectionOfFilms = new CollectionOfRecords(newFilePath, this);
-                CollectionOfFilms.StartNewReader();
+                CollectionOfFilms.StartReader();
             }
             AfterFileHasBeenLoaded();
         }
