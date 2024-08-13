@@ -136,6 +136,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             reader = new CSVreader();
             listOfFilms = reader.ReadCsvReturnObservableCollection(filePath);
             columns = reader.GetColumns();
+            for (int i = 0; i < columns.Count; i++)
+            {
+                ColumnRepresentation.Add((i));
+            }
             DataGridManager.BuildColumnsFromList(columns, filmsFileHandler.DataGrid);
         }
 
@@ -145,7 +149,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             writer = new CSVwriter(newFilePath);
             List<int> visibleColumns = GetIdsOfVisibleProperties();
 
-            
             writer.SaveListIntoCSV(listOfFilms.ToList(), filmsFileHandler.DataGrid, visibleColumns);
             CloseWriter();
         }

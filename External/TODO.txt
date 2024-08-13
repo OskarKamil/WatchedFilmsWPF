@@ -1,17 +1,18 @@
 **Immediate (NOW):**
+- CSV writer almost works. It doesn't save the column headers.
+
+**Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.
 - Create ID column.
 - When adding new record, make sure column #1 exists before focuing and doing edit mode.
 - Reordering columns.
+- Make CSV writer save as CRLF.
 - CSV writer.
 - Add new column.
 - Statistics headers:
 	- Next to statistics header display ribbon menu to select which columns are to be used.
 	- Create method: get list of column headers.
-
 - Do a lot of test before releasing.
-
-**Upcoming (SOON):**
 - More flexible CSV file format. Start making it more custom.
 	- Datagrid autofill.
 	- Datagrid. User can add columns.
