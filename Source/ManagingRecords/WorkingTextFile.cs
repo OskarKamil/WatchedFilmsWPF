@@ -11,42 +11,40 @@ using System.Windows.Media.Imaging;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
-using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.RecordValueValidator;
 using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
-    public class FilmsTextFile
+    public class WorkingTextFile
     {
-        private CollectionOfFilms _collectionOfFilms;
+        private CollectionOfRecords _collectionOfFilms;
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
-        private ObservableCollection<FilmRecord> _filmsObservableList;
+        private ObservableCollection<RecordModel> _filmsObservableList;
         private StatisticsManager _statisticsManager;
-        private DataGrid _visualFilmsTable;
+        private DataGrid _dataGrid;
         private MainWindow _window;
-       
 
-        public FilmsTextFile()
+        public WorkingTextFile()
         {
-            FilmsObservableList = new ObservableCollection<FilmRecord>();
+            FilmsObservableList = new ObservableCollection<RecordModel>();
             SystemAccentColour.Initialize();
             SystemAccentColour.AccentColorChanged += SystemAccentColour_AccentColorChanged;
         }
 
         public event EventHandler AnyChangeHappenedEvent;
 
-        public event EventHandler<CollectionOfFilms> SavedComplete;
+        public event EventHandler<CollectionOfRecords> SavedComplete;
 
-        public CollectionOfFilms CollectionOfFilms { get => _collectionOfFilms; set => _collectionOfFilms = value; }
+        public CollectionOfRecords CollectionOfFilms { get => _collectionOfFilms; set => _collectionOfFilms = value; }
 
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
 
-        public ObservableCollection<FilmRecord> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
+        public ObservableCollection<RecordModel> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
 
         public StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
 
-        public DataGrid VisualFilmsTable { get => _visualFilmsTable; set => _visualFilmsTable = value; }
+        public DataGrid DataGrid { get => _dataGrid; set => _dataGrid = value; }
 
         //public void AddContextMenuForTheItem(DataGrid dataGrid)
         //{
@@ -94,27 +92,27 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void AfterFileHasBeenLoaded()
         {
             FilmsObservableList = CollectionOfFilms.ListOfFilms;
-            VisualFilmsTable.ItemsSource = FilmsObservableList;
+            DataGrid.ItemsSource = FilmsObservableList;
 
             // Subscribe to PropertyChanged event of each FilmRecord instance
             FilmsObservableList.CollectionChanged += filmsListHasChanged;
 
             foreach (var filmRecord in FilmsObservableList)
             {
-               // filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
+                // filmRecord.PropertyChanged += FilmRecord_PropertyChanged;
             }
 
             // Increase the brightness of the brightAccentColour by 80%
-            _visualFilmsTable.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
+            _dataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
-            _visualFilmsTable.CellEditEnding += CellEditEnding;
+            _dataGrid.CellEditEnding += CellEditEnding;
 
             SettingsManager.LastPath = CollectionOfFilms.FilePath;
             ProgramStateManager.IsUnsavedChange = false;
             ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
 
-             if (string.IsNullOrEmpty(CollectionOfFilms.FilePath))
+            if (string.IsNullOrEmpty(CollectionOfFilms.FilePath))
             {
                 ProgramStateManager.IsFileSavedOnDisk = false;
                 ProgramStateManager.IsFileInLocalMyDataFolder = false;
@@ -138,7 +136,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
-      //      AddContextMenuForTheItem(VisualFilmsTable);
+            //      AddContextMenuForTheItem(VisualFilmsTable);
 
             _ = _window.UpdateStatistics();
         }
@@ -206,7 +204,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             OpenFilepath(null);
         }
 
-        public void OnSaveCompleted(CollectionOfFilms filmsFile)
+        public void OnSaveCompleted(CollectionOfRecords filmsFile)
         {
             SavedComplete?.Invoke(this, filmsFile);
         }
@@ -215,12 +213,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
-                CollectionOfFilms = new CollectionOfFilms(this);
+                CollectionOfFilms = new CollectionOfRecords(this);
                 CollectionOfFilms.StartNewReader();
             }
             else
             {
-                CollectionOfFilms = new CollectionOfFilms(newFilePath, this);
+                CollectionOfFilms = new CollectionOfRecords(newFilePath, this);
                 CollectionOfFilms.StartNewReader();
             }
             AfterFileHasBeenLoaded();
@@ -232,7 +230,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 if (CloseFileAndAskToSave())
                 {
-                    CollectionOfFilms = new CollectionOfFilms(this);
+                    CollectionOfFilms = new CollectionOfRecords(this);
                     CollectionOfFilms.StartNewReader();
                 }
                 else
@@ -242,7 +240,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
             else
             {
-                CollectionOfFilms = new CollectionOfFilms(newFilePath, this);
+                CollectionOfFilms = new CollectionOfRecords(newFilePath, this);
                 CollectionOfFilms.StartNewReader();
             }
             AfterFileHasBeenLoaded();
@@ -300,12 +298,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void ScrollToBottomOfList()
         {
             if (FilmsObservableList.Count > 0)
-                VisualFilmsTable.ScrollIntoView(FilmsObservableList.ElementAt(FilmsObservableList.Count - 1));
+                DataGrid.ScrollIntoView(FilmsObservableList.ElementAt(FilmsObservableList.Count - 1));
         }
 
         public void setUpFilmsDataGrid(DataGrid dataGrid)
         {
-            VisualFilmsTable = dataGrid;
+            DataGrid = dataGrid;
         }
 
         public void setUpMainWindow(MainWindow window)
@@ -357,10 +355,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
                 // Change the cell background color to red
                 DataGridRow row = e.Row;
-                DataGridCell cell = DataGridCellGetter.GetCell(_visualFilmsTable, e.Row.GetIndex(), e.Column.DisplayIndex);
+                DataGridCell cell = DataGridCellGetter.GetCell(_dataGrid, e.Row.GetIndex(), e.Column.DisplayIndex);
 
                 // Pass the FilmRecord value to the IsReleaseYearValid method
-                if (e.Row.DataContext is FilmRecord filmRecord)
+                if (e.Row.DataContext is RecordModel filmRecord)
                 {
                     Debug.WriteLine("committed value is: " + _filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
                     DataGridCellAppearanceHelper.MakeCellAppearInvalid(cell, !_filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
@@ -382,10 +380,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 // New items added to the list
                 foreach (var newItem in e.NewItems)
                 {
-                    if (newItem is FilmRecord newRecord)
+                    if (newItem is RecordModel newRecord)
                     {
                         // Subscribe to PropertyChanged event of the new FilmRecord instance
-                     //   newRecord.PropertyChanged += FilmRecord_PropertyChanged;
+                        //   newRecord.PropertyChanged += FilmRecord_PropertyChanged;
                     }
                 }
             }
@@ -394,10 +392,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 // Items removed from the list
                 foreach (var oldItem in e.OldItems)
                 {
-                    if (oldItem is FilmRecord oldRecord)
+                    if (oldItem is RecordModel oldRecord)
                     {
                         // Unsubscribe from PropertyChanged event of the removed FilmRecord instance
-                       // oldRecord.PropertyChanged -= FilmRecord_PropertyChanged;
+                        // oldRecord.PropertyChanged -= FilmRecord_PropertyChanged;
                     }
                 }
             }
@@ -410,7 +408,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 // Ensure UI updates happen on the UI thread
 
-                _visualFilmsTable.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
+                _dataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
             });
         }
     }

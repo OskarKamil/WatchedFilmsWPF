@@ -24,7 +24,7 @@ namespace WatchedFilmsTracker
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
         private DataGridInitialiser filmsColumnsManager;
-        private FilmsTextFile filmsFileHandler;
+        private WorkingTextFile workingTextFile;
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
         private MainWindowViewModel viewModel;
@@ -66,23 +66,20 @@ namespace WatchedFilmsTracker
             ButtonManager.FileIsNotInLocalMyDataDirectoryButtons.Add(buttonSaveLocally);
 
             //SETTINGS
-            SettingsManager.PrepareDictionary();
-            SettingsManager.LoadFromConfFile();
+            SettingsManager.LoadDefaultSettings();
+            SettingsManager.LoadSettingsFromConfigFile();
             ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
 
             //CHECK UPDATE ON STARTUP
             if (SettingsManager.CheckUpdateOnStartup)
                 ManualCheckForUpdate(CheckUpdatesButton, null);
 
-            //FILMS TABLEVIEW DISPLAY VALUES
-            filmsColumnsManager = new DataGridInitialiser(filmsGrid, false); // constructor builds columns and binds values
-
             //FILEMANAGER
-            filmsFileHandler = new FilmsTextFile();
-            filmsFileHandler.setUpFilmsDataGrid(filmsGrid);
-            filmsFileHandler.setUpMainWindow(this);
-            filmsFileHandler.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
-            localFilmsFilesService = new LocalFilmsFilesService(filmsFileHandler);
+            workingTextFile = new WorkingTextFile();
+            workingTextFile.setUpFilmsDataGrid(dataGridMainWindow);
+            workingTextFile.setUpMainWindow(this);
+            workingTextFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
+            localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
             LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
             //STATISTICS DISPLAY COLUMNS
@@ -91,21 +88,21 @@ namespace WatchedFilmsTracker
 
             //SNAPSHOT SERVICE
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
-            FileChangesSnapshotService.FileManager = filmsFileHandler;
+            FileChangesSnapshotService.FileManager = workingTextFile;
             FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
             //SEARCH MANAGER
-            searchManager = new SearchManager(filmsFileHandler, searchTextBox, filmsGrid);
+            searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
 
             //LOAD LAST FILEPATH
             OpenFilepath(SettingsManager.LastPath);
 
             //GRIDLIST SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;
-            filmsGrid.SelectedCellsChanged += (obs, args) =>
+            dataGridMainWindow.SelectedCellsChanged += (obs, args) =>
             {
                 Debug.WriteLine("Selected cells changes, or deselected if filtered");
-                ProgramStateManager.IsSelectedCells = filmsGrid.SelectedCells.Count > 0;
+                ProgramStateManager.IsSelectedCells = dataGridMainWindow.SelectedCells.Count > 0;
             };
         }
 
@@ -113,16 +110,16 @@ namespace WatchedFilmsTracker
 
         public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
         {
-            if (filmsGrid.SelectedCells.Count > 0)
+            if (dataGridMainWindow.SelectedCells.Count > 0)
             {
-                FilmRecord selected = filmsGrid.SelectedCells[0].Item as FilmRecord;
-            //    filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
+                RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
+                //    filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
             }
         }
 
         public void UpdateNumberOfFilms()
         {
-            viewModel.TotalFilmsWatched = filmsFileHandler.StatisticsManager.GetNumberOfTotalWatchedFilms();
+            viewModel.TotalFilmsWatched = workingTextFile.StatisticsManager.GetNumberOfTotalWatchedFilms();
         }
 
         public void UpdateStageTitle()
@@ -134,27 +131,27 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            if (filmsFileHandler.CollectionOfFilms is null || string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath))
+            if (workingTextFile.CollectionOfFilms is null || string.IsNullOrEmpty(workingTextFile.CollectionOfFilms.FilePath))
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
             else
-                stageTitle += filmsFileHandler.CollectionOfFilms.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+                stageTitle += workingTextFile.CollectionOfFilms.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
 
             this.Title = stageTitle;
         }
 
         public async Task UpdateStatistics()
         {
-         //   UpdateNumberOfFilms();
-         //   UpdateAverageFilmRating();
+            //   UpdateNumberOfFilms();
+            //   UpdateAverageFilmRating();
 
             // Heavy tasks
-          //  var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
-         //   var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
+            //  var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
+            //   var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
 
             try
             {
                 // Await both tasks to complete
-              //  await Task.WhenAll(decadalTask, yearlyTask);
+                //  await Task.WhenAll(decadalTask, yearlyTask);
             }
             catch (Exception ex)
             {
@@ -168,6 +165,10 @@ namespace WatchedFilmsTracker
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.Owner = this; // Set the owner window to enable modal behavior
             aboutWindow.ShowDialog();
+        }
+
+        private void AddColumnButton(object sender, RoutedEventArgs e)
+        {
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -218,7 +219,7 @@ namespace WatchedFilmsTracker
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.CollectionOfFilms.DeleteAllRecords();
+            workingTextFile.CollectionOfFilms.DeleteAllRecords();
         }
 
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -229,13 +230,13 @@ namespace WatchedFilmsTracker
 
         private void LoadLocally(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.LoadLocally();
+            workingTextFile.LoadLocally();
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             // Call the ShutDown method when the window is closing
-            bool canClose = filmsFileHandler.CloseFileAndAskToSave();
+            bool canClose = workingTextFile.CloseFileAndAskToSave();
 
             // Cancel the closing event if necessary
 
@@ -257,41 +258,41 @@ namespace WatchedFilmsTracker
 
         private void NewFile(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.NewFile();
+            workingTextFile.NewFile();
         }
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
         {
-          //  filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
+            //  filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(filmsFileHandler.CollectionOfFilms.FilePath))
+            if (File.Exists(workingTextFile.CollectionOfFilms.FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + filmsFileHandler.CollectionOfFilms.FilePath);
+                Process.Start("explorer.exe", "/select, " + workingTextFile.CollectionOfFilms.FilePath);
             }
             else
             {
-                Debug.WriteLine($"{filmsFileHandler.CollectionOfFilms.FilePath} cannot be found");
+                Debug.WriteLine($"{workingTextFile.CollectionOfFilms.FilePath} cannot be found");
             }
         }
 
         private void OpenFileChooser(object sender, RoutedEventArgs e)
         {
-            if (filmsFileHandler.CloseFileAndAskToSave())
+            if (workingTextFile.CloseFileAndAskToSave())
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Title = "Open file";
                 openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-                if (string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath) || !(File.Exists(filmsFileHandler.CollectionOfFilms.FilePath)))
+                if (string.IsNullOrEmpty(workingTextFile.CollectionOfFilms.FilePath) || !(File.Exists(workingTextFile.CollectionOfFilms.FilePath)))
                 {
                     openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
                 }
                 else
                 {
-                    string parentDirectory = Directory.GetParent(filmsFileHandler.CollectionOfFilms.FilePath)?.FullName;
+                    string parentDirectory = Directory.GetParent(workingTextFile.CollectionOfFilms.FilePath)?.FullName;
                     if (!string.IsNullOrEmpty(parentDirectory))
                     {
                         openFileDialog.InitialDirectory = parentDirectory;
@@ -307,12 +308,16 @@ namespace WatchedFilmsTracker
 
         private void OpenFilepath(string? newFilePath)
         {
-            filmsFileHandler.OpenFilepathButSaveChangesFirst(newFilePath);
+            workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
         }
 
         private void OpenLocalFolder(object sender, RoutedEventArgs e)
         {
             LocalFilmsFilesService.OpenMyDataDirectoryFileExplorer();
+        }
+
+        private void RemoveColumnButton(object sender, RoutedEventArgs e)
+        {
         }
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
@@ -322,23 +327,23 @@ namespace WatchedFilmsTracker
 
         private void RevertChanges(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath))
+            if (string.IsNullOrEmpty(workingTextFile.CollectionOfFilms.FilePath))
             {
-                filmsFileHandler.CollectionOfFilms.ListOfFilms.Clear();
+                workingTextFile.CollectionOfFilms.ListOfFilms.Clear();
             }
             else
-                OpenFilepath(filmsFileHandler.CollectionOfFilms.FilePath);
+                OpenFilepath(workingTextFile.CollectionOfFilms.FilePath);
             searchManager.SearchFilms();
         }
 
         private void Save(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.Save();
+            workingTextFile.Save();
         }
 
         private void SaveAs(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.SaveAs();
+            workingTextFile.SaveAs();
         }
 
         private void SaveLocally(object sender, RoutedEventArgs e)
@@ -399,7 +404,7 @@ namespace WatchedFilmsTracker
         private void SelectLastButton(object sender, RoutedEventArgs e)
 
         {
-            filmsFileHandler.ScrollToBottomOfList();
+            workingTextFile.ScrollToBottomOfList();
         }
 
         private void UpdateAverageFilmRating()
@@ -521,16 +526,6 @@ namespace WatchedFilmsTracker
                 Width = 1200;
                 Height = 600;
             }
-        }
-
-        private void RemoveColumnButton(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void AddColumnButton(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

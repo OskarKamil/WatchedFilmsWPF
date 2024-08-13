@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.Services.Csv
 {
@@ -28,10 +28,10 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             filmsWriter.Close();
         }
 
-        public void SaveListIntoCSV(List<FilmRecord> list)
+        public void SaveListIntoCSV(List<RecordModel> list)
         {
             filmsWriter.WriteLine(fileColumn);
-            foreach (FilmRecord filmRecord in list)
+            foreach (RecordModel filmRecord in list)
             {
                 //filmsWriter.Write(ToString(filmRecord.EnglishTitle) + "\t");
                 //filmsWriter.Write(ToString(filmRecord.OriginalTitle) + "\t");

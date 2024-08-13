@@ -97,7 +97,7 @@ namespace WatchedFilmsTracker.Source.Managers
             }
         }
 
-        public static void LoadFromConfFile()
+        public static void LoadSettingsFromConfigFile()
         {
             if (File.Exists(CONFIG_FILEPATH))
             {
@@ -129,7 +129,7 @@ namespace WatchedFilmsTracker.Source.Managers
             }
         }
 
-        public static void PrepareDictionary()
+        public static void LoadDefaultSettings()
         {
             dictionaryNameValue.Add("AutoSave", false);
             dictionaryNameValue.Add("CheckUpdateOnStartup", false);

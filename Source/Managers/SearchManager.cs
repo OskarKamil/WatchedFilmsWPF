@@ -2,18 +2,17 @@
 using System.Reflection;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
-using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
     internal class SearchManager
     {
         private string defaultSearchText;
-        private FilmsTextFile fileManager;
+        private WorkingTextFile fileManager;
         private DataGrid filmsGrid;
         private TextBox searchTextBox;
 
-        public SearchManager(FilmsTextFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
+        public SearchManager(WorkingTextFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
         {
             this.fileManager = fileManager;
             this.searchTextBox = searchTextBox;
@@ -33,7 +32,7 @@ namespace WatchedFilmsTracker.Source.Managers
                 return;
             }
 
-            var filteredList = new ObservableCollection<FilmRecord>();
+            var filteredList = new ObservableCollection<RecordModel>();
 
             foreach (var filmRecord in fileManager.FilmsObservableList)
             {

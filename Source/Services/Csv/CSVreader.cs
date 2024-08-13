@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
-using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.Services.Csv
 {
@@ -12,7 +12,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
     {
         private List<Column> _columns;
         private int _maxColumns;
-        private ObservableCollection<FilmRecord> _records;
+        private ObservableCollection<RecordModel> _records;
         private string fileColumns;
         private string filePath;
         private StreamReader filmsFile;
@@ -24,7 +24,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         {
             _maxColumns = 0;
             _columns = new List<Column>();
-            _records = new ObservableCollection<FilmRecord>();
+            _records = new ObservableCollection<RecordModel>();
         }
 
         public CSVreader(string newFilePath)
@@ -76,7 +76,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             return filePath;
         }
 
-             public ObservableCollection<FilmRecord> GetRecords()
+             public ObservableCollection<RecordModel> GetRecords()
         {
             return _records;
         }
@@ -113,7 +113,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             iterator = valuesFromLine.GetEnumerator();
         }
 
-        public ObservableCollection<FilmRecord> ReadCsvReturnObservableCollection(string filePath)
+        public ObservableCollection<RecordModel> ReadCsvReturnObservableCollection(string filePath)
         {
             var lines = File.ReadAllLines(filePath);
             bool headersProcessed = false;
@@ -151,7 +151,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                 }
 
                 // Create a new FilmRecord with the populated list
-                var record = new FilmRecord(cells);
+                var record = new RecordModel(cells);
                 _records.Add(record);
 
                 // Update max columns if needed
@@ -164,7 +164,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             FillEmptyValues();
 
             // Return an ObservableCollection of FilmRecord
-            return new ObservableCollection<FilmRecord>(_records);
+            return new ObservableCollection<RecordModel>(_records);
         }
 
         public string ReadFirstLine()

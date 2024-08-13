@@ -458,7 +458,7 @@
                           Margin="0,0,0,30">
                     <GroupBox.Header>List of watched films data</GroupBox.Header>
                     <Grid x:Name="grid">
-                        <DataGrid x:Name="filmsGrid"
+                        <DataGrid x:Name="dataGridMainWindow"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
                                   VerticalContentAlignment="Stretch"

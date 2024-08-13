@@ -1,14 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
-using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
     public class StatisticsManager
     {
-        private ObservableCollection<FilmRecord> filmRecords;
+        private ObservableCollection<RecordModel> filmRecords;
 
-        public StatisticsManager(ObservableCollection<FilmRecord> filmsObservableList)
+        public StatisticsManager(ObservableCollection<RecordModel> filmsObservableList)
         {
             filmRecords = filmsObservableList;
         }
@@ -39,7 +39,7 @@ namespace WatchedFilmsTracker.Source.Managers
         //    return averageRating;
         //}
 
-        public static int GetNumberOfTotalWatchedFilms(Collection<FilmRecord> listOfFilms)
+        public static int GetNumberOfTotalWatchedFilms(Collection<RecordModel> listOfFilms)
         {
             return listOfFilms.Count;
         }

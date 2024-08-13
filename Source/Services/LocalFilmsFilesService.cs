@@ -13,9 +13,9 @@ namespace WatchedFilmsTracker.Source.Services
         private static readonly string WATCHED_FILMS_FILENAME_PATTERN = "MyFilms*.*";
         private static string myDataDirectory;
         private static string programDirectory;
-        private FilmsTextFile myFileManager;
+        private WorkingTextFile myFileManager;
 
-        public LocalFilmsFilesService(FilmsTextFile myFileManager)
+        public LocalFilmsFilesService(WorkingTextFile myFileManager)
         {
             this.myFileManager = myFileManager;
         }

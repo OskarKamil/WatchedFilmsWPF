@@ -1,12 +1,12 @@
 ﻿using WatchedFilmsTracker.Source.DataGridHelpers;
 
-namespace WatchedFilmsTracker.Source.Models
+namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
-    public class FilmRecord
+    public class RecordModel
     {
         public List<Cell> Cells { get; set; } = new List<Cell>();
 
-        public FilmRecord(List<Cell> cells)
+        public RecordModel(List<Cell> cells)
         {
             Cells = cells;
         }
