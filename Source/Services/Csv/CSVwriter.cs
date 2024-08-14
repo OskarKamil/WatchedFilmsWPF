@@ -32,7 +32,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 
         public void SaveListIntoCSV(List<RecordModel> list, DataGrid dataGrid, List<int> visibleColumns)
         {
-            var sb = new StringBuilder();
+            var stringBuilder = new StringBuilder();
 
             // Extract column headers
             var headers = new string[dataGrid.Columns.Count];
@@ -40,16 +40,19 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             {
                 headers[i] = dataGrid.Columns[i].Header.ToString();
             }
-            sb.AppendLine(string.Join("\t", headers));
+            stringBuilder.AppendLine(string.Join("\t", headers));
 
             foreach (RecordModel filmRecord in list)
             {
+                var rowValues = new List<string>();
+
                 for (int i = 0; i < visibleColumns.Count; i++)
                 {
-                    filmsWriter.Write(ToString(filmRecord.Cells[visibleColumns[i]] + "\t"));
+                    rowValues.Add(filmRecord.Cells[visibleColumns[i]].Value.ToString());
                 }
-                filmsWriter.Write("\n");
+                stringBuilder.AppendLine(string.Join("\t", rowValues));
             }
+            filmsWriter.Write(stringBuilder.ToString());
             filmsWriter.Close();
             Debug.WriteLine("Saved and closed");
         }

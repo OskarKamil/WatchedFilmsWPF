@@ -1,5 +1,6 @@
 **Immediate (NOW):**
-- CSV writer almost works. It doesn't save the column headers.
+- When pressed [New film record] button, you can start typing an English title of the film. The cell is focus and in edit mode.
+- Test all actions and uncomment the code.
 
 **Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.
@@ -36,6 +37,7 @@
 - If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
 	- Filtering clears the coloured cells.
 	- Create a counter for invalid cells.
+- Button to choose minimal view or hide side bar.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.

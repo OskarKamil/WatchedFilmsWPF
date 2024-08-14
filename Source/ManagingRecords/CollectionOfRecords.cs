@@ -126,7 +126,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //{
         //    for (int i = 0; i < listOfFilms.Count; i++)
         //    {
-        //        FilmRecord record = listOfFilms[i];
+        //FilmRecord record = listOfFilms[i];
         //        if (record.IdInList >= idOfSelected) record.IdInList--;
         //    }
         //}

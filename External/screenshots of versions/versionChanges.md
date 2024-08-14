@@ -113,4 +113,5 @@
 
 #### 0.015
 - When pressed [New film record] button, you can start typing an English title of the film. The cell is focus and in edit mode.
+- The program can read any CSV file. No longer strict number of columns.
 - 
