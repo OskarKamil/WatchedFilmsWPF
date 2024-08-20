@@ -1,5 +1,10 @@
 **Immediate (NOW):**
-- When pressed [New film record] button, you can start typing an English title of the film. The cell is focus and in edit mode.
+- Reset columns order and width is not working.
+- Add functionality to Add new column and delete column buttons:
+	- ColumnRepresentation. Index of this list represents index of value in List in the model.
+	- Value under ColumnRepresentation represents the ID of the column in the datagrid.
+	- Each time column is added. New index is added to the Values. And ColumnRepresentation gets new index with value of ID of new column.
+	- each time column is removed, ColumnRepresentation will find value of the column id, and will set to -1.
 - Test all actions and uncomment the code.
 
 **Upcoming (SOON):**

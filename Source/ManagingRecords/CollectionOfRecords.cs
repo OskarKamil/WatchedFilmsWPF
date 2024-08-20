@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.DataGridHelpers;
+using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Services.Csv;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
@@ -36,7 +37,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private List<int> _columnRepresentation;
         private List<Column> columns;
 
-        private DataGridManager dataGridInitialiser;
+        private DataGridManager dataGridManager;
 
         private string fileColumnHeaders;
 
@@ -65,28 +66,39 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //public void AddEmptyRecordToList()
-        //{
-        //    FilmRecord newRecord = new FilmRecord(listOfFilms.Count + 1);
-        //    newRecord.PropertyChanged += filmsFileHandler.FilmRecord_PropertyChanged;
-        //    listOfFilms.Add(newRecord);
-        //    filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
-        //    if (filmsFileHandler.VisualFilmsTable.ItemsSource == listOfFilms)
-        //    {
-        //        filmsFileHandler.VisualFilmsTable.SelectedItem = newRecord;
-        //        filmsFileHandler.VisualFilmsTable.ScrollIntoView(filmsFileHandler.VisualFilmsTable.SelectedItem);
-        //    }
+        public void AddEmptyRecordToList()
+        {
+            // RecordModel newRecord = new RecordModel(listOfFilms.Count + 1);
+            //todo implement id column
+            RecordModel newRecord = new RecordModel(new List<Cell>());
+            for (int i = 0; i < _columnRepresentation.Count; i++)
+            {
+                {
+                    newRecord.Cells.Add(new Cell(string.Empty));
+                }
+            }
 
-        //    if (SettingsManager.DefaultDateIsToday)
-        //    {
-        //        string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
-        //        newRecord.WatchDate = (formattedString);
-        //    }
+            newRecord.CellChanged += filmsFileHandler.FilmRecord_PropertyChanged;
+            listOfFilms.Add(newRecord);
+            filmsFileHandler.DataGrid.SelectedCells.Clear();
+            if (filmsFileHandler.DataGrid.ItemsSource == listOfFilms)
+            {
+                filmsFileHandler.DataGrid.SelectedItem = newRecord;
+                filmsFileHandler.DataGrid.ScrollIntoView(filmsFileHandler.DataGrid.SelectedItem);
+            }
 
-        //    StartEditingNewRecord();
+            if (SettingsManager.DefaultDateIsToday)
+            {
+                string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
+                int columnID = dataGridManager.GetIdOfColumnByHeader("Watch date");
+                if (columnID != -1)
+                    newRecord.Cells[_columnRepresentation[columnID]].Value = formattedString;
+            }
 
-        //    filmsFileHandler.AnyChangeHappen();
-        //}
+            StartEditingNewRecord();
+
+            filmsFileHandler.AnyChangeHappen();
+        }
 
         public void CloseReader()
         {
@@ -140,7 +152,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 ColumnRepresentation.Add((i));
             }
-            DataGridManager.BuildColumnsFromList(columns, filmsFileHandler.DataGrid);
+            dataGridManager = new DataGridManager(filmsFileHandler.DataGrid);
+            dataGridManager.BuildColumnsFromList(columns);
         }
 
         public void StartWriter(string newFilePath)
@@ -171,7 +184,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         private void StartEditingNewRecord()
         {
-            filmsFileHandler.DataGrid.CurrentCell = new DataGridCellInfo(filmsFileHandler.DataGrid.Items[filmsFileHandler.DataGrid.Items.Count - 1], filmsFileHandler.DataGrid.Columns[1]);
+            if (dataGridManager.GetNumberOfColumns() == 0)
+                return;
+
+            int columnID = dataGridManager.GetIdOfColumnByHeader("English title");
+            if (columnID != -1)
+                filmsFileHandler.DataGrid.CurrentCell = new DataGridCellInfo(filmsFileHandler.DataGrid.Items[filmsFileHandler.DataGrid.Items.Count - 1], filmsFileHandler.DataGrid.Columns[_columnRepresentation[columnID]]);
 
             filmsFileHandler.DataGrid.BeginEdit();
         }

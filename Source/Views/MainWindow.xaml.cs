@@ -263,7 +263,7 @@ namespace WatchedFilmsTracker
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
         {
-            //  filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
+              workingTextFile.CollectionOfFilms.AddEmptyRecordToList();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)

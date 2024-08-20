@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
@@ -15,9 +17,21 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         }
     }
 
-    public class RecordModel
+    public class RecordModel : INotifyPropertyChanged
     {
-        public List<Cell> Cells { get; set; } = new List<Cell>();
+        private List<Cell> _cells;
+        public List<Cell> Cells
+        {
+            get => _cells;
+            set
+            {
+                if (_cells != value)
+                {
+                    _cells = value;
+                    NotifyPropertyChanged(nameof(Cells));
+                }
+            }
+        }
 
         public RecordModel(List<Cell> cells)
         {
@@ -26,6 +40,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 cell.PropertyChanged += Cell_PropertyChanged;
             }
+        }
+
+        // INotifyPropertyChanged implementation
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public event EventHandler<CellChangedEventArgs> CellChanged;
@@ -45,6 +67,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         protected virtual void OnCellChanged(CellChangedEventArgs e)
         {
             CellChanged?.Invoke(this, e);
+            NotifyPropertyChanged(nameof(Cells)); // Notify that a change in a Cell has occurred
         }
 
         private void Cell_PropertyChanged(object sender, PropertyChangedEventArgs e)

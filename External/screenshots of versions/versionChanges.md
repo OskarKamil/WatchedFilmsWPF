@@ -112,6 +112,6 @@
 - The table highlight colour changes when Windows accent colour changes.
 
 #### 0.015
-- When pressed [New film record] button, you can start typing an English title of the film. The cell is focus and in edit mode.
+- When pressed [New film record] button, the program will start editing cell under "English title" column, so you can start typing immediately.
 - The program can read any CSV file. No longer strict number of columns.
 - 

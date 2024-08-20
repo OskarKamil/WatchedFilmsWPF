@@ -18,11 +18,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
     public class WorkingTextFile
     {
+        public CollectionOfRecords CollectionOfFilms { get => _collectionOfFilms; set => _collectionOfFilms = value; }
+        public DataGrid DataGrid { get => _dataGrid; set => _dataGrid = value; }
+        public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
+        public ObservableCollection<RecordModel> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
+        public StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
         private CollectionOfRecords _collectionOfFilms;
+        private DataGrid _dataGrid;
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
         private ObservableCollection<RecordModel> _filmsObservableList;
         private StatisticsManager _statisticsManager;
-        private DataGrid _dataGrid;
         private MainWindow _window;
 
         public WorkingTextFile()
@@ -35,17 +40,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public event EventHandler AnyChangeHappenedEvent;
 
         public event EventHandler<CollectionOfRecords> SavedComplete;
-
-        public CollectionOfRecords CollectionOfFilms { get => _collectionOfFilms; set => _collectionOfFilms = value; }
-
-        public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
-
-        public ObservableCollection<RecordModel> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
-
-        public StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
-
-        public DataGrid DataGrid { get => _dataGrid; set => _dataGrid = value; }
-
         //public void AddContextMenuForTheItem(DataGrid dataGrid)
         //{
         //    dataGrid.LoadingRow += (s, e) =>
@@ -99,7 +93,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             foreach (var filmRecord in FilmsObservableList)
             {
-                 filmRecord.CellChanged += FilmRecord_PropertyChanged;
+                filmRecord.CellChanged += FilmRecord_PropertyChanged;
             }
 
             // Increase the brightness of the brightAccentColour by 80%
@@ -360,8 +354,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 // Pass the FilmRecord value to the IsReleaseYearValid method
                 if (e.Row.DataContext is RecordModel filmRecord)
                 {
-                    Debug.WriteLine("committed value is: " + _filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
-                    DataGridCellAppearanceHelper.MakeCellAppearInvalid(cell, !_filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
+                    //  Debug.WriteLine("committed value is: " + _filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
+                    //   DataGridCellAppearanceHelper.MakeCellAppearInvalid(cell, !_filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
+                    //todo fix validator
                 }
             }
         }

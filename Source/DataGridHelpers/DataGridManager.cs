@@ -30,6 +30,30 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             }
         }
 
+        public int GetNumberOfColumns()
+        {
+            return dataGrid.Columns.Count;
+        }
+
+        public DataGridManager(DataGrid dataGrid)
+        {
+            this.dataGrid = dataGrid;
+        }
+
+        public int GetIdOfColumnByHeader(string header)
+        {
+            int columnIndex = -1;
+            for (int i = 0; i < dataGrid.Columns.Count; i++)
+            {
+                if (dataGrid.Columns[i].Header.ToString().ToLower() == header.ToLower())
+                {
+                    columnIndex = i;
+                    break;
+                }
+            }
+            return columnIndex;
+        }
+
         public void ResetToDefault()
         {
             for (int i = 0; i < dataGrid.Columns.Count; i++)
@@ -55,7 +79,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             }
         }
 
-        internal static void BuildColumnsFromList(List<Column> columns, DataGrid dataGrid)
+        public void BuildColumnsFromList(List<Column> columns)
         {
             // Ensure the DataGrid has no pre-existing columns
             dataGrid.Columns.Clear();
