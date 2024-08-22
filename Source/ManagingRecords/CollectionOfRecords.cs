@@ -237,19 +237,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
                 columnID = dataGridManager.dataGrid.Columns.IndexOf(firstSelectedColumn);
-                var RenameColumn = new RenameColumn
+                var RenameColumnDialog = new RenameColumnDialog
                 {
-                    newColumnName = firstSelectedColumn.Header.ToString()
+                    NewColumnName = firstSelectedColumn.Header.ToString()
                 };
-                if (RenameColumn.Result == RenameColumn.CustomDialogResult.Confirm)
+                RenameColumnDialog.Owner = System.Windows.Application.Current.MainWindow;
+                RenameColumnDialog.ShowDialog();
+                if (RenameColumnDialog.Result == Views.RenameColumnDialog.CustomDialogResult.Confirm)
                 {
-                    firstSelectedColumn.Header = RenameColumn.newColumnName;
-                    //MessageBox.Show($"New column name: {newColumnName}");
-                    // Update the column name in your data or UI
-                }
-                else
-                {
-                    MessageBox.Show("Rename canceled.");
+                    firstSelectedColumn.Header = RenameColumnDialog.NewColumnName;
+                    ProgramStateManager.IsUnsavedChange = false;
                 }
             }
             else
@@ -257,8 +254,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 Debug.WriteLine("no selected cells");
                 return;
             }
-
-            //todo open modal window asking for new name
         }
 
         private void AdjustColumnsRepresentation(object sender, EventArgs e)

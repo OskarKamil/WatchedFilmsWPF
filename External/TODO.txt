@@ -1,6 +1,5 @@
 **Immediate (NOW):**
-- Add # id columns.
-- Make the csv not save any column with # header.
+- Renaming columns doesn't work.
 - Reset columns order and width is not working.
 - Add functionality to Add new column and delete column buttons:
 	- ColumnRepresentation. Index of this list represents index of value in List in the model.

@@ -18,12 +18,12 @@ namespace WatchedFilmsTracker.Source.Views
     /// <summary>
     /// Interaction logic for RenameColumn.xaml
     /// </summary>
-    public partial class RenameColumn : Window
+    public partial class RenameColumnDialog : Window
     {
         public CustomDialogResult Result { get; private set; }
-        public string newColumnName { get; set; }
+        public string NewColumnName { get; set; }
 
-        public RenameColumn()
+        public RenameColumnDialog()
         {
             InitializeComponent();
             Closing += OnDialogClosing;
@@ -44,7 +44,7 @@ namespace WatchedFilmsTracker.Source.Views
         private void ConfirmButton(object sender, RoutedEventArgs e)
         {
             Result = CustomDialogResult.Confirm;
-            newColumnName = TextBlockColumnName.Text;
+            NewColumnName = TextBoxColumnName.Text;
             this.Close();
         }
 
@@ -54,6 +54,12 @@ namespace WatchedFilmsTracker.Source.Views
             {
                 Result = CustomDialogResult.Cancel;
             }
+        }
+
+        private void RenameColumnDialog_Loaded(object sender, RoutedEventArgs e)
+        {
+            TextBoxColumnName.Text = NewColumnName;
+
         }
     }
 }
