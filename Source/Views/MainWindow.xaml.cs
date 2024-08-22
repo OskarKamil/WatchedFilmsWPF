@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -59,6 +58,7 @@ namespace WatchedFilmsTracker
 
             ButtonManager.SelectedCellsButtons.Add(buttonDeleteFilmRecord);
             ButtonManager.SelectedCellsButtons.Add(buttoRemoveColumn);
+            ButtonManager.SelectedCellsButtons.Add(buttoRenameColumn);
 
             ButtonManager.AnyChangeButtons.Add(buttonRevertChanges);
 
@@ -114,7 +114,7 @@ namespace WatchedFilmsTracker
             if (dataGridMainWindow.SelectedCells.Count > 0)
             {
                 RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
-                   workingTextFile.CollectionOfRecords.DeleteRecordFromList(selected);
+                workingTextFile.CollectionOfRecords.DeleteRecordFromList(selected);
             }
         }
 
@@ -260,7 +260,26 @@ namespace WatchedFilmsTracker
 
         private void NewFile(object sender, RoutedEventArgs e)
         {
-            workingTextFile.NewFile();
+            Button button = sender as Button;
+            ContextMenu contextMenu = new ContextMenu();
+
+            foreach (var type in Enum.GetValues(typeof(CommonCollections.CollectionType)))
+            {
+                MenuItem menuItem = new MenuItem
+                {
+                    Header = type.ToString(),
+                    Tag = type
+                };
+
+                //    menuItem.Click += MenuItem_Click;
+
+                contextMenu.Items.Add(menuItem);
+            }
+
+            button.ContextMenu = contextMenu;
+
+            contextMenu.IsOpen = true;
+            //    workingTextFile.NewFile();
         }
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
@@ -320,6 +339,13 @@ namespace WatchedFilmsTracker
 
         private void RemoveColumnButton(object sender, RoutedEventArgs e)
         {
+            workingTextFile.CollectionOfRecords.DeleteColumn();
+        }
+
+        private void RenameColumnButton(object sender, RoutedEventArgs e)
+        {
+            workingTextFile.CollectionOfRecords.RenameColumn();
+
         }
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
@@ -338,14 +364,14 @@ namespace WatchedFilmsTracker
             searchManager.SearchFilms();
         }
 
-        private void SaveButtonAction(object sender, RoutedEventArgs e)
-        {
-            workingTextFile.Save();
-        }
-
         private void SaveAs(object sender, RoutedEventArgs e)
         {
             workingTextFile.SaveAs();
+        }
+
+        private void SaveButtonAction(object sender, RoutedEventArgs e)
+        {
+            workingTextFile.Save();
         }
 
         private void SaveLocally(object sender, RoutedEventArgs e)

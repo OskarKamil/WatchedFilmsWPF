@@ -410,6 +410,21 @@
                                                    VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Button>
+                                <Button x:Name="buttoRenameColumn"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Click="RenameColumnButton">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="/Assets/ButtonIcons/renameColumn.png"
+                                               Stretch="None"
+                                               RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                               RenderOptions.EdgeMode="Aliased" />
+                                        <TextBlock Text="Rename column"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+
                             </StackPanel>
                         </GroupBox>
 

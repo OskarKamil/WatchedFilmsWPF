@@ -1,10 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Services.Csv;
+using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
@@ -119,11 +122,42 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
+        public void DeleteColumn()
+        {
+            int columnID;
+            var selectedCells = dataGridManager.dataGrid.SelectedCells;
+
+            if (selectedCells.Count > 0)
+            {
+                var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
+                columnID = dataGridManager.dataGrid.Columns.IndexOf(firstSelectedColumn);
+            }
+            else
+            {
+                Debug.WriteLine("no selected cells");
+                return;
+            }
+
+            DeleteColumn(columnID);
+        }
+
         public void DeleteColumn(int columndID)
         {
-            // in ColumnIndexToValueIndex get index of columndID to be deleted
-            // delete that column
-            // from ColumnIndexToValueIndex delete index of the deleted column
+            foreach (RecordModel recordModel in ObservableCollectionOfRecords)
+            {
+                recordModel.Cells.RemoveAt(columndID);
+            }
+            dataGridManager.dataGrid.Columns.RemoveAt(columndID);
+            for (int i = columndID; i < dataGridManager.dataGrid.Columns.Count; i++)
+            {
+                // Cast the column to DataGridBoundColumn or DataGridTextColumn
+                if (dataGridManager.dataGrid.Columns[i] is DataGridBoundColumn boundColumn)
+                {
+                    // Update the binding to refer to the correct cell index after a column is removed
+                    boundColumn.Binding = new Binding($"Cells[{i}].Value");
+                }
+            }
+            ProgramStateManager.IsUnsavedChange = true;
         }
 
         public void DeleteRecordFromList(RecordModel selected)
@@ -192,6 +226,39 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 observableCollectionOfRecords[i].Cells[indexOfColumnID].Value = (i + 1).ToString();
             }
             ProgramStateManager.IsUnsavedChange = false;
+        }
+
+        internal void RenameColumn()
+        {
+            int columnID;
+            var selectedCells = dataGridManager.dataGrid.SelectedCells;
+
+            if (selectedCells.Count > 0)
+            {
+                var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
+                columnID = dataGridManager.dataGrid.Columns.IndexOf(firstSelectedColumn);
+                var RenameColumn = new RenameColumn
+                {
+                    newColumnName = firstSelectedColumn.Header.ToString()
+                };
+                if (RenameColumn.Result == RenameColumn.CustomDialogResult.Confirm)
+                {
+                    firstSelectedColumn.Header = RenameColumn.newColumnName;
+                    //MessageBox.Show($"New column name: {newColumnName}");
+                    // Update the column name in your data or UI
+                }
+                else
+                {
+                    MessageBox.Show("Rename canceled.");
+                }
+            }
+            else
+            {
+                Debug.WriteLine("no selected cells");
+                return;
+            }
+
+            //todo open modal window asking for new name
         }
 
         private void AdjustColumnsRepresentation(object sender, EventArgs e)
