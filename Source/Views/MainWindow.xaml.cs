@@ -24,10 +24,10 @@ namespace WatchedFilmsTracker
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
         private DataGridManager filmsColumnsManager;
-        private WorkingTextFile workingTextFile;
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
         private MainWindowViewModel viewModel;
+        private WorkingTextFile workingTextFile;
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
         public MainWindow()
@@ -113,7 +113,7 @@ namespace WatchedFilmsTracker
             if (dataGridMainWindow.SelectedCells.Count > 0)
             {
                 RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
-                //    filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
+                   workingTextFile.CollectionOfFilms.DeleteRecordFromList(selected);
             }
         }
 
@@ -263,7 +263,7 @@ namespace WatchedFilmsTracker
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
         {
-              workingTextFile.CollectionOfFilms.AddEmptyRecordToList();
+            workingTextFile.CollectionOfFilms.AddEmptyRecordToList();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
@@ -322,7 +322,7 @@ namespace WatchedFilmsTracker
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
         {
-            filmsColumnsManager.ResetToDefault();
+            workingTextFile.CollectionOfFilms.DataGridManager.ResetToDefault();
         }
 
         private void RevertChanges(object sender, RoutedEventArgs e)

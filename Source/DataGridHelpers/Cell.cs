@@ -4,8 +4,6 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
     public class Cell : INotifyPropertyChanged
     {
-        public Column Column { get; set; }
-
         public bool IsValid
         {
             get => _isValid;

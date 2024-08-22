@@ -1,16 +1,14 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
+using System.Windows.Controls;
 using WatchedFilmsTracker.Source.DataGridHelpers;
-using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.Services.Csv
 {
     public class CSVreader
     {
-        private List<Column> _columns;
+        private List<DataGridTextColumn> _columns;
         private int _maxColumns;
         private ObservableCollection<RecordModel> _records;
         private string fileColumns;
@@ -23,16 +21,16 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         public CSVreader()
         {
             _maxColumns = 0;
-            _columns = new List<Column>();
+            _columns = new List<DataGridTextColumn>();
             _records = new ObservableCollection<RecordModel>();
         }
 
         public void CloseFile()
         {
-            //filmsFile.Close();
+            //  filmsFile.Close();
         }
 
-        public List<Column> GetColumns()
+        public List<DataGridTextColumn> GetColumns()
         {
             return _columns;
         }
@@ -91,28 +89,22 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 
             foreach (var line in lines)
             {
-                // Split the line into values by tabs and trim whitespace
                 var values = line.Split('\t').Select(v => v.Trim()).ToList();
 
                 if (!headersProcessed)
                 {
-                    // Create columns from the first line
                     foreach (var header in values)
                     {
-                        _columns.Add(new Column(header));
+                        _columns.Add(new DataGridTextColumn
+                        {
+                            Header = header,
+                        });
                     }
                     _maxColumns = values.Count;
                     headersProcessed = true;
                     continue;
                 }
 
-                // If the current line has more values than existing columns, add new columns
-                while (values.Count > _columns.Count)
-                {
-                    _columns.Add(new Column($"Column{_columns.Count + 1}"));
-                }
-
-                // Create a list of Cell objects
                 var cells = new List<Cell>();
 
                 for (int i = 0; i < _columns.Count; i++)

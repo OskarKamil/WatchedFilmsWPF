@@ -123,6 +123,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     ProgramStateManager.IsFileInLocalMyDataFolder = false;
             }
 
+            CollectionOfFilms.CreateColumnsWithIds();
+
+
             StatisticsManager = new StatisticsManager(FilmsObservableList);
             _window.UpdateStageTitle();
             CollectionOfFilms.CloseReader();
