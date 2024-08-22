@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Controls;
+using System.Windows.Data;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Services.Csv;
@@ -14,29 +15,19 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     /// </summary>
     public class CollectionOfRecords
     {
-        public List<int> ColumnRepresentation
-        {
-            get => _columnRepresentation;
-            set
-            {
-                _columnRepresentation = value;
-            }
-        }
-
         public string FilePath
         {
             get { return filePath; }
             set { filePath = value; }
         }
 
-        public ObservableCollection<RecordModel> ListOfFilms
+        public ObservableCollection<RecordModel> ObservableCollectionOfRecords
         {
-            get { return listOfFilms; }
+            get { return observableCollectionOfRecords; }
         }
 
         internal DataGridManager DataGridManager { get => dataGridManager; set => dataGridManager = value; }
 
-        private List<int> _columnRepresentation;
         private List<DataGridTextColumn> columns;
 
         private DataGridManager dataGridManager;
@@ -44,49 +35,47 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private string fileColumnHeaders;
 
         private string filePath;
-        private WorkingTextFile filmsFileHandler;
-
-        private ObservableCollection<RecordModel> listOfFilms;
-
+        private ObservableCollection<RecordModel> observableCollectionOfRecords;
         private CSVreader reader;
-
+        private WorkingTextFile workingTextFile;
         private CSVwriter writer;
 
         public CollectionOfRecords(string filePath, WorkingTextFile filmsTextFile)
         {
-            this.filmsFileHandler = filmsTextFile;
+            this.workingTextFile = filmsTextFile;
             this.filePath = filePath;
-            _columnRepresentation = new List<int>();
         }
 
         public CollectionOfRecords(WorkingTextFile filmsTextFile)
         {
-            this.filmsFileHandler = filmsTextFile;
+            this.workingTextFile = filmsTextFile;
             filePath = null;
-            _columnRepresentation = new List<int>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void AddEmptyRecordToList()
         {
-            // RecordModel newRecord = new RecordModel(listOfFilms.Count + 1);
-            //todo implement id column
             RecordModel newRecord = new RecordModel(new List<Cell>());
-            for (int i = 0; i < _columnRepresentation.Count; i++)
+
+            for (int i = 0; i < dataGridManager.dataGrid.Columns.Count; i++)
             {
                 {
                     newRecord.Cells.Add(new Cell(string.Empty));
                 }
             }
 
-            newRecord.CellChanged += filmsFileHandler.FilmRecord_PropertyChanged;
-            listOfFilms.Add(newRecord);
-            filmsFileHandler.DataGrid.SelectedCells.Clear();
-            if (filmsFileHandler.DataGrid.ItemsSource == listOfFilms)
+            int indexOfColumnID = dataGridManager.GetIdOfColumnByHeader("#");
+
+            newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
+
+            newRecord.CellChanged += workingTextFile.FilmRecord_PropertyChanged;
+            observableCollectionOfRecords.Add(newRecord);
+            workingTextFile.DataGrid.SelectedCells.Clear();
+            if (workingTextFile.DataGrid.ItemsSource == observableCollectionOfRecords)
             {
-                filmsFileHandler.DataGrid.SelectedItem = newRecord;
-                filmsFileHandler.DataGrid.ScrollIntoView(filmsFileHandler.DataGrid.SelectedItem);
+                workingTextFile.DataGrid.SelectedItem = newRecord;
+                workingTextFile.DataGrid.ScrollIntoView(workingTextFile.DataGrid.SelectedItem);
             }
 
             if (SettingsManager.DefaultDateIsToday)
@@ -94,12 +83,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
                 int columnID = DataGridManager.GetIdOfColumnByHeader("Watch date");
                 if (columnID != -1)
-                    newRecord.Cells[_columnRepresentation[columnID]].Value = formattedString;
+                    newRecord.Cells[columnID].Value = formattedString;
             }
 
             StartEditingNewRecord();
 
-            filmsFileHandler.AnyChangeHappen();
+            workingTextFile.AnyChangeHappen();
         }
 
         public void CloseReader()
@@ -107,40 +96,65 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             reader.CloseFile();
         }
 
+        public DataGridTextColumn CreateNewColumn(string columnHeader)
+        {
+            var column = dataGridManager.AddColumn(columnHeader);
+            foreach (var RecordModel in ObservableCollectionOfRecords)
+            {
+                RecordModel.AddNewCell();
+            }
+
+            int indexOfNewCell = dataGridManager.dataGrid.Columns.Count - 1;
+
+            column.Binding = new Binding($"Cells[{indexOfNewCell}].Value");
+
+            ProgramStateManager.IsUnsavedChange = true;
+
+            return column;
+        }
+
         public void DeleteAllRecords()
         {
-            filmsFileHandler.CollectionOfFilms.ListOfFilms.Clear();
-            filmsFileHandler.AnyChangeHappen();
+            workingTextFile.CollectionOfRecords.ObservableCollectionOfRecords.Clear();
+            workingTextFile.AnyChangeHappen();
+        }
+
+        public void DeleteColumn(int columndID)
+        {
+            // in ColumnIndexToValueIndex get index of columndID to be deleted
+            // delete that column
+            // from ColumnIndexToValueIndex delete index of the deleted column
         }
 
         public void DeleteRecordFromList(RecordModel selected)
         {
+            // fix
             //if (selected == null) { return; }
 
-            //int selectedIndex = filmsFileHandler.DataGrid.Items.IndexOf(selected);
+            //int selectedIndex = workingTextFile.DataGrid.Items.IndexOf(selected);
 
-            //if (listOfFilms.Count == 0 || selected.IdInList == 0) return;
+            //if (observableCollectionOfRecords.Count == 0 || selected.IdInList == 0) return;
             //int idOfSelected = selected.IdInList;
-            //listOfFilms.Remove(selected);
+            //observableCollectionOfRecords.Remove(selected);
             //RefreshFurtherIDs(idOfSelected);
 
             //// selecting the next record
-            //filmsFileHandler.VisualFilmsTable.SelectedCells.Clear();
-            //if (selectedIndex + 0 == filmsFileHandler.VisualFilmsTable.Items.Count)
+            //workingTextFile.DataGrid.SelectedCells.Clear();
+            //if (selectedIndex + 0 == workingTextFile.DataGrid.Items.Count)
             //{
-            //    filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 1;
+            //    workingTextFile.DataGrid.SelectedIndex = selectedIndex - 1;
             //}
             //else
             //{
-            //    filmsFileHandler.VisualFilmsTable.SelectedIndex = selectedIndex - 0;
+            //    workingTextFile.DataGrid.SelectedIndex = selectedIndex - 0;
             //}
         }
 
         public void RefreshFurtherIDs(int idOfSelected)
         {
-            for (int i = 0; i < listOfFilms.Count; i++)
+            for (int i = 0; i < observableCollectionOfRecords.Count; i++)
             {
-                RecordModel record = listOfFilms[i];
+                RecordModel record = observableCollectionOfRecords[i];
                 // if (record.IdInList >= idOfSelected) record.IdInList--;
                 //todo fix
             }
@@ -149,13 +163,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void StartReader()
         {
             reader = new CSVreader();
-            listOfFilms = reader.ReadCsvReturnObservableCollection(filePath);
+            observableCollectionOfRecords = reader.ReadCsvReturnObservableCollection(filePath);
             columns = reader.GetColumns();
-            for (int i = 0; i < columns.Count; i++)
-            {
-                ColumnRepresentation.Add((i));
-            }
-            DataGridManager = new DataGridManager(filmsFileHandler.DataGrid);
+            DataGridManager = new DataGridManager(workingTextFile.DataGrid);
             DataGridManager.BuildColumnsFromList(columns);
         }
 
@@ -163,25 +173,29 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             if (reader != null) CloseReader();
             writer = new CSVwriter(newFilePath);
-            List<int> visibleColumns = GetIdsOfVisibleProperties();
 
-            writer.SaveListIntoCSV(listOfFilms.ToList(), filmsFileHandler.DataGrid, visibleColumns);
+            writer.SaveListIntoCSV(observableCollectionOfRecords.ToList(), workingTextFile.DataGrid);
             CloseWriter();
         }
 
         internal void CreateColumnsWithIds()
         {
-            dataGridManager.AddColumn("#").DisplayIndex = 0;
-           int indexOfColumnID =  dataGridManager.GetIdOfColumnByHeader("#");
-            for (int i = 0; i < listOfFilms.Count; i++)
+            var newColumn = CreateNewColumn("#");
+            newColumn.Header = "#";
+            newColumn.DisplayIndex = 0;
+            newColumn.IsReadOnly = true;
+            newColumn.CanUserReorder = false;
+
+            int indexOfColumnID = dataGridManager.GetIdOfColumnByHeader("#");
+            for (int i = 0; i < observableCollectionOfRecords.Count; i++)
             {
-                
+                observableCollectionOfRecords[i].Cells[indexOfColumnID].Value = (i + 1).ToString();
             }
+            ProgramStateManager.IsUnsavedChange = false;
         }
 
         private void AdjustColumnsRepresentation(object sender, EventArgs e)
         {
-
             //throw new NotImplementedException();
             return;
         }
@@ -191,17 +205,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             writer?.Close();
         }
 
-        private List<int> GetIdsOfVisibleProperties()
-        {
-            List<int> ids = new List<int>();
-            for (int i = 0; i < _columnRepresentation.Count; i++)
-            {
-                if (_columnRepresentation[i] != -1)
-                    ids.Add(_columnRepresentation[i]);
-            }
-            return ids;
-        }
-
         private void StartEditingNewRecord()
         {
             if (DataGridManager.GetNumberOfColumns() == 0)
@@ -209,9 +212,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             int columnID = DataGridManager.GetIdOfColumnByHeader("English title");
             if (columnID != -1)
-                filmsFileHandler.DataGrid.CurrentCell = new DataGridCellInfo(filmsFileHandler.DataGrid.Items[filmsFileHandler.DataGrid.Items.Count - 1], filmsFileHandler.DataGrid.Columns[_columnRepresentation[columnID]]);
+                workingTextFile.DataGrid.CurrentCell = new DataGridCellInfo(workingTextFile.DataGrid.Items[workingTextFile.DataGrid.Items.Count - 1], workingTextFile.DataGrid.Columns[columnID]);
 
-            filmsFileHandler.DataGrid.BeginEdit();
+            workingTextFile.DataGrid.BeginEdit();
         }
     }
 }

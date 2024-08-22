@@ -42,6 +42,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        public void AddNewCell()
+        {
+            Cell newCell = new Cell(string.Empty);
+            Cells.Add(newCell);
+
+            newCell.PropertyChanged += Cell_PropertyChanged;
+
+        }
+
         // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
 

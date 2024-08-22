@@ -30,15 +30,17 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             filmsWriter.Close();
         }
 
-        public void SaveListIntoCSV(List<RecordModel> list, DataGrid dataGrid, List<int> visibleColumns)
+        public void SaveListIntoCSV(List<RecordModel> list, DataGrid dataGrid)
         {
             var stringBuilder = new StringBuilder();
 
             // Extract column headers
-            var headers = new string[dataGrid.Columns.Count];
+            List<string> headers = new List<string>();
             for (int i = 0; i < dataGrid.Columns.Count; i++)
             {
-                headers[i] = dataGrid.Columns[i].Header.ToString();
+                if (dataGrid.Columns[i].Header.ToString() == "#") continue;
+
+                headers.Add(dataGrid.Columns[i].Header.ToString());
             }
             stringBuilder.AppendLine(string.Join("\t", headers));
 
@@ -46,9 +48,10 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             {
                 var rowValues = new List<string>();
 
-                for (int i = 0; i < visibleColumns.Count; i++)
+                for (int i = 0; i < dataGrid.Columns.Count; i++)
                 {
-                    rowValues.Add(filmRecord.Cells[visibleColumns[i]].Value.ToString());
+                    if (dataGrid.Columns[i].Header.ToString() == "#") continue;
+                    rowValues.Add(filmRecord.Cells[i].Value.ToString());
                 }
                 stringBuilder.AppendLine(string.Join("\t", rowValues));
             }

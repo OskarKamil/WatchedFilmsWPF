@@ -243,7 +243,7 @@
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                             <Button x:Name="buttonSave"
                                     VerticalAlignment="Top"
-                                    Click="Save">
+                                    Click="SaveButtonAction">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Assets/ButtonIcons/save2.png"
                                            Stretch="None"

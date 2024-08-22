@@ -114,4 +114,5 @@
 #### 0.015
 - When pressed [New film record] button, the program will start editing cell under "English title" column, so you can start typing immediately.
 - The program can read any CSV file. No longer strict number of columns.
-- 
+- Added button [Add column].
+- Added button [Remove column].

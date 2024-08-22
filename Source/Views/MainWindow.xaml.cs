@@ -58,6 +58,7 @@ namespace WatchedFilmsTracker
             ButtonManager.AtLeastOneRecordButtons.Add(buttonSelectLast);
 
             ButtonManager.SelectedCellsButtons.Add(buttonDeleteFilmRecord);
+            ButtonManager.SelectedCellsButtons.Add(buttoRemoveColumn);
 
             ButtonManager.AnyChangeButtons.Add(buttonRevertChanges);
 
@@ -113,7 +114,7 @@ namespace WatchedFilmsTracker
             if (dataGridMainWindow.SelectedCells.Count > 0)
             {
                 RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
-                   workingTextFile.CollectionOfFilms.DeleteRecordFromList(selected);
+                   workingTextFile.CollectionOfRecords.DeleteRecordFromList(selected);
             }
         }
 
@@ -131,10 +132,10 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            if (workingTextFile.CollectionOfFilms is null || string.IsNullOrEmpty(workingTextFile.CollectionOfFilms.FilePath))
+            if (workingTextFile.CollectionOfRecords is null || string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath))
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
             else
-                stageTitle += workingTextFile.CollectionOfFilms.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+                stageTitle += workingTextFile.CollectionOfRecords.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
 
             this.Title = stageTitle;
         }
@@ -169,6 +170,7 @@ namespace WatchedFilmsTracker
 
         private void AddColumnButton(object sender, RoutedEventArgs e)
         {
+            workingTextFile.CollectionOfRecords.CreateNewColumn("Column");
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -219,7 +221,7 @@ namespace WatchedFilmsTracker
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
-            workingTextFile.CollectionOfFilms.DeleteAllRecords();
+            workingTextFile.CollectionOfRecords.DeleteAllRecords();
         }
 
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -263,18 +265,18 @@ namespace WatchedFilmsTracker
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
         {
-            workingTextFile.CollectionOfFilms.AddEmptyRecordToList();
+            workingTextFile.CollectionOfRecords.AddEmptyRecordToList();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(workingTextFile.CollectionOfFilms.FilePath))
+            if (File.Exists(workingTextFile.CollectionOfRecords.FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + workingTextFile.CollectionOfFilms.FilePath);
+                Process.Start("explorer.exe", "/select, " + workingTextFile.CollectionOfRecords.FilePath);
             }
             else
             {
-                Debug.WriteLine($"{workingTextFile.CollectionOfFilms.FilePath} cannot be found");
+                Debug.WriteLine($"{workingTextFile.CollectionOfRecords.FilePath} cannot be found");
             }
         }
 
@@ -286,13 +288,13 @@ namespace WatchedFilmsTracker
                 openFileDialog.Title = "Open file";
                 openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-                if (string.IsNullOrEmpty(workingTextFile.CollectionOfFilms.FilePath) || !(File.Exists(workingTextFile.CollectionOfFilms.FilePath)))
+                if (string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath) || !(File.Exists(workingTextFile.CollectionOfRecords.FilePath)))
                 {
                     openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
                 }
                 else
                 {
-                    string parentDirectory = Directory.GetParent(workingTextFile.CollectionOfFilms.FilePath)?.FullName;
+                    string parentDirectory = Directory.GetParent(workingTextFile.CollectionOfRecords.FilePath)?.FullName;
                     if (!string.IsNullOrEmpty(parentDirectory))
                     {
                         openFileDialog.InitialDirectory = parentDirectory;
@@ -322,21 +324,21 @@ namespace WatchedFilmsTracker
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
         {
-            workingTextFile.CollectionOfFilms.DataGridManager.ResetToDefault();
+            workingTextFile.CollectionOfRecords.DataGridManager.ResetToDefault();
         }
 
         private void RevertChanges(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(workingTextFile.CollectionOfFilms.FilePath))
+            if (string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath))
             {
-                workingTextFile.CollectionOfFilms.ListOfFilms.Clear();
+                workingTextFile.CollectionOfRecords.ObservableCollectionOfRecords.Clear();
             }
             else
-                OpenFilepath(workingTextFile.CollectionOfFilms.FilePath);
+                OpenFilepath(workingTextFile.CollectionOfRecords.FilePath);
             searchManager.SearchFilms();
         }
 
-        private void Save(object sender, RoutedEventArgs e)
+        private void SaveButtonAction(object sender, RoutedEventArgs e)
         {
             workingTextFile.Save();
         }

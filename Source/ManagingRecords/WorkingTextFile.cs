@@ -18,7 +18,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
     public class WorkingTextFile
     {
-        public CollectionOfRecords CollectionOfFilms { get => _collectionOfFilms; set => _collectionOfFilms = value; }
+        public CollectionOfRecords CollectionOfRecords { get => _collectionOfFilms; set => _collectionOfFilms = value; }
         public DataGrid DataGrid { get => _dataGrid; set => _dataGrid = value; }
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
         public ObservableCollection<RecordModel> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
@@ -85,7 +85,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void AfterFileHasBeenLoaded()
         {
-            FilmsObservableList = CollectionOfFilms.ListOfFilms;
+            FilmsObservableList = CollectionOfRecords.ObservableCollectionOfRecords;
             DataGrid.ItemsSource = FilmsObservableList;
 
             // Subscribe to PropertyChanged event of each FilmRecord instance
@@ -101,12 +101,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             _dataGrid.CellEditEnding += CellEditEnding;
 
-            SettingsManager.LastPath = CollectionOfFilms.FilePath;
+            SettingsManager.LastPath = CollectionOfRecords.FilePath;
             ProgramStateManager.IsUnsavedChange = false;
             ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
 
-            if (string.IsNullOrEmpty(CollectionOfFilms.FilePath))
+            if (string.IsNullOrEmpty(CollectionOfRecords.FilePath))
             {
                 ProgramStateManager.IsFileSavedOnDisk = false;
                 ProgramStateManager.IsFileInLocalMyDataFolder = false;
@@ -115,7 +115,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 ProgramStateManager.IsFileSavedOnDisk = true;
 
-                string lastDirectory = Directory.GetParent(CollectionOfFilms.FilePath).Name;
+                string lastDirectory = Directory.GetParent(CollectionOfRecords.FilePath).Name;
                 Debug.WriteLine($"{lastDirectory} is folder where the file is in");
                 if (lastDirectory == "MyData")
                     ProgramStateManager.IsFileInLocalMyDataFolder = true;
@@ -123,12 +123,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     ProgramStateManager.IsFileInLocalMyDataFolder = false;
             }
 
-            CollectionOfFilms.CreateColumnsWithIds();
+            CollectionOfRecords.CreateColumnsWithIds();
 
 
             StatisticsManager = new StatisticsManager(FilmsObservableList);
             _window.UpdateStageTitle();
-            CollectionOfFilms.CloseReader();
+            CollectionOfRecords.CloseReader();
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
@@ -210,13 +210,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
-                CollectionOfFilms = new CollectionOfRecords(this);
-                CollectionOfFilms.StartReader();
+                CollectionOfRecords = new CollectionOfRecords(this);
+                CollectionOfRecords.StartReader();
             }
             else
             {
-                CollectionOfFilms = new CollectionOfRecords(newFilePath, this);
-                CollectionOfFilms.StartReader();
+                CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
+                CollectionOfRecords.StartReader();
             }
             AfterFileHasBeenLoaded();
         }
@@ -227,8 +227,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 if (CloseFileAndAskToSave())
                 {
-                    CollectionOfFilms = new CollectionOfRecords(this);
-                    CollectionOfFilms.StartReader();
+                    CollectionOfRecords = new CollectionOfRecords(this);
+                    CollectionOfRecords.StartReader();
                 }
                 else
                 {
@@ -237,8 +237,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
             else
             {
-                CollectionOfFilms = new CollectionOfRecords(newFilePath, this);
-                CollectionOfFilms.StartReader();
+                CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
+                CollectionOfRecords.StartReader();
             }
             AfterFileHasBeenLoaded();
         }

@@ -5,8 +5,8 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
     internal class DataGridManager
     {
+        public DataGrid dataGrid { get; set; }
         private readonly List<DataGridTextColumn> columns = new List<DataGridTextColumn>();
-        private readonly DataGrid dataGrid;
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
 
