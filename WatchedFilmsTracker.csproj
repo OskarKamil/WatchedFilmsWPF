@@ -19,10 +19,10 @@
     <None Remove="Assets\ButtonIcons\searchInternetForFilm.png" />
     <None Remove="Assets\TabIcons\books.png" />
     <None Remove="Assets\TabIcons\comics.png" />
-    <None Remove="Assets\TabIcons\custom.png" />
     <None Remove="Assets\TabIcons\films.png" />
     <None Remove="Assets\TabIcons\games.png" />
-    <None Remove="Assets\TabIcons\tv.png" />
+    <None Remove="Assets\TabIcons\other.png" />
+    <None Remove="Assets\TabIcons\series.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,10 +66,10 @@
     <Resource Include="Assets\ButtonIcons\openContainingFolder.png" />
     <Resource Include="Assets\TabIcons\books.png" />
     <Resource Include="Assets\TabIcons\comics.png" />
-    <Resource Include="Assets\TabIcons\custom.png" />
+    <Resource Include="Assets\TabIcons\other.png" />
     <Resource Include="Assets\TabIcons\films.png" />
     <Resource Include="Assets\TabIcons\games.png" />
-    <Resource Include="Assets\TabIcons\tv.png" />
+    <Resource Include="Assets\TabIcons\series.png" />
   </ItemGroup>
 
   <ItemGroup>

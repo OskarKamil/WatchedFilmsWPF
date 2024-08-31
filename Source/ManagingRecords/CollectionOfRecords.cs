@@ -231,6 +231,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         internal void RenameColumn()
         {
             int columnID;
+            
             var selectedCells = dataGridManager.dataGrid.SelectedCells;
 
             if (selectedCells.Count > 0)
@@ -246,7 +247,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (RenameColumnDialog.Result == Views.RenameColumnDialog.CustomDialogResult.Confirm)
                 {
                     firstSelectedColumn.Header = RenameColumnDialog.NewColumnName;
-                    ProgramStateManager.IsUnsavedChange = false;
+                    ProgramStateManager.IsUnsavedChange = true;
                 }
             }
             else
@@ -254,6 +255,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 Debug.WriteLine("no selected cells");
                 return;
             }
+            
         }
 
         private void AdjustColumnsRepresentation(object sender, EventArgs e)

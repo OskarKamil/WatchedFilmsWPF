@@ -6,15 +6,8 @@ using System.Threading.Tasks;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
-    internal class CommonCollections
+    class OpenedFilesTabManager
     {
 
-        public enum CollectionType
-        {
-            Films,
-            Games,
-            Series,
-            Books
-        }
     }
 }

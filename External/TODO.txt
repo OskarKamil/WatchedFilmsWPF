@@ -1,5 +1,11 @@
 **Immediate (NOW):**
-- Renaming columns doesn't work.
+
+- Implement tabs.
+- Fix enaming columns.
+	- New window should start textbox in edit mode.
+	- Pressing enter confirms.
+	- Don't allow to rename "#" column.
+	- When column is renamed, set unsavedchange to true.
 - Reset columns order and width is not working.
 - Add functionality to Add new column and delete column buttons:
 	- ColumnRepresentation. Index of this list represents index of value in List in the model.

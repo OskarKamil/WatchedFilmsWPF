@@ -66,6 +66,8 @@ namespace WatchedFilmsTracker
 
             ButtonManager.FileIsNotInLocalMyDataDirectoryButtons.Add(buttonSaveLocally);
 
+            NewFileActionPrepareContextMenu();
+
             //SETTINGS
             SettingsManager.LoadDefaultSettings();
             SettingsManager.LoadSettingsFromConfigFile();
@@ -185,13 +187,6 @@ namespace WatchedFilmsTracker
             this.Height = SettingsManager.WindowHeight;
         }
 
-        // not in use for now
-        //private void BuildDynamicStatistics()
-        //{
-        //    UpdateReportDecadalStatistics();
-        //    UpdateReportYearlyStatistics();
-        //}
-
         private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
@@ -199,6 +194,12 @@ namespace WatchedFilmsTracker
             checkBox.IsChecked = SettingsManager.AutoSave;
         }
 
+        // not in use for now
+        //private void BuildDynamicStatistics()
+        //{
+        //    UpdateReportDecadalStatistics();
+        //    UpdateReportYearlyStatistics();
+        //}
         private void CheckBoxDefaultDate(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
@@ -258,28 +259,31 @@ namespace WatchedFilmsTracker
             await UpdateVersionInformationAsync();
         }
 
-        private void NewFile(object sender, RoutedEventArgs e)
+        private void NewFileAction(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
+            button.ContextMenu.IsOpen = true;
+        }
+
+        private void NewFileActionPrepareContextMenu()
+        {
             ContextMenu contextMenu = new ContextMenu();
 
-            foreach (var type in Enum.GetValues(typeof(CommonCollections.CollectionType)))
+            foreach (CommonCollection commonCollection in CommonCollections.GetAllCollectionsAlphabetically())
             {
                 MenuItem menuItem = new MenuItem
                 {
-                    Header = type.ToString(),
-                    Tag = type
+                    Header = commonCollection.Name,
+                    Icon = commonCollection.IconImage,
                 };
 
+                // todo invoke method and pass by value based on common collection string
                 //    menuItem.Click += MenuItem_Click;
 
                 contextMenu.Items.Add(menuItem);
             }
 
-            button.ContextMenu = contextMenu;
-
-            contextMenu.IsOpen = true;
-            //    workingTextFile.NewFile();
+            buttonNewFile.ContextMenu = contextMenu;
         }
 
         private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
@@ -345,7 +349,6 @@ namespace WatchedFilmsTracker
         private void RenameColumnButton(object sender, RoutedEventArgs e)
         {
             workingTextFile.CollectionOfRecords.RenameColumn();
-
         }
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)

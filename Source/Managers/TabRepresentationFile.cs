@@ -6,22 +6,6 @@ namespace WatchedFilmsTracker.Source.Managers
 {
     internal class TabRepresentationFile
     {
-        private CollectionType collectionType { get; set; }
-        private Image tabImage { get; set; }
-
-        public TabRepresentationFile(CollectionType collectionType)
-        {
-            this.collectionType = collectionType;
-            CreateTab();
-        }
-
-        public enum CollectionType
-        {
-            Films,
-            Games,
-            Series,
-            Books
-        }
 
         public TabItem CreateTab()
         {
@@ -34,7 +18,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             Image tabImage = new Image
             {
-                Source = new BitmapImage(new Uri($"/Assets/TabIcons/{collectionType.ToString().ToLower()}.png", UriKind.Relative)),
+               // Source = new BitmapImage(new Uri($"/Assets/TabIcons/{collectionType.ToString().ToLower()}.png", UriKind.Relative)),
                 Stretch = Stretch.None
             };
             RenderOptions.SetBitmapScalingMode(tabImage, BitmapScalingMode.NearestNeighbor);
@@ -42,7 +26,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             TextBlock textBlock = new TextBlock
             {
-                Text = collectionType.ToString()
+              //  Text = collectionType.ToString()
             };
 
             stackPanel.Children.Add(tabImage);

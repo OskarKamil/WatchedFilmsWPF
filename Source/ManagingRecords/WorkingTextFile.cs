@@ -1,24 +1,24 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.RecordValueValidator;
 using WatchedFilmsTracker.Source.Views;
+using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
     public class WorkingTextFile
     {
         public CollectionOfRecords CollectionOfRecords { get => _collectionOfFilms; set => _collectionOfFilms = value; }
+        public CollectionType collectionType { get; set; }
         public DataGrid DataGrid { get => _dataGrid; set => _dataGrid = value; }
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
         public ObservableCollection<RecordModel> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
@@ -40,6 +40,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public event EventHandler AnyChangeHappenedEvent;
 
         public event EventHandler<CollectionOfRecords> SavedComplete;
+
         //public void AddContextMenuForTheItem(DataGrid dataGrid)
         //{
         //    dataGrid.LoadingRow += (s, e) =>
@@ -125,7 +126,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             CollectionOfRecords.CreateColumnsWithIds();
 
-
             StatisticsManager = new StatisticsManager(FilmsObservableList);
             _window.UpdateStageTitle();
             CollectionOfRecords.CloseReader();
@@ -199,6 +199,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void NewFile()
         {
             OpenFilepath(null);
+        }
+
+        public void NewFile(CollectionType collectionType)
+        {
+
         }
 
         public void OnSaveCompleted(CollectionOfRecords filmsFile)
