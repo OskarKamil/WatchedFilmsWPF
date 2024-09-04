@@ -1,8 +1,4 @@
-﻿using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-
-namespace WatchedFilmsTracker.Source.Models
+﻿namespace WatchedFilmsTracker.Source.Models
 {
     public static class CommonCollections
     {
@@ -13,21 +9,12 @@ namespace WatchedFilmsTracker.Source.Models
         {
             foreach (CollectionType collectionType in Enum.GetValues(typeof(CollectionType)))
             {
-                Image image = new Image
-                {
-                    Source = new BitmapImage(new Uri($"pack://application:,,,/Assets/TabIcons/{collectionType.ToString().ToLower()}.png")),
-                    Stretch = Stretch.None
-                };
-
-                RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
-                RenderOptions.SetEdgeMode(image, EdgeMode.Aliased);
-
                 string collectionTypeName = collectionType.ToString();
 
                 CommonCollection collection = new CommonCollection()
                 {
                     Name = collectionTypeName,
-                    IconImage = image
+                    DefaultColumnHeaders = GetColumnHeaders(collectionType)
                 };
 
                 CommonCollectionsSet.Add(collectionTypeName, collection);
@@ -54,6 +41,40 @@ namespace WatchedFilmsTracker.Source.Models
                .ToList();
             }
             return _sortedCollections;
+        }
+
+        public static CommonCollection GetCommonCollectionByName(string name)
+        {
+            if (CommonCollectionsSet.ContainsKey(name))
+                return CommonCollectionsSet[name];
+            return null;
+        }
+
+        public static CommonCollection GetCommonCollectionByName(CollectionType name)
+        {
+            if (CommonCollectionsSet.ContainsKey(name.ToString()))
+                return CommonCollectionsSet[name.ToString()];
+            return null;
+        }
+
+        private static List<string> GetColumnHeaders(CollectionType type)
+        {
+            return type switch
+            {
+                CollectionType.Films => new List<string>
+                { "English Title", "Original Title", "Type", "Release Year", "Rating", "Finish Date", "Watched In" , "Comments", "Review",},
+                CollectionType.Books => new List<string>
+                { "English Title", "Original Title", "Author","Release Year", "Rating", "Finish date",  "Comments" , "Review"},
+                CollectionType.Comics => new List<string>
+                { "English Title", "Original Title", "Type", "Author", "Release Year", "Rating", "Finish Date", "Comments", "Review" },
+                CollectionType.Games => new List<string>
+                { "English Title", "Original Title", "Platform", "Release Year", "Rating", "Status", "Finish Date", "Comments", "Review" },
+                CollectionType.Series => new List<string>
+                { "English Title", "Original Title", "Type", "Release Year", "Rating", "Last Watched", "Status", "Finish Date", "Comments", "Review" },
+                CollectionType.Other => new List<string>
+                { "Column 1", "Column 2", "Column 3" },
+                _ => new List<string>()
+            };
         }
     }
 }

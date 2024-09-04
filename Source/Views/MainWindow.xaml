@@ -424,7 +424,6 @@
                                                    VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Button>
-
                             </StackPanel>
                         </GroupBox>
 
@@ -474,57 +473,6 @@
                           Margin="0,0,0,30">
                     <GroupBox.Header>List of watched films data</GroupBox.Header>
                     <TabControl x:Name="OpenedFilesTabs">
-                        <TabItem>
-                            <TabItem.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/TabIcons/films.png"
-                                           Stretch="None"
-                                           RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                           RenderOptions.EdgeMode="Aliased" />
-                                    <TextBlock>Films</TextBlock>
-                                </StackPanel>
-                            </TabItem.Header>
-                            <Grid x:Name="grid">
-                                <DataGrid x:Name="dataGridMainWindow"
-                                          AutoGenerateColumns="False"
-                                          CanUserAddRows="False"
-                                          VerticalContentAlignment="Stretch"
-                                          ColumnWidth="Auto"
-                                          CanUserDeleteRows="False"
-                                          ScrollViewer.CanContentScroll="True"
-                                          ScrollViewer.ScrollChanged="filmsGrid_ScrollChanged"
-                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Visible"
-                                          AlternatingRowBackground="#FFD6E2FF"
-                                          AlternationCount="4"
-                                          CanUserResizeRows="False"
-                                          SelectionUnit="CellOrRowHeader"
-                                          HorizontalAlignment="Left" />
-                            </Grid>
-                        </TabItem>
-                        <TabItem>
-                            <TabItem.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/TabIcons/books.png"
-                                           Stretch="None"
-                                           RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                           RenderOptions.EdgeMode="Aliased" />
-                                    <TextBlock>Books</TextBlock>
-                                </StackPanel>
-                            </TabItem.Header>
-                        </TabItem>
-                        <TabItem>
-                            <TabItem.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Source="/Assets/TabIcons/tv.png"
-                                           Stretch="None"
-                                           RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                           RenderOptions.EdgeMode="Aliased" />
-                                    <TextBlock>TV series</TextBlock>
-                                </StackPanel>
-                            </TabItem.Header>
-                        </TabItem>
                     </TabControl>
                 </GroupBox>
             </DockPanel>

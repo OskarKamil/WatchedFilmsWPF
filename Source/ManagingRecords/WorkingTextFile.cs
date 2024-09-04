@@ -9,6 +9,7 @@ using System.Windows.Media;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.RecordValueValidator;
 using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.Models.CommonCollections;
@@ -18,7 +19,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     public class WorkingTextFile
     {
         public CollectionOfRecords CollectionOfRecords { get => _collectionOfFilms; set => _collectionOfFilms = value; }
-        public CollectionType collectionType { get; set; }
+        public CommonCollection CommonCollection { get; set; }
         public DataGrid DataGrid { get => _dataGrid; set => _dataGrid = value; }
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
         public ObservableCollection<RecordModel> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
@@ -33,8 +34,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public WorkingTextFile()
         {
             FilmsObservableList = new ObservableCollection<RecordModel>();
+            CommonCollection = CommonCollections.GetCommonCollectionByName(CollectionType.Other);
             SystemAccentColour.Initialize();
             SystemAccentColour.AccentColorChanged += SystemAccentColour_AccentColorChanged;
+        }
+
+        public WorkingTextFile(CommonCollection commonCollection)
+        {
+            FilmsObservableList = new ObservableCollection<RecordModel>();
+            CommonCollection = commonCollection;
+            setUpMainWindow(_window);
         }
 
         public event EventHandler AnyChangeHappenedEvent;
@@ -203,7 +212,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void NewFile(CollectionType collectionType)
         {
-
         }
 
         public void OnSaveCompleted(CollectionOfRecords filmsFile)

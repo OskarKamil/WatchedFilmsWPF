@@ -78,11 +78,8 @@ namespace WatchedFilmsTracker
                 ManualCheckForUpdate(CheckUpdatesButton, null);
 
             //FILEMANAGER
-            workingTextFile = new WorkingTextFile();
-            workingTextFile.setUpFilmsDataGrid(dataGridMainWindow);
-            workingTextFile.setUpMainWindow(this);
-            workingTextFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
-            OpenFilepath(SettingsManager.LastPath);
+            //   workingTextFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
+            //OpenFilepath(SettingsManager.LastPath);
 
             //LOCAL FILES SERVICE
             localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
@@ -92,32 +89,34 @@ namespace WatchedFilmsTracker
             decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
             yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
 
+            OpenedFilesTabs.ItemsSource = WorkingTextFilesManager.TabItemsWorkingFiles;
+
             //SNAPSHOT SERVICE
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
             FileChangesSnapshotService.FileManager = workingTextFile;
             FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
             //SEARCH MANAGER
-            searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
+            //    searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
 
             //GRIDLIST SELECTED LISTENER
             ProgramStateManager.IsSelectedCells = false;
-            dataGridMainWindow.SelectedCellsChanged += (obs, args) =>
-            {
-                Debug.WriteLine("Selected cells changes, or deselected if filtered");
-                ProgramStateManager.IsSelectedCells = dataGridMainWindow.SelectedCells.Count > 0;
-            };
+            //dataGridMainWindow.SelectedCellsChanged += (obs, args) =>
+            //{
+            //    Debug.WriteLine("Selected cells changes, or deselected if filtered");
+            //    ProgramStateManager.IsSelectedCells = dataGridMainWindow.SelectedCells.Count > 0;
+            //};
         }
 
         public event EventHandler FileOpened;
 
         public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
         {
-            if (dataGridMainWindow.SelectedCells.Count > 0)
-            {
-                RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
-                workingTextFile.CollectionOfRecords.DeleteRecordFromList(selected);
-            }
+            //if (dataGridMainWindow.SelectedCells.Count > 0)
+            //{
+            //    RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
+            //    workingTextFile.CollectionOfRecords.DeleteRecordFromList(selected);
+            //}
         }
 
         public void UpdateNumberOfFilms()
@@ -274,12 +273,13 @@ namespace WatchedFilmsTracker
                 MenuItem menuItem = new MenuItem
                 {
                     Header = commonCollection.Name,
-                    Icon = commonCollection.IconImage,
+                    Icon = commonCollection.GetIconImage(),
                 };
 
-                // todo invoke method and pass by value based on common collection string
-                //    menuItem.Click += MenuItem_Click;
-
+                menuItem.Click += (sender, e) =>
+                {
+                    WorkingTextFilesManager.CreateNewWorkingTextFile(commonCollection);
+                };
                 contextMenu.Items.Add(menuItem);
             }
 

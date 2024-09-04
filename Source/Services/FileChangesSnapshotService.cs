@@ -77,12 +77,12 @@ namespace WatchedFilmsTracker.Source.Services
 
         public static void SubscribeToSaveCompletedEvent(MainWindow mainWindow)
         {
-            FileManager.SavedComplete += HandleSaveCompleted;
+            //FileManager.SavedComplete += HandleSaveCompleted;
         }
 
         private static void HandleSaveCompleted(object sender, CollectionOfRecords filmsFile)
         {
-            CreateNewSnapshot(filmsFile);
+          //  CreateNewSnapshot(filmsFile);
         }
     }
 }

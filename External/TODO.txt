@@ -1,6 +1,10 @@
 **Immediate (NOW):**
-
 - Implement tabs.
+	- When new tab is opened. Create columns on default columns template.
+	- When adding new file. Create a template of columns. Create # column.
+	- Working text file will have string or common collection object.
+	- When reading a file, check for [commoncollection type, for example [films]].
+	- When saving a file, save [films] in first or any column header.
 - Fix enaming columns.
 	- New window should start textbox in edit mode.
 	- Pressing enter confirms.
@@ -50,6 +54,7 @@
 	- Filtering clears the coloured cells.
 	- Create a counter for invalid cells.
 - Button to choose minimal view or hide side bar.
+- Create my own ModernButton class.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.
