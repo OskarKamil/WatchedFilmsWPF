@@ -1,11 +1,10 @@
 **Immediate (NOW):**
 - Implement tabs.
-	- When new tab is opened. Create columns on default columns template.
-	- When adding new file. Create a template of columns. Create # column.
+	- When adding new column, or new record. Take actions on currently opened tab. All grid related actions take place on currently opened tab.
 	- Working text file will have string or common collection object.
 	- When reading a file, check for [commoncollection type, for example [films]].
 	- When saving a file, save [films] in first or any column header.
-- Fix enaming columns.
+- Fix renaming columns.
 	- New window should start textbox in edit mode.
 	- Pressing enter confirms.
 	- Don't allow to rename "#" column.

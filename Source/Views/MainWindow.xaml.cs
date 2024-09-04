@@ -133,10 +133,10 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            if (workingTextFile.CollectionOfRecords is null || string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath))
-                stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
-            else
-                stageTitle += workingTextFile.CollectionOfRecords.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+            //if (workingTextFile.CollectionOfRecords is null || string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath))
+            //    stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
+            //else
+            //    stageTitle += workingTextFile.CollectionOfRecords.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
 
             this.Title = stageTitle;
         }
@@ -278,7 +278,7 @@ namespace WatchedFilmsTracker
 
                 menuItem.Click += (sender, e) =>
                 {
-                    WorkingTextFilesManager.CreateNewWorkingTextFile(commonCollection);
+                   WorkingTextFilesManager.CreateEmptyWorkingFile(commonCollection);
                 };
                 contextMenu.Items.Add(menuItem);
             }

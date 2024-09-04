@@ -5,27 +5,27 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
     internal class DataGridManager
     {
-        public DataGrid dataGrid { get; set; }
+        public DataGrid DataGrid { get; set; }
         private readonly List<DataGridTextColumn> columns = new List<DataGridTextColumn>();
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
 
         public DataGridManager(DataGrid dataGrid)
         {
-            this.dataGrid = dataGrid;
+            DataGrid = dataGrid;
         }
 
         public DataGridTextColumn AddColumn(string header)
         {
             var newColumn = new DataGridTextColumn { Header = header };
-            dataGrid.Columns.Add(newColumn);
+            DataGrid.Columns.Add(newColumn);
             return newColumn;
         }
 
         public void BuildColumnsFromList(List<DataGridTextColumn> columns)
         {
             // Ensure the DataGrid has no pre-existing columns
-            dataGrid.Columns.Clear();
+            DataGrid.Columns.Clear();
 
             for (int i = 0; i < columns.Count; i++)
             {
@@ -39,16 +39,16 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 };
 
                 // Add the column to the DataGrid
-                dataGrid.Columns.Add(dataGridColumn);
+                DataGrid.Columns.Add(dataGridColumn);
             }
         }
 
         public int GetIdOfColumnByHeader(string header)
         {
             int columnIndex = -1;
-            for (int i = 0; i < dataGrid.Columns.Count; i++)
+            for (int i = 0; i < DataGrid.Columns.Count; i++)
             {
-                if (dataGrid.Columns[i].Header.ToString().ToLower() == header.ToLower())
+                if (DataGrid.Columns[i].Header.ToString().ToLower() == header.ToLower())
                 {
                     columnIndex = i;
                     break;
@@ -59,15 +59,15 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
         public int GetNumberOfColumns()
         {
-            return dataGrid.Columns.Count;
+            return DataGrid.Columns.Count;
         }
 
         public void ResetToDefault()
         {
-            for (int i = 0; i < dataGrid.Columns.Count; i++)
+            for (int i = 0; i < DataGrid.Columns.Count; i++)
             {
-                dataGrid.Columns[i].DisplayIndex = i;
-                dataGrid.Columns[i].Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
+                DataGrid.Columns[i].DisplayIndex = i;
+                DataGrid.Columns[i].Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
             }
         }
 
@@ -84,7 +84,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
             foreach (var column in columns)
             {
-                dataGrid.Columns.Add(column);
+                DataGrid.Columns.Add(column);
                 defaultWidths.Add(column.ActualWidth);
                 defaultOrder.Add(columns.IndexOf(column));
             }

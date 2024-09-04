@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.DataGridHelpers;
@@ -11,11 +10,6 @@ using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
-    /// <summary>
-    /// Represents a collection of films. This class is responsible for storing a list of films
-    /// and managing all operations on this list, such as adding, removing, or updating film records.
-    /// All interactions with the film list should go through this class.
-    /// </summary>
     public class CollectionOfRecords
     {
         public string FilePath
@@ -29,11 +23,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             get { return observableCollectionOfRecords; }
         }
 
-        internal DataGridManager DataGridManager { get => dataGridManager; set => dataGridManager = value; }
+        internal DataGridManager DataGridManager { get; set; }
 
         private List<DataGridTextColumn> columns;
-
-        private DataGridManager dataGridManager;
 
         private string fileColumnHeaders;
 
@@ -52,6 +44,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public CollectionOfRecords(WorkingTextFile filmsTextFile)
         {
             this.workingTextFile = filmsTextFile;
+            DataGridManager = new DataGridManager(workingTextFile.DataGrid);
+            observableCollectionOfRecords = new ObservableCollection<RecordModel>();
             filePath = null;
         }
 
@@ -61,14 +55,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             RecordModel newRecord = new RecordModel(new List<Cell>());
 
-            for (int i = 0; i < dataGridManager.dataGrid.Columns.Count; i++)
+            for (int i = 0; i < DataGridManager.DataGrid.Columns.Count; i++)
             {
                 {
                     newRecord.Cells.Add(new Cell(string.Empty));
                 }
             }
 
-            int indexOfColumnID = dataGridManager.GetIdOfColumnByHeader("#");
+            int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
 
             newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
 
@@ -99,15 +93,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             reader.CloseFile();
         }
 
+        public void CreateColumnsInBlankFile()
+        {
+            CreateColumnsWithIds();
+            foreach (string columnHeader in workingTextFile.CommonCollection.DefaultColumnHeaders)
+            {
+                CreateNewColumn(columnHeader);
+            }
+        }
+
         public DataGridTextColumn CreateNewColumn(string columnHeader)
         {
-            var column = dataGridManager.AddColumn(columnHeader);
+            var column = DataGridManager.AddColumn(columnHeader);
             foreach (var RecordModel in ObservableCollectionOfRecords)
             {
                 RecordModel.AddNewCell();
             }
 
-            int indexOfNewCell = dataGridManager.dataGrid.Columns.Count - 1;
+            int indexOfNewCell = DataGridManager.DataGrid.Columns.Count - 1;
 
             column.Binding = new Binding($"Cells[{indexOfNewCell}].Value");
 
@@ -125,12 +128,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void DeleteColumn()
         {
             int columnID;
-            var selectedCells = dataGridManager.dataGrid.SelectedCells;
+            var selectedCells = DataGridManager.DataGrid.SelectedCells;
 
             if (selectedCells.Count > 0)
             {
                 var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
-                columnID = dataGridManager.dataGrid.Columns.IndexOf(firstSelectedColumn);
+                columnID = DataGridManager.DataGrid.Columns.IndexOf(firstSelectedColumn);
             }
             else
             {
@@ -147,11 +150,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 recordModel.Cells.RemoveAt(columndID);
             }
-            dataGridManager.dataGrid.Columns.RemoveAt(columndID);
-            for (int i = columndID; i < dataGridManager.dataGrid.Columns.Count; i++)
+            DataGridManager.DataGrid.Columns.RemoveAt(columndID);
+            for (int i = columndID; i < DataGridManager.DataGrid.Columns.Count; i++)
             {
                 // Cast the column to DataGridBoundColumn or DataGridTextColumn
-                if (dataGridManager.dataGrid.Columns[i] is DataGridBoundColumn boundColumn)
+                if (DataGridManager.DataGrid.Columns[i] is DataGridBoundColumn boundColumn)
                 {
                     // Update the binding to refer to the correct cell index after a column is removed
                     boundColumn.Binding = new Binding($"Cells[{i}].Value");
@@ -220,7 +223,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newColumn.IsReadOnly = true;
             newColumn.CanUserReorder = false;
 
-            int indexOfColumnID = dataGridManager.GetIdOfColumnByHeader("#");
+            int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
             for (int i = 0; i < observableCollectionOfRecords.Count; i++)
             {
                 observableCollectionOfRecords[i].Cells[indexOfColumnID].Value = (i + 1).ToString();
@@ -231,13 +234,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         internal void RenameColumn()
         {
             int columnID;
-            
-            var selectedCells = dataGridManager.dataGrid.SelectedCells;
+
+            var selectedCells = DataGridManager.DataGrid.SelectedCells;
 
             if (selectedCells.Count > 0)
             {
                 var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
-                columnID = dataGridManager.dataGrid.Columns.IndexOf(firstSelectedColumn);
+                columnID = DataGridManager.DataGrid.Columns.IndexOf(firstSelectedColumn);
                 var RenameColumnDialog = new RenameColumnDialog
                 {
                     NewColumnName = firstSelectedColumn.Header.ToString()
@@ -255,7 +258,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 Debug.WriteLine("no selected cells");
                 return;
             }
-            
         }
 
         private void AdjustColumnsRepresentation(object sender, EventArgs e)

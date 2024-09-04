@@ -20,12 +20,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     {
         public CollectionOfRecords CollectionOfRecords { get => _collectionOfFilms; set => _collectionOfFilms = value; }
         public CommonCollection CommonCollection { get; set; }
-        public DataGrid DataGrid { get => _dataGrid; set => _dataGrid = value; }
+        public DataGrid DataGrid { get; set; }
+
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
-        public ObservableCollection<RecordModel> FilmsObservableList { get => _filmsObservableList; set => _filmsObservableList = value; }
+        public ObservableCollection<RecordModel> FilmsObservableList { get; set; }
+        public Grid Grid { get; set; }
         public StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
         private CollectionOfRecords _collectionOfFilms;
-        private DataGrid _dataGrid;
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
         private ObservableCollection<RecordModel> _filmsObservableList;
         private StatisticsManager _statisticsManager;
@@ -41,57 +42,20 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public WorkingTextFile(CommonCollection commonCollection)
         {
-            FilmsObservableList = new ObservableCollection<RecordModel>();
             CommonCollection = commonCollection;
+
+            DataGrid = GenerateDataGrid();
+
+            FilmsObservableList = new ObservableCollection<RecordModel>();
+            CollectionOfRecords = new CollectionOfRecords(this);
+            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
+            CollectionOfRecords.CreateColumnsInBlankFile();
             setUpMainWindow(_window);
         }
 
         public event EventHandler AnyChangeHappenedEvent;
 
         public event EventHandler<CollectionOfRecords> SavedComplete;
-
-        //public void AddContextMenuForTheItem(DataGrid dataGrid)
-        //{
-        //    dataGrid.LoadingRow += (s, e) =>
-        //    {
-        //        FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
-        //        if (filmRecord == null) return;
-
-        //        // Create context menu
-        //        ContextMenu contextMenu = new ContextMenu();
-
-        //        // Delete record menu item
-        //        MenuItem deleteRecordMenuItem = new MenuItem()
-        //        {
-        //            Header = "Delete record",
-        //            Icon = new Image()
-        //            {
-        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
-        //            }
-        //        };
-        //        deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
-        //        contextMenu.Items.Add(deleteRecordMenuItem);
-
-        //        // Search film on the internet menu item
-        //        MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
-        //        {
-        //            Header = "Search film on the internet",
-        //            Icon = new Image()
-        //            {
-        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
-        //            }
-        //        };
-        //        searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
-        //        {
-        //            string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
-        //            string url = $"https://www.google.com/search?q={query}";
-        //            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        //        };
-        //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
-
-        //        e.Row.ContextMenu = contextMenu;
-        //    };
-        //}
 
         public void AfterFileHasBeenLoaded()
         {
@@ -107,9 +71,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
 
             // Increase the brightness of the brightAccentColour by 80%
-            _dataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
+            DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
-            _dataGrid.CellEditEnding += CellEditEnding;
+            DataGrid.CellEditEnding += CellEditEnding;
 
             SettingsManager.LastPath = CollectionOfRecords.FilePath;
             ProgramStateManager.IsUnsavedChange = false;
@@ -147,6 +111,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             _ = _window.UpdateStatistics();
         }
 
+        //        e.Row.ContextMenu = contextMenu;
+        //    };
+        //}
         public void AnyChangeHappen()
         {
             ProgramStateManager.IsAnyChange = true;
@@ -155,6 +122,22 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             AnyChangeHappenedEvent?.Invoke(this, EventArgs.Empty);
         }
 
+        //        // Search film on the internet menu item
+        //        MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
+        //        {
+        //            Header = "Search film on the internet",
+        //            Icon = new Image()
+        //            {
+        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
+        //            }
+        //        };
+        //        searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
+        //        {
+        //            string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
+        //            string url = $"https://www.google.com/search?q={query}";
+        //            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        //        };
+        //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
         public bool CloseFileAndAskToSave()
         {
             Debug.WriteLine("Stop with shutdown");
@@ -173,6 +156,17 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return !ProgramStateManager.IsUnsavedChange;
         }
 
+        //        // Delete record menu item
+        //        MenuItem deleteRecordMenuItem = new MenuItem()
+        //        {
+        //            Header = "Delete record",
+        //            Icon = new Image()
+        //            {
+        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
+        //            }
+        //        };
+        //        deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
+        //        contextMenu.Items.Add(deleteRecordMenuItem);
         public void FilmRecord_PropertyChanged(object sender, CellChangedEventArgs e)
         {
             if (e.PropertyName != "IdInList")
@@ -181,6 +175,50 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        public DataGrid GenerateDataGrid()
+        {
+            Grid grid = new Grid
+            {
+                Name = "grid"
+            };
+            Grid = grid;
+
+            DataGrid dataGrid = new DataGrid
+            {
+                Name = "dataGrid",
+                AutoGenerateColumns = false,
+                CanUserAddRows = false,
+                VerticalContentAlignment = VerticalAlignment.Stretch,
+                ColumnWidth = DataGridLength.Auto,
+                CanUserDeleteRows = false,
+                AlternatingRowBackground = new SolidColorBrush(Color.FromRgb(0xD6, 0xE2, 0xFF)),
+                AlternationCount = 4,
+                CanUserResizeRows = false,
+                SelectionUnit = DataGridSelectionUnit.CellOrRowHeader,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Visible
+            };
+
+            // Set ScrollViewer properties on the DataGrid
+            ScrollViewer.SetCanContentScroll(dataGrid, true);
+            ScrollViewer.SetVerticalScrollBarVisibility(dataGrid, ScrollBarVisibility.Auto);
+            ScrollViewer.SetHorizontalScrollBarVisibility(dataGrid, ScrollBarVisibility.Auto);
+
+            // Add the DataGrid to the Grid
+            grid.Children.Add(dataGrid);
+
+            return dataGrid;
+        }
+
+        //public void AddContextMenuForTheItem(DataGrid dataGrid)
+        //{
+        //    dataGrid.LoadingRow += (s, e) =>
+        //    {
+        //        FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
+        //        if (filmRecord == null) return;
+
+        //        // Create context menu
+        //        ContextMenu contextMenu = new ContextMenu();
         public void LoadLocally()
         {
             if (CloseFileAndAskToSave())
@@ -365,7 +403,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
                 // Change the cell background color to red
                 DataGridRow row = e.Row;
-                DataGridCell cell = DataGridCellGetter.GetCell(_dataGrid, e.Row.GetIndex(), e.Column.DisplayIndex);
+                DataGridCell cell = DataGridCellGetter.GetCell(DataGrid, e.Row.GetIndex(), e.Column.DisplayIndex);
 
                 // Pass the FilmRecord value to the IsReleaseYearValid method
                 if (e.Row.DataContext is RecordModel filmRecord)
@@ -419,7 +457,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 // Ensure UI updates happen on the UI thread
 
-                _dataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
+                DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
             });
         }
     }
