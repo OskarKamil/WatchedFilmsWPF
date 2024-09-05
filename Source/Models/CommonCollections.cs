@@ -2,8 +2,8 @@
 {
     public static class CommonCollections
     {
-        public static Dictionary<string, CommonCollection> CommonCollectionsSet { get; } = new Dictionary<string, CommonCollection>();
-        private static List<CommonCollection> _sortedCollections;
+        public static Dictionary<string, CommonCollectionType> CommonCollectionsSet { get; } = new Dictionary<string, CommonCollectionType>();
+        private static List<CommonCollectionType> _sortedCollections;
 
         static CommonCollections()
         {
@@ -11,7 +11,7 @@
             {
                 string collectionTypeName = collectionType.ToString();
 
-                CommonCollection collection = new CommonCollection()
+                CommonCollectionType collection = new CommonCollectionType()
                 {
                     Name = collectionTypeName,
                     DefaultColumnHeaders = GetColumnHeaders(collectionType)
@@ -31,7 +31,7 @@
             Series,
         }
 
-        public static IEnumerable<CommonCollection> GetAllCollectionsAlphabetically()
+        public static IEnumerable<CommonCollectionType> GetAllCollectionsAlphabetically()
         {
             if (_sortedCollections == null)
             {
@@ -43,14 +43,14 @@
             return _sortedCollections;
         }
 
-        public static CommonCollection GetCommonCollectionByName(string name)
+        public static CommonCollectionType GetCommonCollectionByName(string name)
         {
             if (CommonCollectionsSet.ContainsKey(name))
                 return CommonCollectionsSet[name];
             return null;
         }
 
-        public static CommonCollection GetCommonCollectionByName(CollectionType name)
+        public static CommonCollectionType GetCommonCollectionByName(CollectionType name)
         {
             if (CommonCollectionsSet.ContainsKey(name.ToString()))
                 return CommonCollectionsSet[name.ToString()];

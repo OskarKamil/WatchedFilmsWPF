@@ -18,10 +18,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             set { filePath = value; }
         }
 
-        public ObservableCollection<RecordModel> ObservableCollectionOfRecords
-        {
-            get { return observableCollectionOfRecords; }
-        }
+        public ObservableCollection<RecordModel> ObservableCollectionOfRecords { get; set; }
 
         internal DataGridManager DataGridManager { get; set; }
 
@@ -30,7 +27,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private string fileColumnHeaders;
 
         private string filePath;
-        private ObservableCollection<RecordModel> observableCollectionOfRecords;
+
         private CSVreader reader;
         private WorkingTextFile workingTextFile;
         private CSVwriter writer;
@@ -44,8 +41,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public CollectionOfRecords(WorkingTextFile filmsTextFile)
         {
             this.workingTextFile = filmsTextFile;
-            DataGridManager = new DataGridManager(workingTextFile.DataGrid);
-            observableCollectionOfRecords = new ObservableCollection<RecordModel>();
+            ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
             filePath = null;
         }
 
@@ -53,6 +49,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void AddEmptyRecordToList()
         {
+            //todo new record is never added
+            // maybe the grid is never connected to obserable collection
             RecordModel newRecord = new RecordModel(new List<Cell>());
 
             for (int i = 0; i < DataGridManager.DataGrid.Columns.Count; i++)
@@ -63,13 +61,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
 
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
-
             newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
 
             newRecord.CellChanged += workingTextFile.FilmRecord_PropertyChanged;
-            observableCollectionOfRecords.Add(newRecord);
+            ObservableCollectionOfRecords.Add(newRecord);
             workingTextFile.DataGrid.SelectedCells.Clear();
-            if (workingTextFile.DataGrid.ItemsSource == observableCollectionOfRecords)
+            if (workingTextFile.DataGrid.ItemsSource == ObservableCollectionOfRecords)
             {
                 workingTextFile.DataGrid.SelectedItem = newRecord;
                 workingTextFile.DataGrid.ScrollIntoView(workingTextFile.DataGrid.SelectedItem);
@@ -83,7 +80,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     newRecord.Cells[columnID].Value = formattedString;
             }
 
-            StartEditingNewRecord();
+            //StartEditingNewRecord();
 
             workingTextFile.AnyChangeHappen();
         }
@@ -96,7 +93,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void CreateColumnsInBlankFile()
         {
             CreateColumnsWithIds();
-            foreach (string columnHeader in workingTextFile.CommonCollection.DefaultColumnHeaders)
+            foreach (string columnHeader in workingTextFile.CommonCollectionType.DefaultColumnHeaders)
             {
                 CreateNewColumn(columnHeader);
             }
@@ -189,9 +186,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void RefreshFurtherIDs(int idOfSelected)
         {
-            for (int i = 0; i < observableCollectionOfRecords.Count; i++)
+            for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
             {
-                RecordModel record = observableCollectionOfRecords[i];
+                RecordModel record = ObservableCollectionOfRecords[i];
                 // if (record.IdInList >= idOfSelected) record.IdInList--;
                 //todo fix
             }
@@ -200,7 +197,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void StartReader()
         {
             reader = new CSVreader();
-            observableCollectionOfRecords = reader.ReadCsvReturnObservableCollection(filePath);
+            ObservableCollectionOfRecords = reader.ReadCsvReturnObservableCollection(filePath);
             columns = reader.GetColumns();
             DataGridManager = new DataGridManager(workingTextFile.DataGrid);
             DataGridManager.BuildColumnsFromList(columns);
@@ -211,7 +208,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (reader != null) CloseReader();
             writer = new CSVwriter(newFilePath);
 
-            writer.SaveListIntoCSV(observableCollectionOfRecords.ToList(), workingTextFile.DataGrid);
+            writer.SaveListIntoCSV(ObservableCollectionOfRecords.ToList(), workingTextFile.DataGrid);
             CloseWriter();
         }
 
@@ -224,9 +221,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newColumn.CanUserReorder = false;
 
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
-            for (int i = 0; i < observableCollectionOfRecords.Count; i++)
+            for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
             {
-                observableCollectionOfRecords[i].Cells[indexOfColumnID].Value = (i + 1).ToString();
+                ObservableCollectionOfRecords[i].Cells[indexOfColumnID].Value = (i + 1).ToString();
             }
             ProgramStateManager.IsUnsavedChange = false;
         }
@@ -277,6 +274,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 return;
 
             int columnID = DataGridManager.GetIdOfColumnByHeader("English title");
+
+            Debug.WriteLine($"no of columns {DataGridManager.GetNumberOfColumns()}, columnId of english title {columnID}, number of items in datagrid {workingTextFile.DataGrid.Items.Count}, no of columns nin datagrid {workingTextFile.DataGrid.Columns.Count}");
+
+            //number of items in datagrid is 0, check why
+
             if (columnID != -1)
                 workingTextFile.DataGrid.CurrentCell = new DataGridCellInfo(workingTextFile.DataGrid.Items[workingTextFile.DataGrid.Items.Count - 1], workingTextFile.DataGrid.Columns[columnID]);
 

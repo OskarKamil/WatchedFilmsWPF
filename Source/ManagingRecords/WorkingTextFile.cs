@@ -18,39 +18,29 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
     public class WorkingTextFile
     {
-        public CollectionOfRecords CollectionOfRecords { get => _collectionOfFilms; set => _collectionOfFilms = value; }
-        public CommonCollection CommonCollection { get; set; }
+        public CollectionOfRecords CollectionOfRecords { get; set; }
+        public CommonCollectionType CommonCollectionType { get; set; }
         public DataGrid DataGrid { get; set; }
-
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
-        public ObservableCollection<RecordModel> FilmsObservableList { get; set; }
+
         public Grid Grid { get; set; }
-        public StatisticsManager StatisticsManager { get => _statisticsManager; set => _statisticsManager = value; }
+
+        public StatisticsManager StatisticsManager { get; set; }
         private CollectionOfRecords _collectionOfFilms;
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
-        private ObservableCollection<RecordModel> _filmsObservableList;
         private StatisticsManager _statisticsManager;
-        private MainWindow _window;
 
-        public WorkingTextFile()
+        public WorkingTextFile(CommonCollectionType commonCollection)
         {
-            FilmsObservableList = new ObservableCollection<RecordModel>();
-            CommonCollection = CommonCollections.GetCommonCollectionByName(CollectionType.Other);
-            SystemAccentColour.Initialize();
-            SystemAccentColour.AccentColorChanged += SystemAccentColour_AccentColorChanged;
-        }
+            CommonCollectionType = commonCollection;
 
-        public WorkingTextFile(CommonCollection commonCollection)
-        {
-            CommonCollection = commonCollection;
+            DataGrid = CreateGridInTheUI();
 
-            DataGrid = GenerateDataGrid();
-
-            FilmsObservableList = new ObservableCollection<RecordModel>();
             CollectionOfRecords = new CollectionOfRecords(this);
+            DataGrid.ItemsSource = GetObservableCollectionOfRecords();
+
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
             CollectionOfRecords.CreateColumnsInBlankFile();
-            setUpMainWindow(_window);
         }
 
         public event EventHandler AnyChangeHappenedEvent;
@@ -59,13 +49,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void AfterFileHasBeenLoaded()
         {
-            FilmsObservableList = CollectionOfRecords.ObservableCollectionOfRecords;
-            DataGrid.ItemsSource = FilmsObservableList;
+            DataGrid.ItemsSource = GetObservableCollectionOfRecords();
 
             // Subscribe to PropertyChanged event of each FilmRecord instance
-            FilmsObservableList.CollectionChanged += filmsListHasChanged;
+            GetObservableCollectionOfRecords().CollectionChanged += filmsListHasChanged;
 
-            foreach (var filmRecord in FilmsObservableList)
+            foreach (var filmRecord in GetObservableCollectionOfRecords())
             {
                 filmRecord.CellChanged += FilmRecord_PropertyChanged;
             }
@@ -78,7 +67,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             SettingsManager.LastPath = CollectionOfRecords.FilePath;
             ProgramStateManager.IsUnsavedChange = false;
             ProgramStateManager.IsAnyChange = false;
-            ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
+            ProgramStateManager.AtLeastOneRecord = GetObservableCollectionOfRecords().Count > 0;
 
             if (string.IsNullOrEmpty(CollectionOfRecords.FilePath))
             {
@@ -99,8 +88,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             CollectionOfRecords.CreateColumnsWithIds();
 
-            StatisticsManager = new StatisticsManager(FilmsObservableList);
-            _window.UpdateStageTitle();
+            StatisticsManager = new StatisticsManager(GetObservableCollectionOfRecords());
+
+            WorkingTextFilesManager.MainWindow.UpdateStageTitle();
             CollectionOfRecords.CloseReader();
 
             if (SettingsManager.ScrollLastPosition)
@@ -108,7 +98,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             //      AddContextMenuForTheItem(VisualFilmsTable);
 
-            _ = _window.UpdateStatistics();
+            WorkingTextFilesManager.MainWindow.UpdateStatistics();
         }
 
         //        e.Row.ContextMenu = contextMenu;
@@ -118,7 +108,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             ProgramStateManager.IsAnyChange = true;
             ProgramStateManager.IsUnsavedChange = true;
-            _ = _window.UpdateStatistics();
+            WorkingTextFilesManager.MainWindow.UpdateStatistics();
             AnyChangeHappenedEvent?.Invoke(this, EventArgs.Empty);
         }
 
@@ -156,26 +146,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return !ProgramStateManager.IsUnsavedChange;
         }
 
-        //        // Delete record menu item
-        //        MenuItem deleteRecordMenuItem = new MenuItem()
-        //        {
-        //            Header = "Delete record",
-        //            Icon = new Image()
-        //            {
-        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
-        //            }
-        //        };
-        //        deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
-        //        contextMenu.Items.Add(deleteRecordMenuItem);
-        public void FilmRecord_PropertyChanged(object sender, CellChangedEventArgs e)
-        {
-            if (e.PropertyName != "IdInList")
-            {
-                AnyChangeHappen();
-            }
-        }
-
-        public DataGrid GenerateDataGrid()
+        public DataGrid CreateGridInTheUI()
         {
             Grid grid = new Grid
             {
@@ -208,6 +179,29 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             grid.Children.Add(dataGrid);
 
             return dataGrid;
+        }
+
+        //        // Delete record menu item
+        //        MenuItem deleteRecordMenuItem = new MenuItem()
+        //        {
+        //            Header = "Delete record",
+        //            Icon = new Image()
+        //            {
+        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
+        //            }
+        //        };
+        //        deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
+        //        contextMenu.Items.Add(deleteRecordMenuItem);
+        public void FilmRecord_PropertyChanged(object sender, CellChangedEventArgs e)
+        {
+            if (e.PropertyName != "IdInList")
+            {
+                AnyChangeHappen();
+            }
+        }
+        public ObservableCollection<RecordModel> GetObservableCollectionOfRecords()
+        {
+            return CollectionOfRecords.ObservableCollectionOfRecords;
         }
 
         //public void AddContextMenuForTheItem(DataGrid dataGrid)
@@ -345,18 +339,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void ScrollToBottomOfList()
         {
-            if (FilmsObservableList.Count > 0)
-                DataGrid.ScrollIntoView(FilmsObservableList.ElementAt(FilmsObservableList.Count - 1));
+            if (GetObservableCollectionOfRecords().Count > 0)
+                DataGrid.ScrollIntoView(GetObservableCollectionOfRecords().ElementAt(GetObservableCollectionOfRecords().Count - 1));
         }
 
         public void setUpFilmsDataGrid(DataGrid dataGrid)
         {
             DataGrid = dataGrid;
-        }
-
-        public void setUpMainWindow(MainWindow window)
-        {
-            _window = window;
         }
 
         public void setUpStatisticsManager(StatisticsManager newStatisticsManager)
@@ -418,7 +407,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             Debug.Print("list changed listener");
-            ProgramStateManager.AtLeastOneRecord = FilmsObservableList.Count > 0;
+            ProgramStateManager.AtLeastOneRecord = GetObservableCollectionOfRecords().Count > 0;
             AnyChangeHappen();
         }
 

@@ -89,7 +89,10 @@ namespace WatchedFilmsTracker
             decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
             yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
 
-            OpenedFilesTabs.ItemsSource = WorkingTextFilesManager.TabItemsWorkingFiles;
+            //TABCONTROL
+            WorkingTextFilesManager.TabControl = TabControlMainWindow;
+            WorkingTextFilesManager.MainWindow = this;
+            TabControlMainWindow.ItemsSource = WorkingTextFilesManager.TabItemsWorkingFiles;
 
             //SNAPSHOT SERVICE
             FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
@@ -169,9 +172,9 @@ namespace WatchedFilmsTracker
             aboutWindow.ShowDialog();
         }
 
-        private void AddColumnButton(object sender, RoutedEventArgs e)
+        private void AddColumn_Action(object sender, RoutedEventArgs e)
         {
-            workingTextFile.CollectionOfRecords.CreateNewColumn("Column");
+            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -268,7 +271,7 @@ namespace WatchedFilmsTracker
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            foreach (CommonCollection commonCollection in CommonCollections.GetAllCollectionsAlphabetically())
+            foreach (CommonCollectionType commonCollection in CommonCollections.GetAllCollectionsAlphabetically())
             {
                 MenuItem menuItem = new MenuItem
                 {
@@ -278,7 +281,7 @@ namespace WatchedFilmsTracker
 
                 menuItem.Click += (sender, e) =>
                 {
-                   WorkingTextFilesManager.CreateEmptyWorkingFile(commonCollection);
+                    WorkingTextFilesManager.CreateEmptyWorkingFile(commonCollection);
                 };
                 contextMenu.Items.Add(menuItem);
             }
@@ -286,20 +289,25 @@ namespace WatchedFilmsTracker
             buttonNewFile.ContextMenu = contextMenu;
         }
 
-        private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
+        public WorkingTextFile CurrentWorkingFile()
         {
-            workingTextFile.CollectionOfRecords.AddEmptyRecordToList();
+            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
+        }
+
+        private void AddNewRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
+        {
+            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(workingTextFile.CollectionOfRecords.FilePath))
+            if (File.Exists(WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + workingTextFile.CollectionOfRecords.FilePath);
+                Process.Start("explorer.exe", "/select, " + WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.FilePath);
             }
             else
             {
-                Debug.WriteLine($"{workingTextFile.CollectionOfRecords.FilePath} cannot be found");
+                Debug.WriteLine($"{WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.FilePath} cannot be found");
             }
         }
 
@@ -343,12 +351,12 @@ namespace WatchedFilmsTracker
 
         private void RemoveColumnButton(object sender, RoutedEventArgs e)
         {
-            workingTextFile.CollectionOfRecords.DeleteColumn();
+            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.DeleteColumn();
         }
 
         private void RenameColumnButton(object sender, RoutedEventArgs e)
         {
-            workingTextFile.CollectionOfRecords.RenameColumn();
+            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.RenameColumn();
         }
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)

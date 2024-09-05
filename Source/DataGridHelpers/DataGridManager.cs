@@ -25,6 +25,9 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         public void BuildColumnsFromList(List<DataGridTextColumn> columns)
         {
             // Ensure the DataGrid has no pre-existing columns
+
+            
+            // todo, apparentty the grid is null
             DataGrid.Columns.Clear();
 
             for (int i = 0; i < columns.Count; i++)
@@ -68,25 +71,6 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             {
                 DataGrid.Columns[i].DisplayIndex = i;
                 DataGrid.Columns[i].Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
-            }
-        }
-
-        private void CreateDefaultColumnsForCollectionOfFilms()
-        {
-            columns.Add(new DataGridTextColumn { Header = "#", Binding = new Binding("IdInList"), Width = new DataGridLength(1, DataGridLengthUnitType.Auto), IsReadOnly = true });
-            columns.Add(new DataGridTextColumn { Header = "English title", Binding = new Binding("EnglishTitle"), Width = 250 });
-            columns.Add(new DataGridTextColumn { Header = "Original title", Binding = new Binding("OriginalTitle"), Width = 200 });
-            columns.Add(new DataGridTextColumn { Header = "Type", Binding = new Binding("Type"), Width = 100 });
-            columns.Add(new DataGridTextColumn { Header = "Release year", Binding = new Binding("ReleaseYear"), Width = 75 });
-            columns.Add(new DataGridTextColumn { Header = "Rating", Binding = new Binding("Rating"), Width = 50 });
-            columns.Add(new DataGridTextColumn { Header = "Watch date", Binding = new Binding("WatchDate"), Width = 80 });
-            columns.Add(new DataGridTextColumn { Header = "Comments", Binding = new Binding("Comments"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
-
-            foreach (var column in columns)
-            {
-                DataGrid.Columns.Add(column);
-                defaultWidths.Add(column.ActualWidth);
-                defaultOrder.Add(columns.IndexOf(column));
             }
         }
 

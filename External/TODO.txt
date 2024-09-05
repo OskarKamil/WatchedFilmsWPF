@@ -1,9 +1,13 @@
 **Immediate (NOW):**
 - Implement tabs.
-	- When adding new column, or new record. Take actions on currently opened tab. All grid related actions take place on currently opened tab.
+	- No empty tabs ever. At least one tab. When opening program and last opened filepaths are null, create new empty tab.
+	- Create listener for changing tabs.
+		- Delete column button only when at least one cell selected.
+		- Disable button if no cell selected or tab switched.
 	- Working text file will have string or common collection object.
 	- When reading a file, check for [commoncollection type, for example [films]].
 	- When saving a file, save [films] in first or any column header.
+	- Create X close tab button.
 - Fix renaming columns.
 	- New window should start textbox in edit mode.
 	- Pressing enter confirms.
@@ -15,6 +19,7 @@
 	- Value under ColumnRepresentation represents the ID of the column in the datagrid.
 	- Each time column is added. New index is added to the Values. And ColumnRepresentation gets new index with value of ID of new column.
 	- each time column is removed, ColumnRepresentation will find value of the column id, and will set to -1.
+- Add credits section in About window.
 - Test all actions and uncomment the code.
 
 **Upcoming (SOON):**

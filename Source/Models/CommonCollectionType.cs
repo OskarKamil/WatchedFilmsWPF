@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 
 namespace WatchedFilmsTracker.Source.Models
 {
-    public class CommonCollection
+    public class CommonCollectionType
     {
         public List<string> DefaultColumnHeaders { get; set; }
         public string Name { get; set; }

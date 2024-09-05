@@ -320,7 +320,7 @@
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         UseLayoutRounding="False"
-                                        Click="NewFilmRecord_ButtonClick">
+                                        Click="AddNewRecord_Action">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\addrecord.png"
                                                Stretch="None"
@@ -385,7 +385,7 @@
                                 <Button x:Name="buttonAddColumn"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
-                                        Click="AddColumnButton">
+                                        Click="AddColumn_Action">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/Assets/ButtonIcons/addColumn.png"
                                                Stretch="None"
@@ -472,7 +472,7 @@
                           MaxWidth="{Binding Width, ElementName=groupBoxQuickActions}"
                           Margin="0,0,0,30">
                     <GroupBox.Header>List of watched films data</GroupBox.Header>
-                    <TabControl x:Name="OpenedFilesTabs">
+                    <TabControl x:Name="TabControlMainWindow">
                     </TabControl>
                 </GroupBox>
             </DockPanel>

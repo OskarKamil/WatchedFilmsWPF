@@ -28,13 +28,13 @@ namespace WatchedFilmsTracker.Source.Managers
 
             if (string.IsNullOrEmpty(searchPhrase) || searchTextBox.Text == defaultSearchText)
             {
-                filmsGrid.ItemsSource = fileManager.FilmsObservableList;
+                filmsGrid.ItemsSource = fileManager.GetObservableCollectionOfRecords();
                 return;
             }
 
             var filteredList = new ObservableCollection<RecordModel>();
 
-            foreach (var filmRecord in fileManager.FilmsObservableList)
+            foreach (var filmRecord in fileManager.GetObservableCollectionOfRecords())
             {
                 var properties = filmRecord.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 bool marchFound = properties.Any(property =>
