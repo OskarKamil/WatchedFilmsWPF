@@ -79,7 +79,7 @@ namespace WatchedFilmsTracker
 
             //FILEMANAGER
             //   workingTextFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
-            //OpenFilepath(SettingsManager.LastPath);
+            OpenLastOpenedFiles(SettingsManager.LastPath);
 
             //LOCAL FILES SERVICE
             localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
@@ -112,6 +112,11 @@ namespace WatchedFilmsTracker
         }
 
         public event EventHandler FileOpened;
+
+        public WorkingTextFile CurrentWorkingFile()
+        {
+            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
+        }
 
         public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
         {
@@ -175,6 +180,11 @@ namespace WatchedFilmsTracker
         private void AddColumn_Action(object sender, RoutedEventArgs e)
         {
             WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
+        }
+
+        private void AddNewRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
+        {
+            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -250,6 +260,8 @@ namespace WatchedFilmsTracker
             SettingsManager.WindowTop = Top;
             SettingsManager.WindowWidth = Width;
             SettingsManager.WindowHeight = Height;
+
+            SettingsManager.SaveToConfFile();
         }
 
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
@@ -288,17 +300,6 @@ namespace WatchedFilmsTracker
 
             buttonNewFile.ContextMenu = contextMenu;
         }
-
-        public WorkingTextFile CurrentWorkingFile()
-        {
-            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
-        }
-
-        private void AddNewRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
-        {
-            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
-        }
-
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
             if (File.Exists(WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.FilePath))
@@ -334,12 +335,12 @@ namespace WatchedFilmsTracker
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    OpenFilepath(openFileDialog.FileName);
+                    OpenLastOpenedFiles(openFileDialog.FileName);
                 }
             }
         }
 
-        private void OpenFilepath(string? newFilePath)
+        private void OpenLastOpenedFiles(string? newFilePath)
         {
             workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
         }
@@ -371,7 +372,7 @@ namespace WatchedFilmsTracker
                 workingTextFile.CollectionOfRecords.ObservableCollectionOfRecords.Clear();
             }
             else
-                OpenFilepath(workingTextFile.CollectionOfRecords.FilePath);
+                OpenLastOpenedFiles(workingTextFile.CollectionOfRecords.FilePath);
             searchManager.SearchFilms();
         }
 

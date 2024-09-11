@@ -35,7 +35,8 @@
                                           Click="CheckBoxDefaultDate" />
                                 <CheckBox x:Name="autosaveBox"
                                           Content="Autosave changes on close"
-                                          Click="CheckBoxAutoSave" />
+                                          Click="CheckBoxAutoSave"
+                                          IsChecked="False" />
                             </StackPanel>
                         </GroupBox>
                         <GroupBox>

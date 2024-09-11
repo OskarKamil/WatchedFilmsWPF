@@ -25,9 +25,6 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         public void BuildColumnsFromList(List<DataGridTextColumn> columns)
         {
             // Ensure the DataGrid has no pre-existing columns
-
-            
-            // todo, apparentty the grid is null
             DataGrid.Columns.Clear();
 
             for (int i = 0; i < columns.Count; i++)
