@@ -7,11 +7,37 @@ namespace WatchedFilmsTracker.Source.Managers
     /// Manages application settings.
     ///
     /// When adding a new setting:
-    /// 1. Add the setting in the LoadDefaultSettings method with its default value.
-    ///     1.1 Use snake_case style for the key - All letters are lowercase. Words are separated by underscores (_).
-    /// 2. Create a property with the exact name as the setting.
-    ///     2.1 Create logic for setter which will check if string is valid to be set as value.
-    ///     2.2 Create a getter.
+    /// 1. Create a property with desired type and name.
+    ///     1.1 Create a get with type.Parse if non-string, and access to settings dictionary with desired key string.
+    ///     1.2 Use snake_case style for the key - All letters are lowercase. Words are separated by underscores (_).
+    ///     1.2 Create a set that will save into dictionary under the same key string, and assign value.ToString().
+    ///
+    /// Example bool (non-string):
+    ///     public static bool AutoSave
+    /// {
+    ///     get => bool.Parse(settings["auto_save"]);
+    ///     set => settings["auto_save"] = value.ToString();
+    /// }
+    ///
+    /// Example string:
+    ///     public static string LastPath
+    /// {
+    ///     get => settings["last_path"];
+    ///     set => settings["last_path"] = value;
+    /// }
+    ///
+    /// 2. Add default value into LoadDefaultSettings() method using a setter.
+    ///
+    /// Example:
+    /// AutoSave = false;
+    ///
+    /// 3 Add case "keyString" : to the LoadSettingsFromConfigFile() method under specific return type comment.
+    ///
+    /// Example:
+    /// STRING
+    /// case "last_path":
+    /// case "new_setting":
+    ///
     /// </summary>
     public static class SettingsManager
     {
