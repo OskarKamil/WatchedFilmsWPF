@@ -1,6 +1,6 @@
 **Immediate (NOW):**
 - Implement tabs.
-	- No empty tabs ever. At least one tab. When opening program and last opened filepaths are null, create new empty tab.
+	- When file is opened it doesn't display # column and cannot add new file record to opened file.
 	- Create listener for changing tabs.
 		- Delete column button only when at least one cell selected.
 		- Disable button if no cell selected or tab switched.
@@ -23,7 +23,10 @@
 	- Each time column is added. New index is added to the Values. And ColumnRepresentation gets new index with value of ID of new column.
 	- each time column is removed, ColumnRepresentation will find value of the column id, and will set to -1.
 - Add credits section in About window.
+- Uncomment all the code.
 - Test all actions and uncomment the code.
+- Fix cloing program. It crashes when program closes.
+- When program opened. Get last opened files. Open them if they exist. Otherwise create empty file.
 
 **Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.

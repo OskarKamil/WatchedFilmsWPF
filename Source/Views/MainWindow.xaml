@@ -175,7 +175,7 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
                                     UseLayoutRounding="False"
-                                    Click="OpenFileChooser">
+                                    Click="OpenFileButton_Action">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="\Assets\ButtonIcons\openFile.png"
                                            Stretch="None"

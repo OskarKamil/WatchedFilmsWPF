@@ -250,10 +250,8 @@ namespace WatchedFilmsTracker
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            // Call the ShutDown method when the window is closing
             bool canClose = workingTextFile.CloseFileAndAskToSave();
-
-            // Cancel the closing event if necessary
+            //todo replace with: check if any of
 
             e.Cancel = !canClose;
             SettingsManager.WindowLeft = Left;
@@ -300,49 +298,37 @@ namespace WatchedFilmsTracker
 
             buttonNewFile.ContextMenu = contextMenu;
         }
+
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.FilePath))
+            if (File.Exists(WorkingTextFilesManager.CurrentlyOpenedWorkingFile().FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.FilePath);
+                Process.Start("explorer.exe", "/select, " + WorkingTextFilesManager.CurrentlyOpenedWorkingFile().FilePath);
             }
             else
             {
-                Debug.WriteLine($"{WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.FilePath} cannot be found");
+                Debug.WriteLine($"{WorkingTextFilesManager.CurrentlyOpenedWorkingFile().FilePath} cannot be found");
             }
         }
 
-        private void OpenFileChooser(object sender, RoutedEventArgs e)
+        private void OpenFileButton_Action(object sender, RoutedEventArgs e)
         {
-            if (workingTextFile.CloseFileAndAskToSave())
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Open file";
+            openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+
+            openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            // todo instead of current directory, open the same path of most recent opened file
+
+            if (openFileDialog.ShowDialog() == true)
             {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Title = "Open file";
-                openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
-
-                if (string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath) || !(File.Exists(workingTextFile.CollectionOfRecords.FilePath)))
-                {
-                    openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
-                }
-                else
-                {
-                    string parentDirectory = Directory.GetParent(workingTextFile.CollectionOfRecords.FilePath)?.FullName;
-                    if (!string.IsNullOrEmpty(parentDirectory))
-                    {
-                        openFileDialog.InitialDirectory = parentDirectory;
-                    }
-                }
-
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    OpenLastOpenedFiles(openFileDialog.FileName);
-                }
+                WorkingTextFilesManager.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
 
         private void OpenLastOpenedFiles(string? newFilePath)
         {
-            workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
+            //   workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
         }
 
         private void OpenLocalFolder(object sender, RoutedEventArgs e)
@@ -367,12 +353,12 @@ namespace WatchedFilmsTracker
 
         private void RevertChanges(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath))
+            if (string.IsNullOrEmpty(workingTextFile.FilePath))
             {
                 workingTextFile.CollectionOfRecords.ObservableCollectionOfRecords.Clear();
             }
             else
-                OpenLastOpenedFiles(workingTextFile.CollectionOfRecords.FilePath);
+                OpenLastOpenedFiles(workingTextFile.FilePath);
             searchManager.SearchFilms();
         }
 

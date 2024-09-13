@@ -12,22 +12,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
     public class CollectionOfRecords
     {
-        public string FilePath
-        {
-            get { return filePath; }
-            set { filePath = value; }
-        }
-
         public ObservableCollection<RecordModel> ObservableCollectionOfRecords { get; set; }
-
         internal DataGridManager DataGridManager { get; set; }
-
         private List<DataGridTextColumn> columns;
-
         private string fileColumnHeaders;
-
-        private string filePath;
-
         private CSVreader reader;
         private WorkingTextFile workingTextFile;
         private CSVwriter writer;
@@ -35,14 +23,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public CollectionOfRecords(string filePath, WorkingTextFile filmsTextFile)
         {
             this.workingTextFile = filmsTextFile;
-            this.filePath = filePath;
-        }
 
-        public CollectionOfRecords(WorkingTextFile filmsTextFile)
-        {
-            this.workingTextFile = filmsTextFile;
-            ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
-            filePath = null;
+            if (string.IsNullOrEmpty(filePath))
+                ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
+            else
+                ReadTextFile(filePath);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -184,6 +169,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             //}
         }
 
+        public void ReadTextFile(string filePath)
+        {
+            reader = new CSVreader();
+            ObservableCollectionOfRecords = reader.ReadCsvReturnObservableCollection(filePath);
+            columns = reader.GetColumns();
+            DataGridManager = new DataGridManager(workingTextFile.DataGrid);
+            DataGridManager.BuildColumnsFromList(columns);
+        }
+
         public void RefreshFurtherIDs(int idOfSelected)
         {
             for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
@@ -192,15 +186,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 // if (record.IdInList >= idOfSelected) record.IdInList--;
                 //todo fix
             }
-        }
-
-        public void StartReader()
-        {
-            reader = new CSVreader();
-            ObservableCollectionOfRecords = reader.ReadCsvReturnObservableCollection(filePath);
-            columns = reader.GetColumns();
-            DataGridManager = new DataGridManager(workingTextFile.DataGrid);
-            DataGridManager.BuildColumnsFromList(columns);
         }
 
         public void StartWriter(string newFilePath)

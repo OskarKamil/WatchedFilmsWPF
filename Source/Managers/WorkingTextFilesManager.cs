@@ -2,12 +2,13 @@
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
+using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
     internal class WorkingTextFilesManager
     {
-        public static MainWindow MainWindow { get;  set; }
+        public static MainWindow MainWindow { get; set; }
 
         public static TabControl TabControl { get; set; }
         public static ObservableCollection<TabItem> TabItemsWorkingFiles { get; set; } = new ObservableCollection<TabItem>();
@@ -17,6 +18,18 @@ namespace WatchedFilmsTracker.Source.Managers
         {
             WorkingTextFile workingTextFile = new WorkingTextFile(commonCollection);
             var newTab = CreateNewTab(commonCollection);
+
+            newTab.Content = workingTextFile.Grid;
+            newTab.IsSelected = true;
+
+            TabItemsWorkingFiles.Add(newTab);
+            WorkingTextFiles.Add(workingTextFile);
+        }
+
+        public static void CreateNewWorkingFile(string filePath)
+        {
+            WorkingTextFile workingTextFile = new WorkingTextFile(filePath);
+            var newTab = CreateNewTab(GetCommonCollectionByName(CollectionType.Other));
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;

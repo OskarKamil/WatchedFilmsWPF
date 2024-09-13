@@ -22,10 +22,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public CommonCollectionType CommonCollectionType { get; set; }
         public DataGrid DataGrid { get; set; }
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
-
         public Grid Grid { get; set; }
-
         public StatisticsManager StatisticsManager { get; set; }
+        public string FilePath;
         private CollectionOfRecords _collectionOfFilms;
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
         private StatisticsManager _statisticsManager;
@@ -36,11 +35,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid = CreateGridInTheUI();
 
-            CollectionOfRecords = new CollectionOfRecords(this);
+            CollectionOfRecords = new CollectionOfRecords("", this);
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
 
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
             CollectionOfRecords.CreateColumnsInBlankFile();
+        }
+
+        public WorkingTextFile(string filePath)
+        {
+            CommonCollectionType = CommonCollections.GetCommonCollectionByName(CollectionType.Other);
+
+            DataGrid = CreateGridInTheUI();
+
+            CollectionOfRecords = new CollectionOfRecords(filePath, this);
+
+            DataGrid.ItemsSource = GetObservableCollectionOfRecords();
+
+            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
         }
 
         public event EventHandler AnyChangeHappenedEvent;
@@ -64,12 +76,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid.CellEditEnding += CellEditEnding;
 
-            SettingsManager.LastPath = CollectionOfRecords.FilePath;
+            SettingsManager.LastPath = FilePath;
             ProgramStateManager.IsUnsavedChange = false;
             ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = GetObservableCollectionOfRecords().Count > 0;
 
-            if (string.IsNullOrEmpty(CollectionOfRecords.FilePath))
+            if (string.IsNullOrEmpty(FilePath))
             {
                 ProgramStateManager.IsFileSavedOnDisk = false;
                 ProgramStateManager.IsFileInLocalMyDataFolder = false;
@@ -78,7 +90,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 ProgramStateManager.IsFileSavedOnDisk = true;
 
-                string lastDirectory = Directory.GetParent(CollectionOfRecords.FilePath).Name;
+                string lastDirectory = Directory.GetParent(FilePath).Name;
                 Debug.WriteLine($"{lastDirectory} is folder where the file is in");
                 if (lastDirectory == "MyData")
                     ProgramStateManager.IsFileInLocalMyDataFolder = true;
@@ -133,8 +145,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             Debug.WriteLine("Stop with shutdown");
             if (ProgramStateManager.IsUnsavedChange)
             {
-                Debug.WriteLine(_collectionOfFilms.FilePath);
-                if (_collectionOfFilms.FilePath == "New File" || !SettingsManager.AutoSave)
+                Debug.WriteLine(FilePath);
+                if (FilePath == "New File" || !SettingsManager.AutoSave)
                 {
                     return ShowSaveChangesDialog();
                 }
@@ -199,6 +211,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 AnyChangeHappen();
             }
         }
+
         public ObservableCollection<RecordModel> GetObservableCollectionOfRecords()
         {
             return CollectionOfRecords.ObservableCollectionOfRecords;
@@ -255,13 +268,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
-                CollectionOfRecords = new CollectionOfRecords(this);
-                CollectionOfRecords.StartReader();
+                CollectionOfRecords = new CollectionOfRecords("", this);
+                CollectionOfRecords.ReadTextFile(FilePath);
             }
             else
             {
                 CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
-                CollectionOfRecords.StartReader();
+                CollectionOfRecords.ReadTextFile(FilePath);
             }
             AfterFileHasBeenLoaded();
         }
@@ -272,8 +285,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 if (CloseFileAndAskToSave())
                 {
-                    CollectionOfRecords = new CollectionOfRecords(this);
-                    CollectionOfRecords.StartReader();
+                    CollectionOfRecords = new CollectionOfRecords("", this);
+                    CollectionOfRecords.ReadTextFile(FilePath);
                 }
                 else
                 {
@@ -283,14 +296,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             else
             {
                 CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
-                CollectionOfRecords.StartReader();
+                CollectionOfRecords.ReadTextFile(FilePath);
             }
             AfterFileHasBeenLoaded();
         }
 
         public bool Save()
         {
-            string filePath = _collectionOfFilms.FilePath;
+            string filePath = FilePath;
             bool saved = false;
 
             if (string.IsNullOrEmpty(filePath))
@@ -313,9 +326,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             saveFileDialog.Title = "Save file as";
             saveFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-            if (!string.IsNullOrEmpty(_collectionOfFilms.FilePath))
+            if (!string.IsNullOrEmpty(FilePath))
             {
-                string parentDirectory = Directory.GetParent(_collectionOfFilms.FilePath)?.FullName;
+                string parentDirectory = Directory.GetParent(FilePath)?.FullName;
                 if (!string.IsNullOrEmpty(parentDirectory))
                 {
                     saveFileDialog.InitialDirectory = parentDirectory;
