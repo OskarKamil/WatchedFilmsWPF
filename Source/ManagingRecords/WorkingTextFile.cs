@@ -40,6 +40,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
             CollectionOfRecords.CreateColumnsInBlankFile();
+            AfterFileHasBeenLoaded();
         }
 
         public WorkingTextFile(string filePath)
@@ -53,6 +54,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
 
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
+            AfterFileHasBeenLoaded();
         }
 
         public event EventHandler AnyChangeHappenedEvent;
@@ -61,8 +63,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void AfterFileHasBeenLoaded()
         {
-            DataGrid.ItemsSource = GetObservableCollectionOfRecords();
-
             // Subscribe to PropertyChanged event of each FilmRecord instance
             GetObservableCollectionOfRecords().CollectionChanged += filmsListHasChanged;
 

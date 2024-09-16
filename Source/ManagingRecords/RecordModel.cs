@@ -19,7 +19,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
     public class RecordModel : INotifyPropertyChanged
     {
-        private List<Cell> _cells;
         public List<Cell> Cells
         {
             get => _cells;
@@ -33,6 +32,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        private List<Cell> _cells;
+
         public RecordModel(List<Cell> cells)
         {
             Cells = cells;
@@ -42,24 +43,26 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        public event EventHandler<CellChangedEventArgs> CellChanged;
+
+        // INotifyPropertyChanged implementation
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public void AddNewCell()
         {
             Cell newCell = new Cell(string.Empty);
             Cells.Add(newCell);
 
             newCell.PropertyChanged += Cell_PropertyChanged;
-
         }
 
-        // INotifyPropertyChanged implementation
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void NotifyPropertyChanged(string propertyName)
+        public void InsertNewCellAt(int index)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+            Cell newCell = new Cell(string.Empty);
+            Cells.Insert(index, newCell);
 
-        public event EventHandler<CellChangedEventArgs> CellChanged;
+            newCell.PropertyChanged += Cell_PropertyChanged;
+        }
 
         public string StringToBeSavedInFile()
         {
@@ -71,6 +74,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             return "wip";
             //todo all
+        }
+
+        protected virtual void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected virtual void OnCellChanged(CellChangedEventArgs e)

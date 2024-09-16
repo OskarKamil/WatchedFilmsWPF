@@ -1,6 +1,5 @@
 **Immediate (NOW):**
 - Implement tabs.
-	- When file is opened it doesn't display # column and cannot add new file record to opened file.
 	- Create listener for changing tabs.
 		- Delete column button only when at least one cell selected.
 		- Disable button if no cell selected or tab switched.
@@ -27,6 +26,7 @@
 - Test all actions and uncomment the code.
 - Fix cloing program. It crashes when program closes.
 - When program opened. Get last opened files. Open them if they exist. Otherwise create empty file.
+- Fix column width and max width etc.
 
 **Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.

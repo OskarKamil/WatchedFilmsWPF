@@ -34,8 +34,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void AddEmptyRecordToList()
         {
-            //todo new record is never added
-            // maybe the grid is never connected to obserable collection
             RecordModel newRecord = new RecordModel(new List<Cell>());
 
             for (int i = 0; i < DataGridManager.DataGrid.Columns.Count; i++)
@@ -46,7 +44,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
 
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
-            newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
+            if (indexOfColumnID != -1)
+                newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
 
             newRecord.CellChanged += workingTextFile.FilmRecord_PropertyChanged;
             ObservableCollectionOfRecords.Add(newRecord);
@@ -72,16 +71,30 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void CloseReader()
         {
-            reader.CloseFile();
+            if (reader != null)
+                reader.CloseFile();
         }
 
         public void CreateColumnsInBlankFile()
         {
-            CreateColumnsWithIds();
             foreach (string columnHeader in workingTextFile.CommonCollectionType.DefaultColumnHeaders)
             {
                 CreateNewColumn(columnHeader);
             }
+        }
+
+        public DataGridTextColumn CreateColumnsWithIds()
+        {
+            var newColumn = CreateNewColumnAtIndex(0, "#");
+            newColumn.DisplayIndex = 0;
+            newColumn.IsReadOnly = true;
+            newColumn.CanUserReorder = false;
+            for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
+            {
+                ObservableCollectionOfRecords[i].Cells[0].Value = (i + 1).ToString();
+            }
+            ProgramStateManager.IsUnsavedChange = false;
+            return newColumn;
         }
 
         public DataGridTextColumn CreateNewColumn(string columnHeader)
@@ -98,6 +111,20 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             ProgramStateManager.IsUnsavedChange = true;
 
+            return column;
+        }
+
+        public DataGridTextColumn CreateNewColumnAtIndex(int index, string columnHeader)
+        {
+            var column = DataGridManager.AddColumnAtIndex(index, columnHeader);
+            foreach (var RecordModel in ObservableCollectionOfRecords)
+            {
+                RecordModel.InsertNewCellAt(index);
+            }
+            column.Binding = new Binding($"Cells[{index}].Value");
+
+            ProgramStateManager.IsUnsavedChange = true;
+            ShiftBindingAfterInsertion(0);
             return column;
         }
 
@@ -197,22 +224,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CloseWriter();
         }
 
-        internal void CreateColumnsWithIds()
-        {
-            var newColumn = CreateNewColumn("#");
-            newColumn.Header = "#";
-            newColumn.DisplayIndex = 0;
-            newColumn.IsReadOnly = true;
-            newColumn.CanUserReorder = false;
-
-            int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
-            for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
-            {
-                ObservableCollectionOfRecords[i].Cells[indexOfColumnID].Value = (i + 1).ToString();
-            }
-            ProgramStateManager.IsUnsavedChange = false;
-        }
-
         internal void RenameColumn()
         {
             int columnID;
@@ -251,6 +262,22 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private void CloseWriter()
         {
             writer?.Close();
+        }
+
+        private void ShiftBindingAfterDeletion(int index)
+        {
+            for (int i = 1; i < DataGridManager.DataGrid.Columns.Count - 1; i++)
+            {
+                ((DataGridTextColumn)DataGridManager.DataGrid.Columns[i]).Binding = new Binding($"Cells[{i}].Value");
+            }
+        }
+
+        private void ShiftBindingAfterInsertion(int index)
+        {
+            for (int i = index + 1; i < DataGridManager.DataGrid.Columns.Count; i++)
+            {
+                ((DataGridTextColumn)DataGridManager.DataGrid.Columns[i]).Binding = new Binding($"Cells[{i}].Value");
+            }
         }
 
         private void StartEditingNewRecord()
