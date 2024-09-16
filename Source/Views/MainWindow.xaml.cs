@@ -27,10 +27,6 @@ namespace WatchedFilmsTracker
         private SearchManager searchManager;
         private MainWindowViewModel viewModel;
 
-        public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
-        {
-            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
-        }
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
         public MainWindow()
@@ -86,8 +82,8 @@ namespace WatchedFilmsTracker
             OpenLastOpenedFiles(SettingsManager.LastPath);
 
             //LOCAL FILES SERVICE
-           // localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
-           // LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
+            // localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
+            // LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
             //STATISTICS DISPLAY COLUMNS
             decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
@@ -98,21 +94,18 @@ namespace WatchedFilmsTracker
             WorkingTextFilesManager.MainWindow = this;
             TabControlMainWindow.ItemsSource = WorkingTextFilesManager.TabItemsWorkingFiles;
 
+            TabControlMainWindow.SelectionChanged += (s, e) =>
+            {
+                ProgramStateManager.IsSelectedCells = GetCurrentlyOpenedTabWorkingTextFile().DataGrid.SelectedCells.Count > 0;
+            };
+
             //SNAPSHOT SERVICE
-           // FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
-           // FileChangesSnapshotService.FileManager = workingTextFile;
-          //  FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
+            // FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
+            // FileChangesSnapshotService.FileManager = workingTextFile;
+            //  FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
             //SEARCH MANAGER
             //    searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
-
-            //GRIDLIST SELECTED LISTENER
-            ProgramStateManager.IsSelectedCells = false;
-            //dataGridMainWindow.SelectedCellsChanged += (obs, args) =>
-            //{
-            //    Debug.WriteLine("Selected cells changes, or deselected if filtered");
-            //    ProgramStateManager.IsSelectedCells = dataGridMainWindow.SelectedCells.Count > 0;
-            //};
         }
 
         public event EventHandler FileOpened;
@@ -129,6 +122,11 @@ namespace WatchedFilmsTracker
             //    RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
             //    workingTextFile.CollectionOfRecords.DeleteRecordFromList(selected);
             //}
+        }
+
+        public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
+        {
+            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
         }
 
         public void UpdateNumberOfFilms()
@@ -190,7 +188,6 @@ namespace WatchedFilmsTracker
         {
             WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
-        
 
         private void ApplyUserSettingsToTheProgram()
         {
@@ -246,11 +243,6 @@ namespace WatchedFilmsTracker
         {
             Debug.WriteLine("table scroled");
             // todo
-        }
-
-        private void LoadLocally(object sender, RoutedEventArgs e)
-        {
-            GetCurrentlyOpenedTabWorkingTextFile().LoadLocally();
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -316,7 +308,7 @@ namespace WatchedFilmsTracker
             }
         }
 
-        private void OpenFileButton_Action(object sender, RoutedEventArgs e)
+        private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = "Open file";
@@ -331,22 +323,43 @@ namespace WatchedFilmsTracker
             }
         }
 
+        private void OpenFileLocallyButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Open file";
+            openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+
+            string programDirectory = Environment.CurrentDirectory;
+            string myDataDirectory = Path.Combine(programDirectory, "MyData");
+            if (!Directory.Exists(myDataDirectory))
+            {
+                Directory.CreateDirectory(myDataDirectory);
+            }
+
+            openFileDialog.InitialDirectory = myDataDirectory;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                WorkingTextFilesManager.CreateNewWorkingFile(openFileDialog.FileName);
+            }
+        }
+
         private void OpenLastOpenedFiles(string? newFilePath)
         {
             //   workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
         }
 
-        private void OpenLocalFolder(object sender, RoutedEventArgs e)
+        private void OpenLocalFolderButton_Click(object sender, RoutedEventArgs e)
         {
             LocalFilmsFilesService.OpenMyDataDirectoryFileExplorer();
         }
 
-        private void RemoveColumnButton(object sender, RoutedEventArgs e)
+        private void RemoveColumnButton_Click(object sender, RoutedEventArgs e)
         {
             WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.DeleteColumn();
         }
 
-        private void RenameColumnButton(object sender, RoutedEventArgs e)
+        private void RenameColumnButton_Click(object sender, RoutedEventArgs e)
         {
             WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.RenameColumn();
         }
@@ -356,7 +369,7 @@ namespace WatchedFilmsTracker
             GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DataGridManager.ResetToDefault();
         }
 
-        private void RevertChanges(object sender, RoutedEventArgs e)
+        private void RevertChangesButton_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().FilePath))
             {
@@ -435,7 +448,6 @@ namespace WatchedFilmsTracker
         private void SelectLastButton(object sender, RoutedEventArgs e)
 
         {
-            
             GetCurrentlyOpenedTabWorkingTextFile().ScrollToBottomOfList();
         }
 

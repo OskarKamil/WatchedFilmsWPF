@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
@@ -17,31 +18,36 @@ namespace WatchedFilmsTracker.Source.Managers
         public static void CreateEmptyWorkingFile(CommonCollectionType commonCollection)
         {
             WorkingTextFile workingTextFile = new WorkingTextFile(commonCollection);
+            WorkingTextFiles.Add(workingTextFile);
+
             var newTab = CreateNewTab(commonCollection);
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
 
             TabItemsWorkingFiles.Add(newTab);
-            WorkingTextFiles.Add(workingTextFile);
         }
 
         public static void CreateNewWorkingFile(string filePath)
         {
             WorkingTextFile workingTextFile = new WorkingTextFile(filePath);
+            WorkingTextFiles.Add(workingTextFile);
+
             var newTab = CreateNewTab(GetCommonCollectionByName(CollectionType.Other));
+
+            TabItemsWorkingFiles.Add(newTab);
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
 
-            TabItemsWorkingFiles.Add(newTab);
-            WorkingTextFiles.Add(workingTextFile);
+            
         }
 
         public static WorkingTextFile CurrentlyOpenedWorkingFile()
         {
             var selectedTab = (TabItem)TabControl.SelectedItem;
             int indexOfTab = TabItemsWorkingFiles.IndexOf(selectedTab);
+            Debug.WriteLine($"index of tab is {indexOfTab}, and number of tabs is: {TabItemsWorkingFiles.Count}, or {TabControl.Items.Count} or {WorkingTextFiles.Count}");
             return WorkingTextFiles[indexOfTab];
         }
 

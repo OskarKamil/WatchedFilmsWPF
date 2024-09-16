@@ -63,7 +63,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void AfterFileHasBeenLoaded()
         {
-            // Subscribe to PropertyChanged event of each FilmRecord instance
             GetObservableCollectionOfRecords().CollectionChanged += filmsListHasChanged;
 
             foreach (var filmRecord in GetObservableCollectionOfRecords())
@@ -71,7 +70,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 filmRecord.CellChanged += FilmRecord_PropertyChanged;
             }
 
-            // Increase the brightness of the brightAccentColour by 80%
             DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
             DataGrid.CellEditEnding += CellEditEnding;
@@ -80,6 +78,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             ProgramStateManager.IsUnsavedChange = false;
             ProgramStateManager.IsAnyChange = false;
             ProgramStateManager.AtLeastOneRecord = GetObservableCollectionOfRecords().Count > 0;
+
+            ProgramStateManager.IsSelectedCells = false;
 
             if (string.IsNullOrEmpty(FilePath))
             {
@@ -109,13 +109,19 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 ScrollToBottomOfList();
 
             //      AddContextMenuForTheItem(VisualFilmsTable);
+            //        e.Row.ContextMenu = contextMenu;
+            //    };
+            //}
 
             WorkingTextFilesManager.MainWindow.UpdateStatistics();
+
+            DataGrid.SelectedCellsChanged += (obs, args) =>
+            {
+                Debug.WriteLine("Selected cells changes, or deselected if filtered");
+                ProgramStateManager.IsSelectedCells = DataGrid.SelectedCells.Count > 0;
+            };
         }
 
-        //        e.Row.ContextMenu = contextMenu;
-        //    };
-        //}
         public void AnyChangeHappen()
         {
             ProgramStateManager.IsAnyChange = true;
@@ -226,29 +232,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         //        // Create context menu
         //        ContextMenu contextMenu = new ContextMenu();
-        public void LoadLocally()
-        {
-            if (CloseFileAndAskToSave())
-            {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Title = "Open file";
-                openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
-
-                string programDirectory = Environment.CurrentDirectory;
-                string myDataDirectory = Path.Combine(programDirectory, "MyData");
-                if (!Directory.Exists(myDataDirectory))
-                {
-                    Directory.CreateDirectory(myDataDirectory);
-                }
-
-                openFileDialog.InitialDirectory = myDataDirectory;
-
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    OpenFilepath(openFileDialog.FileName);
-                }
-            }
-        }
 
         public void NewFile()
         {

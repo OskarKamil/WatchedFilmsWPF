@@ -1,8 +1,8 @@
 **Immediate (NOW):**
 - Implement tabs.
 	- Create listener for changing tabs.
-		- Delete column button only when at least one cell selected.
 		- Disable button if no cell selected or tab switched.
+		- delete record button does nothing.
 	- Working text file will have string or common collection object.
 	- When reading a file, check for [commoncollection type, for example [films]].
 	- When saving a file, save [films] in first or any column header.

@@ -175,7 +175,7 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
                                     UseLayoutRounding="False"
-                                    Click="OpenFileButton_Action">
+                                    Click="OpenFileButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="\Assets\ButtonIcons\openFile.png"
                                            Stretch="None"
@@ -204,7 +204,7 @@
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                             <Button x:Name="buttonOpenLocally"
                                     VerticalAlignment="Top"
-                                    Click="LoadLocally">
+                                    Click="OpenFileLocallyButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Assets/ButtonIcons/loadLocally.png"
                                            Stretch="None"
@@ -217,7 +217,7 @@
                             </Button>
                             <Button x:Name="buttonOpenLocalFolder"
                                     VerticalAlignment="Top"
-                                    Click="OpenLocalFolder">
+                                    Click="OpenLocalFolderButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Assets/ButtonIcons/openLocalFolder.png"
                                            Stretch="None"
@@ -274,7 +274,7 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
                                     UseLayoutRounding="False"
-                                    Click="RevertChanges">
+                                    Click="RevertChangesButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="\Assets\ButtonIcons\revert.png"
                                            Stretch="None"
@@ -400,7 +400,7 @@
                                 <Button x:Name="buttoRemoveColumn"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
-                                        Click="RemoveColumnButton">
+                                        Click="RemoveColumnButton_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/Assets/ButtonIcons/removeColumn.png"
                                                Stretch="None"
@@ -414,7 +414,7 @@
                                 <Button x:Name="buttoRenameColumn"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
-                                        Click="RenameColumnButton">
+                                        Click="RenameColumnButton_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/Assets/ButtonIcons/renameColumn.png"
                                                Stretch="None"
