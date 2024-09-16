@@ -1,5 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -45,7 +47,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
             if (indexOfColumnID != -1)
-                newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
+                newRecord.Cells[indexOfColumnID].NumberValue = (ObservableCollectionOfRecords.Count + 1);
 
             newRecord.CellChanged += workingTextFile.FilmRecord_PropertyChanged;
             ObservableCollectionOfRecords.Add(newRecord);
@@ -89,9 +91,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newColumn.DisplayIndex = 0;
             newColumn.IsReadOnly = true;
             newColumn.CanUserReorder = false;
+
+            newColumn.Binding = new Binding($"Cells[{0}].NumberValue");
+
             for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
             {
-                ObservableCollectionOfRecords[i].Cells[0].Value = (i + 1).ToString();
+                ObservableCollectionOfRecords[i].Cells[0].NumberValue = (i + 1);
             }
             ProgramStateManager.IsUnsavedChange = false;
             return newColumn;

@@ -16,6 +16,11 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 }
             }
         }
+        
+        public int NumberValue
+        {
+            get; set;
+        }
 
         public string Value
         {

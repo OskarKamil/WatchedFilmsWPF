@@ -26,7 +26,11 @@ namespace WatchedFilmsTracker
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
         private MainWindowViewModel viewModel;
-        private WorkingTextFile workingTextFile;
+
+        public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
+        {
+            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
+        }
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
         public MainWindow()
@@ -82,8 +86,8 @@ namespace WatchedFilmsTracker
             OpenLastOpenedFiles(SettingsManager.LastPath);
 
             //LOCAL FILES SERVICE
-            localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
-            LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
+           // localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
+           // LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
             //STATISTICS DISPLAY COLUMNS
             decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
@@ -95,9 +99,9 @@ namespace WatchedFilmsTracker
             TabControlMainWindow.ItemsSource = WorkingTextFilesManager.TabItemsWorkingFiles;
 
             //SNAPSHOT SERVICE
-            FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
-            FileChangesSnapshotService.FileManager = workingTextFile;
-            FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
+           // FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
+           // FileChangesSnapshotService.FileManager = workingTextFile;
+          //  FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
             //SEARCH MANAGER
             //    searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
@@ -129,7 +133,7 @@ namespace WatchedFilmsTracker
 
         public void UpdateNumberOfFilms()
         {
-            viewModel.TotalFilmsWatched = workingTextFile.StatisticsManager.GetNumberOfTotalWatchedFilms();
+            viewModel.TotalFilmsWatched = GetCurrentlyOpenedTabWorkingTextFile().StatisticsManager.GetNumberOfTotalWatchedFilms();
         }
 
         public void UpdateStageTitle()
@@ -186,6 +190,7 @@ namespace WatchedFilmsTracker
         {
             WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
+        
 
         private void ApplyUserSettingsToTheProgram()
         {
@@ -234,7 +239,7 @@ namespace WatchedFilmsTracker
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
-            workingTextFile.CollectionOfRecords.DeleteAllRecords();
+            GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DeleteAllRecords();
         }
 
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -245,12 +250,12 @@ namespace WatchedFilmsTracker
 
         private void LoadLocally(object sender, RoutedEventArgs e)
         {
-            workingTextFile.LoadLocally();
+            GetCurrentlyOpenedTabWorkingTextFile().LoadLocally();
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            bool canClose = workingTextFile.CloseFileAndAskToSave();
+            bool canClose = GetCurrentlyOpenedTabWorkingTextFile().CloseFileAndAskToSave();
             //todo replace with: check if any of
 
             e.Cancel = !canClose;
@@ -348,28 +353,28 @@ namespace WatchedFilmsTracker
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
         {
-            workingTextFile.CollectionOfRecords.DataGridManager.ResetToDefault();
+            GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DataGridManager.ResetToDefault();
         }
 
         private void RevertChanges(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(workingTextFile.FilePath))
+            if (string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().FilePath))
             {
-                workingTextFile.CollectionOfRecords.ObservableCollectionOfRecords.Clear();
+                GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.ObservableCollectionOfRecords.Clear();
             }
             else
-                OpenLastOpenedFiles(workingTextFile.FilePath);
+                OpenLastOpenedFiles(GetCurrentlyOpenedTabWorkingTextFile().FilePath);
             searchManager.SearchFilms();
         }
 
         private void SaveAs(object sender, RoutedEventArgs e)
         {
-            workingTextFile.SaveAs();
+            GetCurrentlyOpenedTabWorkingTextFile().SaveAs();
         }
 
         private void SaveButtonAction(object sender, RoutedEventArgs e)
         {
-            workingTextFile.Save();
+            GetCurrentlyOpenedTabWorkingTextFile().Save();
         }
 
         private void SaveLocally(object sender, RoutedEventArgs e)
@@ -430,7 +435,8 @@ namespace WatchedFilmsTracker
         private void SelectLastButton(object sender, RoutedEventArgs e)
 
         {
-            workingTextFile.ScrollToBottomOfList();
+            
+            GetCurrentlyOpenedTabWorkingTextFile().ScrollToBottomOfList();
         }
 
         private void UpdateAverageFilmRating()

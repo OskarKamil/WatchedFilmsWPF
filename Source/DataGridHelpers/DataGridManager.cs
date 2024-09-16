@@ -1,5 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System.ComponentModel;
+using System.Windows.Controls;
 using System.Windows.Data;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
@@ -78,42 +80,42 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 DataGrid.Columns[i].Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
             }
         }
-
-        //private void RefreshColumns()
-        //{
-        //    dataGrid.Columns.Clear();
-
-        //    for (int i = 0; i < ColumnRepresentation.Count; i++)
-        //    {
-        //        if (ColumnRepresentation[i] != -1)
-        //        {
-        //            var binding = new Binding($"Properties[{ColumnRepresentation[i]}]");
-        //            var column = new DataGridTextColumn
-        //            {
-        //                Header = $"Column {i + 1}",
-        //                Binding = binding
-        //            };
-        //            dataGrid.Columns.Add(column);
-        //        }
-        //    }
-        //}
-
-        //private void RemoveColumn(int columnIndex)
-        //{
-        //    if (columnIndex >= 0 && columnIndex < ColumnRepresentation.Count)
-        //    {
-        //        ColumnRepresentation[columnIndex] = -1; // Mark column as removed
-        //        RefreshColumns();
-        //    }
-        //}
-
-        //private void SwapColumns(int index1, int index2)
-        //{
-        //    if (index1 >= 0 && index1 < ColumnRepresentation.Count &&
-        //        index2 >= 0 && index2 < ColumnRepresentation.Count)
-        //    {
-        //        var temp = ColumnRepresentation[index1];
-        //        ColumnRepresentation[index1] = ColumnRepresentation[index2];
-        //        ColumnRepresentation[index2] = temp;
     }
+
+    //private void RefreshColumns()
+    //{
+    //    dataGrid.Columns.Clear();
+
+    //    for (int i = 0; i < ColumnRepresentation.Count; i++)
+    //    {
+    //        if (ColumnRepresentation[i] != -1)
+    //        {
+    //            var binding = new Binding($"Properties[{ColumnRepresentation[i]}]");
+    //            var column = new DataGridTextColumn
+    //            {
+    //                Header = $"Column {i + 1}",
+    //                Binding = binding
+    //            };
+    //            dataGrid.Columns.Add(column);
+    //        }
+    //    }
+    //}
+
+    //private void RemoveColumn(int columnIndex)
+    //{
+    //    if (columnIndex >= 0 && columnIndex < ColumnRepresentation.Count)
+    //    {
+    //        ColumnRepresentation[columnIndex] = -1; // Mark column as removed
+    //        RefreshColumns();
+    //    }
+    //}
+
+    //private void SwapColumns(int index1, int index2)
+    //{
+    //    if (index1 >= 0 && index1 < ColumnRepresentation.Count &&
+    //        index2 >= 0 && index2 < ColumnRepresentation.Count)
+    //    {
+    //        var temp = ColumnRepresentation[index1];
+    //        ColumnRepresentation[index1] = ColumnRepresentation[index2];
+    //        ColumnRepresentation[index2] = temp;
 }
