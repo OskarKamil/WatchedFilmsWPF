@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Controls;
-using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 
 namespace WatchedFilmsTracker.Source.Services.Csv
 {

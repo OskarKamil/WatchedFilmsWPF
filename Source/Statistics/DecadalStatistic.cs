@@ -1,4 +1,4 @@
-﻿using WatchedFilmsTracker.Source.Managers;
+﻿using WatchedFilmsTracker.Source.Statistics;
 
 namespace WatchedFilmsTracker.Source.Models
 {

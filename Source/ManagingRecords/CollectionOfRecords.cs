@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Services.Csv;
 using WatchedFilmsTracker.Source.Views;
 
@@ -98,7 +97,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 ObservableCollectionOfRecords[i].Cells[0].NumberValue = (i + 1);
             }
-            ProgramStateManager.IsUnsavedChange = false;
+            workingTextFile.UnsavedChanges = false;
             return newColumn;
         }
 
@@ -114,7 +113,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             column.Binding = new Binding($"Cells[{indexOfNewCell}].Value");
 
-            ProgramStateManager.IsUnsavedChange = true;
+            workingTextFile.UnsavedChanges = true;
 
             return column;
         }
@@ -128,7 +127,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
             column.Binding = new Binding($"Cells[{index}].Value");
 
-            ProgramStateManager.IsUnsavedChange = true;
+            workingTextFile.UnsavedChanges = true;
             ShiftBindingAfterInsertion(0);
             return column;
         }
@@ -174,31 +173,39 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     boundColumn.Binding = new Binding($"Cells[{i}].Value");
                 }
             }
-            ProgramStateManager.IsUnsavedChange = true;
+            workingTextFile.UnsavedChanges = true;
         }
 
         public void DeleteRecordFromList(RecordModel selected)
         {
-            // fix
-            //if (selected == null) { return; }
+            if (selected == null) { return; }
 
-            //int selectedIndex = workingTextFile.DataGrid.Items.IndexOf(selected);
+            int selectedIndex = ObservableCollectionOfRecords.IndexOf(selected);
 
-            //if (observableCollectionOfRecords.Count == 0 || selected.IdInList == 0) return;
-            //int idOfSelected = selected.IdInList;
-            //observableCollectionOfRecords.Remove(selected);
-            //RefreshFurtherIDs(idOfSelected);
+            if (ObservableCollectionOfRecords.Count == 0 || selectedIndex < 0) return;
 
-            //// selecting the next record
-            //workingTextFile.DataGrid.SelectedCells.Clear();
-            //if (selectedIndex + 0 == workingTextFile.DataGrid.Items.Count)
-            //{
-            //    workingTextFile.DataGrid.SelectedIndex = selectedIndex - 1;
-            //}
-            //else
-            //{
-            //    workingTextFile.DataGrid.SelectedIndex = selectedIndex - 0;
-            //}
+            int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
+            if (indexOfColumnID != -1)
+            {
+                int selectedIdColumnValue = selected.Cells[indexOfColumnID].NumberValue;
+                ObservableCollectionOfRecords.Remove(selected);
+                RefreshFurtherIDs(selectedIdColumnValue);
+            }
+            else
+            {
+                ObservableCollectionOfRecords.Remove(selected);
+            }
+
+            // selecting the next record
+            workingTextFile.DataGrid.SelectedCells.Clear();
+            if (selectedIndex + 0 == workingTextFile.DataGrid.Items.Count)
+            {
+                workingTextFile.DataGrid.SelectedIndex = selectedIndex - 1;
+            }
+            else
+            {
+                workingTextFile.DataGrid.SelectedIndex = selectedIndex - 0;
+            }
         }
 
         public void ReadTextFile(string filePath)
@@ -212,11 +219,17 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void RefreshFurtherIDs(int idOfSelected)
         {
-            for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
+            int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
+            if (indexOfColumnID != -1)
             {
-                RecordModel record = ObservableCollectionOfRecords[i];
-                // if (record.IdInList >= idOfSelected) record.IdInList--;
-                //todo fix
+                for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
+                {
+                    RecordModel record = ObservableCollectionOfRecords[i];
+                    if (idOfSelected <= record.Cells[indexOfColumnID].NumberValue)
+                    {
+                        record.Cells[indexOfColumnID].NumberValue -= 1;
+                    }
+                }
             }
         }
 
@@ -248,7 +261,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (RenameColumnDialog.Result == Views.RenameColumnDialog.CustomDialogResult.Confirm)
                 {
                     firstSelectedColumn.Header = RenameColumnDialog.NewColumnName;
-                    ProgramStateManager.IsUnsavedChange = true;
+                    workingTextFile.UnsavedChanges = true;
                 }
             }
             else

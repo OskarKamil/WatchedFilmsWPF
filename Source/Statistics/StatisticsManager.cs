@@ -2,7 +2,7 @@
 using System.Globalization;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
-namespace WatchedFilmsTracker.Source.Managers
+namespace WatchedFilmsTracker.Source.Statistics
 {
     public class StatisticsManager
     {
@@ -13,7 +13,7 @@ namespace WatchedFilmsTracker.Source.Managers
             filmRecords = filmsObservableList;
         }
 
-        public static String FormattedRating(double rating)
+        public static string FormattedRating(double rating)
         {
             string formattedRating = rating.ToString("#.00") + "/4";
             return formattedRating;

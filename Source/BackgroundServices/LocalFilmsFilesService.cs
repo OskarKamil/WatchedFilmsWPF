@@ -3,7 +3,7 @@ using System.IO;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Views;
 
-namespace WatchedFilmsTracker.Source.Services
+namespace WatchedFilmsTracker.Source.BackgroundServices
 {
     internal class LocalFilmsFilesService
     {

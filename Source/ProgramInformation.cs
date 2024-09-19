@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WatchedFilmsTracker.Source.Models
+namespace WatchedFilmsTracker.Source
 {
     internal static class ProgramInformation
     {

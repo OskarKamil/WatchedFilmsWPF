@@ -10,7 +10,6 @@ namespace WatchedFilmsTracker.Source.Managers
     internal class WorkingTextFilesManager
     {
         public static MainWindow MainWindow { get; set; }
-
         public static TabControl TabControl { get; set; }
         public static ObservableCollection<TabItem> TabItemsWorkingFiles { get; set; } = new ObservableCollection<TabItem>();
         public static ObservableCollection<WorkingTextFile> WorkingTextFiles { get; set; } = new ObservableCollection<WorkingTextFile>();
@@ -39,8 +38,6 @@ namespace WatchedFilmsTracker.Source.Managers
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
-
-            
         }
 
         public static WorkingTextFile CurrentlyOpenedWorkingFile()

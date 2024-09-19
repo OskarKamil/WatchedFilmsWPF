@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace WatchedFilmsTracker.Source.DataGridHelpers
+namespace WatchedFilmsTracker.Source.ManagingRecords
 {
     public class Cell : INotifyPropertyChanged
     {
@@ -16,10 +16,18 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 }
             }
         }
-        
+
         public int NumberValue
         {
-            get; set;
+            get => _numberValue; set
+            {
+                if (_numberValue != value)
+                {
+                    _numberValue = value;
+                    OnPropertyChanged(nameof(NumberValue));
+                    Validate();
+                }
+            }
         }
 
         public string Value
@@ -37,6 +45,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         }
 
         private bool _isValid;
+        private int _numberValue;
         private string _value;
 
         public Cell(string value)

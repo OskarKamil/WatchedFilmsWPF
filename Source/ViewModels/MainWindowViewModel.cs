@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source;
 
 public class MainWindowViewModel : INotifyPropertyChanged
 {

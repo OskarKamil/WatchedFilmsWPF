@@ -7,12 +7,15 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using WatchedFilmsTracker.Source;
+using WatchedFilmsTracker.Source.BackgroundServices;
+using WatchedFilmsTracker.Source.Buttons;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
-using WatchedFilmsTracker.Source.Services;
-using static WatchedFilmsTracker.Source.Services.CheckForUpdateService;
+using WatchedFilmsTracker.Source.Statistics;
+using static WatchedFilmsTracker.Source.BackgroundServices.CheckForUpdateService;
 
 namespace WatchedFilmsTracker
 {
@@ -38,9 +41,6 @@ namespace WatchedFilmsTracker
             searchTextBox.Text = SearchBoxDefaultText;
 
             Closing += MainWindow_Closing; // override closing window
-
-            //PROGRAM STATE MANAGER
-            ProgramStateManager programStateManager = new ProgramStateManager(this);
 
             //BUTTON MANAGER
             ButtonManager.AlwaysActiveButtons.Add(buttonOpenFile);
@@ -96,7 +96,8 @@ namespace WatchedFilmsTracker
 
             TabControlMainWindow.SelectionChanged += (s, e) =>
             {
-                ProgramStateManager.IsSelectedCells = GetCurrentlyOpenedTabWorkingTextFile().DataGrid.SelectedCells.Count > 0;
+                UpdateButtons();
+                UpdateStageTitle();
             };
 
             //SNAPSHOT SERVICE
@@ -115,13 +116,13 @@ namespace WatchedFilmsTracker
             return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
         }
 
-        public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
+        public void DeleteFilmRecordButton_Click(object sender, RoutedEventArgs e) // RemoveRecord, DeleteRecord
         {
-            //if (dataGridMainWindow.SelectedCells.Count > 0)
-            //{
-            //    RecordModel selected = dataGridMainWindow.SelectedCells[0].Item as RecordModel;
-            //    workingTextFile.CollectionOfRecords.DeleteRecordFromList(selected);
-            //}
+            if (GetCurrentlyOpenedTabWorkingTextFile().HasSelectedCells())
+            {
+                RecordModel selected = GetCurrentlyOpenedTabWorkingTextFile().DataGrid.SelectedCells[0].Item as RecordModel;
+                GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DeleteRecordFromList(selected);
+            }
         }
 
         public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
@@ -138,15 +139,15 @@ namespace WatchedFilmsTracker
         {
             string stageTitle = "";
 
-            if (ProgramStateManager.IsUnsavedChange)
+            if (GetCurrentlyOpenedTabWorkingTextFile().UnsavedChanges)
             {
                 stageTitle = "*";
             }
 
-            //if (workingTextFile.CollectionOfRecords is null || string.IsNullOrEmpty(workingTextFile.CollectionOfRecords.FilePath))
-            //    stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
-            //else
-            //    stageTitle += workingTextFile.CollectionOfRecords.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+            if (GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords is null || string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().FilePath))
+                stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
+            else
+                stageTitle += GetCurrentlyOpenedTabWorkingTextFile().FilePath + " - " + ProgramInformation.PROGRAM_NAME;
 
             this.Title = stageTitle;
         }
@@ -464,6 +465,11 @@ namespace WatchedFilmsTracker
             //}
         }
 
+        private void UpdateButtons()
+        {
+            ButtonStateManager.UpdateAllButton(GetCurrentlyOpenedTabWorkingTextFile());
+        }
+
         //private async Task UpdateReportDecadalStatistics()
         //{
         //    cancellationTokenSourceForDecadalStatistics?.Cancel();
@@ -570,6 +576,11 @@ namespace WatchedFilmsTracker
                 Width = 1200;
                 Height = 600;
             }
+        }
+
+        private void SaveAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            // iterate all tabs and save all of them
         }
     }
 }

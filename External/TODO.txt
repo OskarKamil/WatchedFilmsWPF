@@ -1,12 +1,7 @@
 **Immediate (NOW):**
-- Implement tabs.
-	- Create listener for changing tabs.
-		- Disable button if no cell selected or tab switched.
-		- delete record button does nothing.
-	- Working text file will have string or common collection object.
+	- Fix saving file.
 	- When reading a file, check for [commoncollection type, for example [films]].
 	- When saving a file, save [films] in first or any column header.
-	- Create X close tab button.
 	- Each working text file shoud have unsaved changes property.
 	- When changing tab, change: window title bar, statistics, buttons disability.
 	- Add save all button.
@@ -27,6 +22,14 @@
 - Fix cloing program. It crashes when program closes.
 - When program opened. Get last opened files. Open them if they exist. Otherwise create empty file.
 - Fix column width and max width etc.
+
+- Switching tabs doesn't change window title.
+- Tabs should have name of file.
+- Save button works as SaveAs.
+- Closing program doesn't work.
+- Column name cannot have # in name.
+- Enter in rename column confirms.
+- Create X close tab button.
 
 **Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.
@@ -65,6 +68,8 @@
 	- Create a counter for invalid cells.
 - Button to choose minimal view or hide side bar.
 - Create my own ModernButton class.
+- Implement delete rows, columns function.
+	- When user hovers over a button, highlight the to be deleted columns/rows.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.

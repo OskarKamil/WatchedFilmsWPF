@@ -6,11 +6,13 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using WatchedFilmsTracker.Source.Buttons;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.RecordValueValidator;
+using WatchedFilmsTracker.Source.Statistics;
 using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
@@ -18,16 +20,32 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
     public class WorkingTextFile
     {
+        public bool AnyChange { get; set; }
         public CollectionOfRecords CollectionOfRecords { get; set; }
         public CommonCollectionType CommonCollectionType { get; set; }
         public DataGrid DataGrid { get; set; }
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
         public Grid Grid { get; set; }
         public StatisticsManager StatisticsManager { get; set; }
+
+        public bool UnsavedChanges
+        {
+            get => _unsavedChanges;
+            set
+            {
+                if (_unsavedChanges != value)
+                {
+                    _unsavedChanges = value;
+                    ButtonStateManager.UpdateUnsavedChanges(this);
+                }
+            }
+        }
+
         public string FilePath;
         private CollectionOfRecords _collectionOfFilms;
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
         private StatisticsManager _statisticsManager;
+        private bool _unsavedChanges;
 
         public WorkingTextFile(CommonCollectionType commonCollection)
         {
@@ -63,6 +81,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void AfterFileHasBeenLoaded()
         {
+            UnsavedChanges = false;
             GetObservableCollectionOfRecords().CollectionChanged += filmsListHasChanged;
 
             foreach (var filmRecord in GetObservableCollectionOfRecords())
@@ -75,34 +94,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid.CellEditEnding += CellEditEnding;
 
             SettingsManager.LastPath = FilePath;
-            ProgramStateManager.IsUnsavedChange = false;
-            ProgramStateManager.IsAnyChange = false;
-            ProgramStateManager.AtLeastOneRecord = GetObservableCollectionOfRecords().Count > 0;
-
-            ProgramStateManager.IsSelectedCells = false;
-
-            if (string.IsNullOrEmpty(FilePath))
-            {
-                ProgramStateManager.IsFileSavedOnDisk = false;
-                ProgramStateManager.IsFileInLocalMyDataFolder = false;
-            }
-            else
-            {
-                ProgramStateManager.IsFileSavedOnDisk = true;
-
-                string lastDirectory = Directory.GetParent(FilePath).Name;
-                Debug.WriteLine($"{lastDirectory} is folder where the file is in");
-                if (lastDirectory == "MyData")
-                    ProgramStateManager.IsFileInLocalMyDataFolder = true;
-                else
-                    ProgramStateManager.IsFileInLocalMyDataFolder = false;
-            }
 
             CollectionOfRecords.CreateColumnsWithIds();
 
             StatisticsManager = new StatisticsManager(GetObservableCollectionOfRecords());
 
-            WorkingTextFilesManager.MainWindow.UpdateStageTitle();
             CollectionOfRecords.CloseReader();
 
             if (SettingsManager.ScrollLastPosition)
@@ -118,14 +114,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid.SelectedCellsChanged += (obs, args) =>
             {
                 Debug.WriteLine("Selected cells changes, or deselected if filtered");
-                ProgramStateManager.IsSelectedCells = DataGrid.SelectedCells.Count > 0;
+                ButtonStateManager.UpdateSelectedCells(this);
             };
         }
 
         public void AnyChangeHappen()
         {
-            ProgramStateManager.IsAnyChange = true;
-            ProgramStateManager.IsUnsavedChange = true;
+            AnyChange = true;
+            UnsavedChanges = true;
             WorkingTextFilesManager.MainWindow.UpdateStatistics();
             AnyChangeHappenedEvent?.Invoke(this, EventArgs.Empty);
         }
@@ -149,7 +145,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public bool CloseFileAndAskToSave()
         {
             Debug.WriteLine("Stop with shutdown");
-            if (ProgramStateManager.IsUnsavedChange)
+            if (UnsavedChanges)
             {
                 Debug.WriteLine(FilePath);
                 if (FilePath == "New File" || !SettingsManager.AutoSave)
@@ -161,7 +157,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     Save();
                 }
             }
-            return !ProgramStateManager.IsUnsavedChange;
+            return UnsavedChanges;
         }
 
         public DataGrid CreateGridInTheUI()
@@ -199,6 +195,37 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return dataGrid;
         }
 
+        public bool DoesExistInLocalMyDataFolder()
+        {
+            if (string.IsNullOrEmpty(FilePath))
+
+            {
+                return false;
+            }
+            else
+            {
+                string filePath = Directory.GetParent(FilePath).Name;
+                Debug.WriteLine($"{filePath} is folder where the file is in");
+                if (filePath == "MyData")
+                    return true;
+                else
+                    return true;
+            }
+        }
+
+        public bool DoesExistOnDisk()
+        {
+            if (string.IsNullOrEmpty(FilePath))
+
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
         //        // Delete record menu item
         //        MenuItem deleteRecordMenuItem = new MenuItem()
         //        {
@@ -221,6 +248,26 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public ObservableCollection<RecordModel> GetObservableCollectionOfRecords()
         {
             return CollectionOfRecords.ObservableCollectionOfRecords;
+        }
+
+        public bool HasAtLeastOneRecord()
+        {
+            return GetObservableCollectionOfRecords().Count > 0;
+        }
+
+        public bool HasSelectedCells()
+        {
+            return DataGrid.SelectedCells.Count > 0;
+        }
+
+        public IList<DataGridCellInfo> GetSelectedCells()
+        {
+            return DataGrid.SelectedCells;
+        }
+
+        public bool HasUnsavedChanges()
+        {
+            return UnsavedChanges;
         }
 
         //public void AddContextMenuForTheItem(DataGrid dataGrid)
@@ -297,7 +344,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             _collectionOfFilms.StartWriter(filePath);
             OnSaveCompleted(_collectionOfFilms);
-            ProgramStateManager.IsUnsavedChange = false;
+            UnsavedChanges = false;
 
             // Return true if saving was successful
             return true;
@@ -403,7 +450,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             Debug.Print("list changed listener");
-            ProgramStateManager.AtLeastOneRecord = GetObservableCollectionOfRecords().Count > 0;
+            ButtonStateManager.UpdateAtLeastOneRecord(this);
             AnyChangeHappen();
         }
 

@@ -1,6 +1,4 @@
-﻿using WatchedFilmsTracker.Source.Managers;
-
-namespace WatchedFilmsTracker.Source.Models
+﻿namespace WatchedFilmsTracker.Source.Statistics
 {
     public class YearlyStatistic
     {
@@ -14,7 +12,7 @@ namespace WatchedFilmsTracker.Source.Models
         {
             this.year = year;
             this.numberOfFilms = numberOfFilms;
-            this.AverageRating = averageRating;
+            AverageRating = averageRating;
         }
 
         public double AverageRating

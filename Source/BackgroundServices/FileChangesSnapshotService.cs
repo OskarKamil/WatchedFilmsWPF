@@ -2,7 +2,7 @@
 using System.IO;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
-namespace WatchedFilmsTracker.Source.Services
+namespace WatchedFilmsTracker.Source.BackgroundServices
 {
     internal class FileChangesSnapshotService
     {
@@ -82,7 +82,7 @@ namespace WatchedFilmsTracker.Source.Services
 
         private static void HandleSaveCompleted(object sender, CollectionOfRecords filmsFile)
         {
-          //  CreateNewSnapshot(filmsFile);
+            //  CreateNewSnapshot(filmsFile);
         }
     }
 }

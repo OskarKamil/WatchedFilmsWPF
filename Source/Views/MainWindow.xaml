@@ -255,6 +255,19 @@
                                                VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
+                            <Button x:Name="buttonSaveAll"
+                                    VerticalAlignment="Top"
+                                    Click="SaveAllButton_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/ButtonIcons/saveAll.png"
+                                           Stretch="None"
+                                           RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                           RenderOptions.EdgeMode="Aliased" />
+                                    <TextBlock Text="Save all"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
                             <Button x:Name="buttonSaveAs"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
@@ -327,7 +340,7 @@
                                                Stretch="None"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor"
                                                RenderOptions.EdgeMode="Aliased" />
-                                        <TextBlock Text="New film record"
+                                        <TextBlock Text="Add record"
                                                    HorizontalAlignment="Left"
                                                    VerticalAlignment="Center" />
                                     </StackPanel>
@@ -336,13 +349,13 @@
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         UseLayoutRounding="False"
-                                        Click="DeleteFilmRecord_ButtonClick">
+                                        Click="DeleteFilmRecordButton_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\deleterecord.png"
                                                Stretch="None"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor"
                                                RenderOptions.EdgeMode="Aliased" />
-                                        <TextBlock Text="Delete film record"
+                                        <TextBlock Text="Delete record"
                                                    HorizontalAlignment="Left"
                                                    VerticalAlignment="Center" />
                                     </StackPanel>

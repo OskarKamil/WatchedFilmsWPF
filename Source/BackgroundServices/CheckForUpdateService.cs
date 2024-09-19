@@ -1,9 +1,8 @@
 ﻿using Octokit;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using WatchedFilmsTracker.Source.Models;
 
-namespace WatchedFilmsTracker.Source.Services
+namespace WatchedFilmsTracker.Source.BackgroundServices
 {
     internal class CheckForUpdateService
     {
@@ -24,8 +23,8 @@ namespace WatchedFilmsTracker.Source.Services
                 Debug.WriteLine($"Latest release: {latestRelease.TagName} - {latestRelease.Name}");
                 if (latestRelease.Name != null)
                 {
-                    int localVersion = Int32.Parse(Regex.Replace(ProgramInformation.VERSION, "[^0-9]", ""));
-                    int githubVersion = Int32.Parse(Regex.Replace(latestRelease.Name, "[^0-9]", ""));
+                    int localVersion = int.Parse(Regex.Replace(ProgramInformation.VERSION, "[^0-9]", ""));
+                    int githubVersion = int.Parse(Regex.Replace(latestRelease.Name, "[^0-9]", ""));
                     NewVersionString = latestRelease.Name;
 
                     Debug.WriteLine($"Current version: {localVersion}.\nGitHub version: {githubVersion}");

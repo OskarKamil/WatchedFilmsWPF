@@ -16,6 +16,7 @@
     <None Remove="Assets\ButtonIcons\addColumn.png" />
     <None Remove="Assets\ButtonIcons\removeColumn.png" />
     <None Remove="Assets\ButtonIcons\renameColumn.png" />
+    <None Remove="Assets\ButtonIcons\saveAll.png" />
     <None Remove="Assets\ButtonIcons\searchInternetForFilm.png" />
     <None Remove="Assets\TabIcons\books.png" />
     <None Remove="Assets\TabIcons\comics.png" />
@@ -46,6 +47,7 @@
     <Resource Include="Assets\ButtonIcons\loadLocally.png" />
     <Resource Include="Assets\ButtonIcons\removeColumn.png" />
     <Resource Include="Assets\ButtonIcons\renameColumn.png" />
+    <Resource Include="Assets\ButtonIcons\saveAll.png" />
     <Resource Include="Assets\ButtonIcons\search.png" />
     <Resource Include="Assets\ButtonIcons\searchInternetForFilm.png" />
     <Resource Include="Assets\ButtonIcons\x.png" />
