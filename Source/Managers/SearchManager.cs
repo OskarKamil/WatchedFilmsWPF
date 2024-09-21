@@ -8,18 +8,18 @@ namespace WatchedFilmsTracker.Source.Managers
     internal class SearchManager
     {
         private string defaultSearchText;
-        private WorkingTextFile fileManager;
         private DataGrid filmsGrid;
         private TextBox searchTextBox;
+        private WorkingTextFile WorkingTextFile;
 
         public SearchManager(WorkingTextFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
         {
-            this.fileManager = fileManager;
+            this.WorkingTextFile = fileManager;
             this.searchTextBox = searchTextBox;
             this.filmsGrid = filmsGrid;
             defaultSearchText = searchTextBox.Text;
 
-            this.fileManager.AnyChangeHappenedEvent += FileManager_AnyChangeHappenedEvent;
+            this.WorkingTextFile.CollectionHasChanged += FileManager_AnyChangeHappenedEvent;
         }
 
         public void SearchFilms()
@@ -28,13 +28,13 @@ namespace WatchedFilmsTracker.Source.Managers
 
             if (string.IsNullOrEmpty(searchPhrase) || searchTextBox.Text == defaultSearchText)
             {
-                filmsGrid.ItemsSource = fileManager.GetObservableCollectionOfRecords();
+                filmsGrid.ItemsSource = WorkingTextFile.GetObservableCollectionOfRecords();
                 return;
             }
 
             var filteredList = new ObservableCollection<RecordModel>();
 
-            foreach (var filmRecord in fileManager.GetObservableCollectionOfRecords())
+            foreach (var filmRecord in WorkingTextFile.GetObservableCollectionOfRecords())
             {
                 var properties = filmRecord.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 bool marchFound = properties.Any(property =>
@@ -53,7 +53,7 @@ namespace WatchedFilmsTracker.Source.Managers
             filmsGrid.ItemsSource = filteredList;
         }
 
-        private void FileManager_AnyChangeHappenedEvent(object sender, EventArgs e)
+        private void FileManager_AnyChangeHappenedEvent()
         {
             SearchFilms();
         }

@@ -100,6 +100,11 @@ namespace WatchedFilmsTracker
                 UpdateStageTitle();
             };
 
+            WorkingTextFilesManager.NewFileLoaded += (sender, e) =>
+            {
+                e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;
+            };
+
             //SNAPSHOT SERVICE
             // FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
             // FileChangesSnapshotService.FileManager = workingTextFile;
@@ -145,9 +150,16 @@ namespace WatchedFilmsTracker
             }
 
             if (GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords is null || string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().FilePath))
+            {
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
+                Debug.WriteLine("collection was null or filepath empty");
+                Debug.WriteLine($"it is:{GetCurrentlyOpenedTabWorkingTextFile().FilePath} ");
+            }
             else
+            {
                 stageTitle += GetCurrentlyOpenedTabWorkingTextFile().FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+                Debug.WriteLine("collection have a proper name");
+            }
 
             this.Title = stageTitle;
         }
@@ -381,6 +393,11 @@ namespace WatchedFilmsTracker
             searchManager.SearchFilms();
         }
 
+        private void SaveAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            // iterate all tabs and save all of them
+        }
+
         private void SaveAs(object sender, RoutedEventArgs e)
         {
             GetCurrentlyOpenedTabWorkingTextFile().SaveAs();
@@ -576,11 +593,6 @@ namespace WatchedFilmsTracker
                 Width = 1200;
                 Height = 600;
             }
-        }
-
-        private void SaveAllButton_Click(object sender, RoutedEventArgs e)
-        {
-            // iterate all tabs and save all of them
         }
     }
 }

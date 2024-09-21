@@ -28,6 +28,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public Grid Grid { get; set; }
         public StatisticsManager StatisticsManager { get; set; }
 
+        public event Action CollectionHasChanged;
         public bool UnsavedChanges
         {
             get => _unsavedChanges;
@@ -66,7 +67,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CommonCollectionType = CommonCollections.GetCommonCollectionByName(CollectionType.Other);
 
             DataGrid = CreateGridInTheUI();
-
+            FilePath = filePath;
             CollectionOfRecords = new CollectionOfRecords(filePath, this);
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
@@ -74,8 +75,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
             AfterFileHasBeenLoaded();
         }
-
-        public event EventHandler AnyChangeHappenedEvent;
 
         public event EventHandler<CollectionOfRecords> SavedComplete;
 
@@ -122,8 +121,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             AnyChange = true;
             UnsavedChanges = true;
+            CollectionHasChanged?.Invoke();
             WorkingTextFilesManager.MainWindow.UpdateStatistics();
-            AnyChangeHappenedEvent?.Invoke(this, EventArgs.Empty);
         }
 
         //        // Search film on the internet menu item

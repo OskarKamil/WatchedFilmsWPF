@@ -7,12 +7,24 @@ using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
+    public class NewFileLoadedEventArgs : EventArgs
+    {
+        public WorkingTextFile NewWorkingTextFile { get; }
+
+        public NewFileLoadedEventArgs(WorkingTextFile workingTextFile)
+        {
+            NewWorkingTextFile = workingTextFile;
+        }
+    }
+
     internal class WorkingTextFilesManager
     {
         public static MainWindow MainWindow { get; set; }
         public static TabControl TabControl { get; set; }
         public static ObservableCollection<TabItem> TabItemsWorkingFiles { get; set; } = new ObservableCollection<TabItem>();
         public static ObservableCollection<WorkingTextFile> WorkingTextFiles { get; set; } = new ObservableCollection<WorkingTextFile>();
+
+        public static event EventHandler<NewFileLoadedEventArgs> NewFileLoaded;
 
         public static void CreateEmptyWorkingFile(CommonCollectionType commonCollection)
         {
@@ -25,6 +37,7 @@ namespace WatchedFilmsTracker.Source.Managers
             newTab.IsSelected = true;
 
             TabItemsWorkingFiles.Add(newTab);
+            NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
         }
 
         public static void CreateNewWorkingFile(string filePath)
@@ -38,6 +51,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
+            NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
         }
 
         public static WorkingTextFile CurrentlyOpenedWorkingFile()

@@ -114,6 +114,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             column.Binding = new Binding($"Cells[{indexOfNewCell}].Value");
 
             workingTextFile.UnsavedChanges = true;
+            workingTextFile.AnyChangeHappen();
 
             return column;
         }
@@ -147,6 +148,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
                 columnID = DataGridManager.DataGrid.Columns.IndexOf(firstSelectedColumn);
+                workingTextFile.AnyChangeHappen();
             }
             else
             {
@@ -174,6 +176,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 }
             }
             workingTextFile.UnsavedChanges = true;
+            workingTextFile.AnyChangeHappen();
         }
 
         public void DeleteRecordFromList(RecordModel selected)
@@ -206,6 +209,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 workingTextFile.DataGrid.SelectedIndex = selectedIndex - 0;
             }
+            workingTextFile.AnyChangeHappen();
         }
 
         public void ReadTextFile(string filePath)

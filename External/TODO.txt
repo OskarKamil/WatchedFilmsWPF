@@ -1,10 +1,10 @@
 **Immediate (NOW):**
-	- Fix saving file.
-	- When reading a file, check for [commoncollection type, for example [films]].
-	- When saving a file, save [films] in first or any column header.
-	- Each working text file shoud have unsaved changes property.
-	- When changing tab, change: window title bar, statistics, buttons disability.
-	- Add save all button.
+- Fix saving file.
+- When reading a file, check for [commoncollection type, for example [films]].
+- When saving a file, save [films] in first or any column header.
+- Each working text file shoud have unsaved changes property.
+- When changing tab, change: window title bar, statistics, buttons disability.
+- Add save all button.
 - Fix renaming columns.
 	- New window should start textbox in edit mode.
 	- Pressing enter confirms.
