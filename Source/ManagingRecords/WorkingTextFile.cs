@@ -43,7 +43,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         }
 
         public string FilePath;
-        private CollectionOfRecords _collectionOfFilms;
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
         private StatisticsManager _statisticsManager;
         private bool _unsavedChanges;
@@ -341,8 +340,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 return saved;
             }
 
-            _collectionOfFilms.StartWriter(filePath);
-            OnSaveCompleted(_collectionOfFilms);
+            CollectionOfRecords.StartWriter(filePath);
+            OnSaveCompleted(CollectionOfRecords);
             UnsavedChanges = false;
 
             // Return true if saving was successful
@@ -366,7 +365,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                _collectionOfFilms.StartWriter(saveFileDialog.FileName);
+                CollectionOfRecords.StartWriter(saveFileDialog.FileName);
                 OpenFilepath(saveFileDialog.FileName);
                 return true;
             }
@@ -375,7 +374,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void SaveFileAtLocation(string filepath)
         {
-            _collectionOfFilms.StartWriter(filepath);
+            CollectionOfRecords.StartWriter(filepath);
             OpenFilepath(filepath);
         }
 
