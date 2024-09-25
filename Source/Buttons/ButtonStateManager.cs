@@ -12,6 +12,12 @@ namespace WatchedFilmsTracker.Source.Buttons
             UpdateAnyChange(workingTextFile);
             UpdateFileExistsOnDiskButtons(workingTextFile);
             UpdateFileIsNotInLocalMyDataDirectoryButtons(workingTextFile);
+            UpdateCollectionType(workingTextFile);
+        }
+
+        public static void UpdateCollectionType(WorkingTextFile workingTextFile)
+        {
+           // throw new NotImplementedException();
         }
 
         public static void UpdateAnyChange(WorkingTextFile workingTextFile)

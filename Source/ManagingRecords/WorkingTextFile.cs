@@ -21,14 +21,30 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     public class WorkingTextFile
     {
         public bool AnyChange { get; set; }
+
         public CollectionOfRecords CollectionOfRecords { get; set; }
-        public CommonCollectionType CommonCollectionType { get; set; }
+
+        public CommonCollectionType CommonCollectionType
+        {
+            get => _commonCollectionType;
+            set
+            {
+                if (_commonCollectionType != value)
+                {
+                    _commonCollectionType = value;
+                    CommonCollectionTypeChanged?.Invoke(this, new CommonCollectionTypeChangedEventArgs(_commonCollectionType));
+                }
+            }
+        }
+
         public DataGrid DataGrid { get; set; }
+
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
+
         public Grid Grid { get; set; }
+
         public StatisticsManager StatisticsManager { get; set; }
 
-        public event Action CollectionHasChanged;
         public bool UnsavedChanges
         {
             get => _unsavedChanges;
@@ -43,8 +59,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         }
 
         public string FilePath;
+
+        private CommonCollectionType _commonCollectionType;
+
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
+
         private StatisticsManager _statisticsManager;
+
         private bool _unsavedChanges;
 
         public WorkingTextFile(CommonCollectionType commonCollection)
@@ -74,6 +95,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
             AfterFileHasBeenLoaded();
         }
+
+        public event Action CollectionHasChanged;
+
+        public event EventHandler<CommonCollectionTypeChangedEventArgs> CommonCollectionTypeChanged;
 
         public event EventHandler<CollectionOfRecords> SavedComplete;
 
@@ -248,6 +273,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return CollectionOfRecords.ObservableCollectionOfRecords;
         }
 
+        public IList<DataGridCellInfo> GetSelectedCells()
+        {
+            return DataGrid.SelectedCells;
+        }
+
         public bool HasAtLeastOneRecord()
         {
             return GetObservableCollectionOfRecords().Count > 0;
@@ -258,14 +288,20 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return DataGrid.SelectedCells.Count > 0;
         }
 
-        public IList<DataGridCellInfo> GetSelectedCells()
-        {
-            return DataGrid.SelectedCells;
-        }
-
         public bool HasUnsavedChanges()
         {
             return UnsavedChanges;
+        }
+
+        public void NewFile()
+        {
+            OpenFilepath(null);
+        }
+
+        //        // Create context menu
+        //        ContextMenu contextMenu = new ContextMenu();
+        public void NewFile(CollectionType collectionType)
+        {
         }
 
         //public void AddContextMenuForTheItem(DataGrid dataGrid)
@@ -274,19 +310,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //    {
         //        FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
         //        if (filmRecord == null) return;
-
-        //        // Create context menu
-        //        ContextMenu contextMenu = new ContextMenu();
-
-        public void NewFile()
-        {
-            OpenFilepath(null);
-        }
-
-        public void NewFile(CollectionType collectionType)
-        {
-        }
-
         public void OnSaveCompleted(CollectionOfRecords filmsFile)
         {
             SavedComplete?.Invoke(this, filmsFile);
@@ -489,6 +512,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
                 DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
             });
+        }
+
+        public class CommonCollectionTypeChangedEventArgs : EventArgs
+        {
+            public CommonCollectionType NewCommonCollectionType { get; }
+
+            public CommonCollectionTypeChangedEventArgs(CommonCollectionType newCommonCollectionType)
+            {
+                NewCommonCollectionType = newCommonCollectionType;
+            }
         }
     }
 }

@@ -7,21 +7,14 @@ using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
-    public class NewFileLoadedEventArgs : EventArgs
-    {
-        public WorkingTextFile NewWorkingTextFile { get; }
-
-        public NewFileLoadedEventArgs(WorkingTextFile workingTextFile)
-        {
-            NewWorkingTextFile = workingTextFile;
-        }
-    }
-
     internal class WorkingTextFilesManager
     {
         public static MainWindow MainWindow { get; set; }
+
         public static TabControl TabControl { get; set; }
+
         public static ObservableCollection<TabItem> TabItemsWorkingFiles { get; set; } = new ObservableCollection<TabItem>();
+
         public static ObservableCollection<WorkingTextFile> WorkingTextFiles { get; set; } = new ObservableCollection<WorkingTextFile>();
 
         public static event EventHandler<NewFileLoadedEventArgs> NewFileLoaded;
@@ -38,6 +31,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             TabItemsWorkingFiles.Add(newTab);
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
+            workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
         }
 
         public static void CreateNewWorkingFile(string filePath)
@@ -52,12 +46,20 @@ namespace WatchedFilmsTracker.Source.Managers
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
+            workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
+        }
+
+        public static TabItem CurrentlyOpenedTabItem()
+        {
+            return (TabItem)TabControl.SelectedItem;
         }
 
         public static WorkingTextFile CurrentlyOpenedWorkingFile()
         {
             var selectedTab = (TabItem)TabControl.SelectedItem;
             int indexOfTab = TabItemsWorkingFiles.IndexOf(selectedTab);
+            if (indexOfTab == -1)
+                return null;
             Debug.WriteLine($"index of tab is {indexOfTab}, and number of tabs is: {TabItemsWorkingFiles.Count}, or {TabControl.Items.Count} or {WorkingTextFiles.Count}");
             return WorkingTextFiles[indexOfTab];
         }
@@ -73,7 +75,8 @@ namespace WatchedFilmsTracker.Source.Managers
             Image headerImage = commonCollection.GetIconImage();
             TextBlock textBlock = new TextBlock
             {
-                Text = commonCollection.Name
+                Text = "new collection",
+                Margin = new System.Windows.Thickness(5, 0, 0, 0)
             };
 
             stackPanel.Children.Add(headerImage);
@@ -82,6 +85,39 @@ namespace WatchedFilmsTracker.Source.Managers
             tabItem.Header = stackPanel;
 
             return tabItem;
+        }
+
+        private static Image GetImageFromTab(TabItem tabItem)
+        {
+            StackPanel headerPanel = tabItem.Header as StackPanel;
+
+            if (headerPanel != null)
+            {
+                Image headerImage = headerPanel.Children[0] as Image;
+
+                if (headerImage != null)
+                {
+                    return headerImage;
+                }
+            }
+
+            return null;
+        }
+
+        private static void UpdateTabIconAndText(object? sender, WorkingTextFile.CommonCollectionTypeChangedEventArgs e)
+        {
+            TabItem tabItem = CurrentlyOpenedTabItem();
+            GetImageFromTab(tabItem).Source = e.NewCommonCollectionType.GetIconImageSource();
+        }
+
+        public class NewFileLoadedEventArgs : EventArgs
+        {
+            public WorkingTextFile NewWorkingTextFile { get; }
+
+            public NewFileLoadedEventArgs(WorkingTextFile workingTextFile)
+            {
+                NewWorkingTextFile = workingTextFile;
+            }
         }
     }
 }

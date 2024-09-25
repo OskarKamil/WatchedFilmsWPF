@@ -22,6 +22,46 @@
                         DockPanel.Dock="Right"
                         Background="White">
 
+                <!--File information-->
+                <GroupBox>
+                    <GroupBox.Header>File information</GroupBox.Header>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>File path: </Label>
+                            <TextBlock x:Name="TextBlockFilePath"
+                                       Text=""
+                                       VerticalAlignment="Center"
+                                       TextWrapping="WrapWithOverflow"
+                                       Width="175"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Delimiter: "></Label>
+                            <Label x:Name="LabelCurrentDelimiter"
+                                   Content=""></Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Collection type: "></Label>
+                            <Button x:Name="ButtonCurrentFileCollectionType"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Click="ButtonCurrentFileCollectionType_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image x:Name="ImageCurrentFileCollectionType"
+                                           Source="/Assets/TabIcons/other.png"
+                                           Stretch="None"
+                                           RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                           RenderOptions.EdgeMode="Aliased" />
+                                    <TextBlock x:Name="TextBlockCurrentFileCollectionType"
+                                               Text="Other"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
                 <!--Settings border-->
                 <GroupBox>
                     <GroupBox.Header>Settings</GroupBox.Header>
@@ -55,9 +95,9 @@
                                        HorizontalAlignment="Left"
                                        VerticalAlignment="Center" />
                             <Button Content="Reset to default"
-                                    VerticalAlignment="Center"
                                     HorizontalAlignment="Right"
-                                    Click="ResetColumnsWidthAndOrder" />
+                                    Click="ResetColumnsWidthAndOrder"
+                                    VerticalAlignment="Center" />
                         </Grid>
                         <Grid>
                             <StackPanel Orientation="Horizontal">
@@ -156,11 +196,11 @@
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Top">
-                            <Button x:Name="buttonNewFile"
+                            <Button x:Name="ButtonNewFile"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top"
                                     UseLayoutRounding="False"
-                                    Click="NewFileAction">
+                                    Click="ButtonNewFile_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Assets/ButtonIcons/newFile.png"
                                            Stretch="None"
@@ -349,7 +389,7 @@
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         UseLayoutRounding="False"
-                                        Click="DeleteFilmRecordButton_Click">
+                                        Click="ButtonDeleteFilmRecord_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\deleterecord.png"
                                                Stretch="None"

@@ -22,5 +22,16 @@ namespace WatchedFilmsTracker.Source.Models
 
             return image;
         }
+
+        public string GetIconImageFilepath()
+        {
+            return $"pack://application:,,,/Assets/TabIcons/{Name.ToLower()}.png";
+        }
+
+        public BitmapImage GetIconImageSource()
+        {
+            var uri = new Uri(GetIconImageFilepath(), UriKind.Absolute);
+            return new BitmapImage(uri);
+        }
     }
 }

@@ -46,13 +46,14 @@ namespace WatchedFilmsTracker
             ButtonManager.AlwaysActiveButtons.Add(buttonOpenFile);
             ButtonManager.AlwaysActiveButtons.Add(buttonAbout);
             ButtonManager.AlwaysActiveButtons.Add(buttonSaveAs);
-            ButtonManager.AlwaysActiveButtons.Add(buttonNewFile);
+            ButtonManager.AlwaysActiveButtons.Add(ButtonNewFile);
             ButtonManager.AlwaysActiveButtons.Add(buttonOpenLocally);
 
             ButtonManager.UnsavedChangeButtons.Add(buttonSave);
 
             ButtonManager.OpenedFileButtons.Add(buttonNewFilmRecord);
             ButtonManager.OpenedFileButtons.Add(buttonClearAll);
+            ButtonManager.OpenedFileButtons.Add(ButtonCurrentFileCollectionType);
 
             ButtonManager.AtLeastOneRecordButtons.Add(buttonSelectLast);
 
@@ -67,6 +68,7 @@ namespace WatchedFilmsTracker
             ButtonManager.FileIsNotInLocalMyDataDirectoryButtons.Add(buttonSaveLocally);
 
             NewFileActionPrepareContextMenu();
+            CurrentlyOpenedFilePrepareContextMenu();
 
             //SETTINGS
             SettingsManager.LoadDefaultSettings();
@@ -98,11 +100,14 @@ namespace WatchedFilmsTracker
             {
                 UpdateButtons();
                 UpdateStageTitle();
+                UpdateFileInformation();
+                UpdateCommonCollectionElements(null, null);
             };
 
             WorkingTextFilesManager.NewFileLoaded += (sender, e) =>
             {
                 e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;
+                e.NewWorkingTextFile.CommonCollectionTypeChanged += UpdateCommonCollectionElements;
             };
 
             //SNAPSHOT SERVICE
@@ -116,18 +121,18 @@ namespace WatchedFilmsTracker
 
         public event EventHandler FileOpened;
 
-        public WorkingTextFile CurrentWorkingFile()
-        {
-            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
-        }
-
-        public void DeleteFilmRecordButton_Click(object sender, RoutedEventArgs e) // RemoveRecord, DeleteRecord
+        public void ButtonDeleteFilmRecord_Click(object sender, RoutedEventArgs e) // RemoveRecord, DeleteRecord
         {
             if (GetCurrentlyOpenedTabWorkingTextFile().HasSelectedCells())
             {
                 RecordModel selected = GetCurrentlyOpenedTabWorkingTextFile().DataGrid.SelectedCells[0].Item as RecordModel;
                 GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DeleteRecordFromList(selected);
             }
+        }
+
+        public WorkingTextFile CurrentWorkingFile()
+        {
+            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
         }
 
         public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
@@ -214,6 +219,18 @@ namespace WatchedFilmsTracker
             this.Height = SettingsManager.WindowHeight;
         }
 
+        private void ButtonCurrentFileCollectionType_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            button.ContextMenu.IsOpen = true;
+        }
+
+        private void ButtonNewFile_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            button.ContextMenu.IsOpen = true;
+        }
+
         private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
@@ -252,6 +269,28 @@ namespace WatchedFilmsTracker
             GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DeleteAllRecords();
         }
 
+        private void CurrentlyOpenedFilePrepareContextMenu()
+        {
+            ContextMenu contextMenu = new ContextMenu();
+
+            foreach (CommonCollectionType commonCollection in CommonCollections.GetAllCollectionsAlphabetically())
+            {
+                MenuItem menuItem = new MenuItem
+                {
+                    Header = commonCollection.Name,
+                    Icon = commonCollection.GetIconImage(),
+                };
+
+                menuItem.Click += (sender, e) =>
+                {
+                    GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType = commonCollection;
+                };
+                contextMenu.Items.Add(menuItem);
+            }
+
+            ButtonCurrentFileCollectionType.ContextMenu = contextMenu;
+        }
+
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             Debug.WriteLine("table scroled");
@@ -260,6 +299,8 @@ namespace WatchedFilmsTracker
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
+            Environment.Exit(0); // remove after fixing, its just to ensure it always closes
+
             bool canClose = GetCurrentlyOpenedTabWorkingTextFile().CloseFileAndAskToSave();
             //todo replace with: check if any of
 
@@ -281,12 +322,6 @@ namespace WatchedFilmsTracker
             await UpdateVersionInformationAsync();
         }
 
-        private void NewFileAction(object sender, RoutedEventArgs e)
-        {
-            Button button = sender as Button;
-            button.ContextMenu.IsOpen = true;
-        }
-
         private void NewFileActionPrepareContextMenu()
         {
             ContextMenu contextMenu = new ContextMenu();
@@ -306,7 +341,7 @@ namespace WatchedFilmsTracker
                 contextMenu.Items.Add(menuItem);
             }
 
-            buttonNewFile.ContextMenu = contextMenu;
+            ButtonNewFile.ContextMenu = contextMenu;
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
@@ -487,6 +522,20 @@ namespace WatchedFilmsTracker
             ButtonStateManager.UpdateAllButton(GetCurrentlyOpenedTabWorkingTextFile());
         }
 
+        private void UpdateCommonCollectionElements(object? sender, WorkingTextFile.CommonCollectionTypeChangedEventArgs e)
+        {
+            Debug.WriteLine("current collection type button should be changed");
+
+            TextBlockCurrentFileCollectionType.Text = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.Name;
+            ImageCurrentFileCollectionType.Source = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.GetIconImageSource();
+        }
+
+        private void UpdateFileInformation()
+        {
+            TextBlockFilePath.Text = GetCurrentlyOpenedTabWorkingTextFile().FilePath;
+            LabelCurrentDelimiter.Content = "[tab]";
+        }
+
         //private async Task UpdateReportDecadalStatistics()
         //{
         //    cancellationTokenSourceForDecadalStatistics?.Cancel();
@@ -586,10 +635,8 @@ namespace WatchedFilmsTracker
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            // Check if Control+D is pressed
             if (Keyboard.IsKeyDown(Key.D) && Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                // Set the window size to 1200x600
                 Width = 1200;
                 Height = 600;
             }

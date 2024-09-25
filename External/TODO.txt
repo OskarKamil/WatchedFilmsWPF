@@ -1,8 +1,10 @@
 **Immediate (NOW):**
-- Fix saving file.
+- When opening a file, set tab header text as filename.
 - When reading a file, check for [commoncollection type, for example [films]].
 - When saving a file, save [films] in first or any column header.
-- Each working text file shoud have unsaved changes property.
+- When saving a file. Abstract which columns are not saved and what metadata [s] etc are not saved in column headers.
+- Fix search feature.
+	- Check what is being saved when search is on.
 - When changing tab, change: window title bar, statistics, buttons disability.
 - Add save all button.
 - Fix renaming columns.
@@ -30,6 +32,12 @@
 - Column name cannot have # in name.
 - Enter in rename column confirms.
 - Create X close tab button.
+- Add legacy settings reader.
+- When making settings.config. Add version number.
+- More generic dialog window.
+- Clear all should have confimation dialog.
+- Simplify tabs and working text files lists. Create a dictionary that will connect them. Or tabitem reference is in workingtextfile.
+- When removing column, set selection in the same way when removing a row.
 
 **Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.
