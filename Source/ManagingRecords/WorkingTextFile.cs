@@ -100,6 +100,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public event EventHandler<CommonCollectionTypeChangedEventArgs> CommonCollectionTypeChanged;
 
+        public event EventHandler FileClosing;
+
         public event EventHandler<CollectionOfRecords> SavedComplete;
 
         public void AfterFileHasBeenLoaded()
@@ -132,7 +134,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             //    };
             //}
 
-            WorkingTextFilesManager.MainWindow.UpdateStatistics();
+            TabsWorkingTextFiles.MainWindow.UpdateStatistics();
 
             DataGrid.SelectedCellsChanged += (obs, args) =>
             {
@@ -146,7 +148,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             AnyChange = true;
             UnsavedChanges = true;
             CollectionHasChanged?.Invoke();
-            WorkingTextFilesManager.MainWindow.UpdateStatistics();
+            TabsWorkingTextFiles.MainWindow.UpdateStatistics();
         }
 
         //        // Search film on the internet menu item
@@ -165,23 +167,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         //        };
         //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
-        public bool CloseFileAndAskToSave()
-        {
-            Debug.WriteLine("Stop with shutdown");
-            if (UnsavedChanges)
-            {
-                Debug.WriteLine(FilePath);
-                if (FilePath == "New File" || !SettingsManager.AutoSave)
-                {
-                    return ShowSaveChangesDialog();
-                }
-                else if (SettingsManager.AutoSave)
-                {
-                    Save();
-                }
-            }
-            return UnsavedChanges;
-        }
 
         public DataGrid CreateGridInTheUI()
         {
@@ -334,7 +319,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
-                if (CloseFileAndAskToSave())
+                if (TryToCloseFile())
                 {
                     CollectionOfRecords = new CollectionOfRecords("", this);
                     CollectionOfRecords.ReadTextFile(FilePath);
@@ -352,12 +337,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             AfterFileHasBeenLoaded();
         }
 
+        /// <returns>
+        /// Returns true is file has been saved. Returns false is file has not been saved.
+        /// </returns>
         public bool Save()
         {
             string filePath = FilePath;
             bool saved = false;
 
-            if (string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(filePath) || !Path.Exists(Path.GetDirectoryName(filePath)))
             {
                 saved = SaveAs();
                 return saved;
@@ -367,10 +355,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             OnSaveCompleted(CollectionOfRecords);
             UnsavedChanges = false;
 
-            // Return true if saving was successful
             return true;
         }
 
+        /// <returns>
+        /// Returns true if user pressed Save. Returns false if user pressed Cancel or closed the window.
+        /// </returns>
         public bool SaveAs()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -390,6 +380,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 CollectionOfRecords.StartWriter(saveFileDialog.FileName);
                 OpenFilepath(saveFileDialog.FileName);
+                UnsavedChanges = false;
                 return true;
             }
             return false;
@@ -417,25 +408,65 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             StatisticsManager = newStatisticsManager;
         }
 
-        public bool ShowSaveChangesDialog()
+        public SaveChangesDialog.CustomDialogResult ShowSaveChangesDialog()
         {
             SaveChangesDialog dialog = new SaveChangesDialog();
             dialog.Owner = Application.Current.MainWindow;
             dialog.ShowDialog();
 
-            switch (dialog.Result)
+            return dialog.Result;
+        }
+
+        ///  <summary>
+        /// If file has unsaved changes, dialog asking to save changes will display.
+        /// </summary>
+        /// <returns>
+        /// Returns whether file can be closed.
+        /// </returns>
+        public bool TryToCloseFile()
+        {
+            if (UnsavedChanges)
             {
-                case SaveChangesDialog.CustomDialogResult.Save:
+                // New file not on disk or autosave off
+                // Ask to save because file not on disk, could be a draft so ask
+                // Autosave off so ask
+                if (string.IsNullOrEmpty(FilePath) || SettingsManager.AutoSave == false)
+                {
+                    SaveChangesDialog.CustomDialogResult result = ShowSaveChangesDialog();
+                    if (result == SaveChangesDialog.CustomDialogResult.Save)
+                    {
+                        bool canClose = Save();
+                        if (canClose)
+                        {
+                            RaiseOnClosingFile();
+                        }
+                        return canClose;
+                    }
+                    else if (result == SaveChangesDialog.CustomDialogResult.NotSave)
+                    {
+                        RaiseOnClosingFile();
+                        return true;
+                    }
+                    else if (result == SaveChangesDialog.CustomDialogResult.Cancel)
+                    {
+                        return false;
+                    }
                     return false;
-                //   return Save();
+                }
 
-                case SaveChangesDialog.CustomDialogResult.NotSave:
-                    return true;
-
-                case SaveChangesDialog.CustomDialogResult.Cancel:
-                default:
-                    return false;
+                // File existing on disk
+                else if (SettingsManager.AutoSave)
+                {
+                    bool canClose = Save();
+                    if (canClose)
+                    {
+                        RaiseOnClosingFile();
+                    }
+                    return canClose;
+                }
             }
+            RaiseOnClosingFile();
+            return UnsavedChanges;
         }
 
         private static void TryToOpenFilepath(string? filepath)
@@ -501,6 +532,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     }
                 }
             }
+        }
+
+        private void RaiseOnClosingFile()
+        {
+            Debug.WriteLine("closing file event raised");
+            FileClosing?.Invoke(this, EventArgs.Empty);
         }
 
         private void SystemAccentColour_AccentColorChanged(object sender, EventArgs e)

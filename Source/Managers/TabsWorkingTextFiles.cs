@@ -1,13 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Controls;
+using WatchedFilmsTracker.Source.Helpers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
-using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
-    internal class WorkingTextFilesManager
+    internal class TabsWorkingTextFiles
     {
         public static MainWindow MainWindow { get; set; }
 
@@ -19,19 +20,48 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public static event EventHandler<NewFileLoadedEventArgs> NewFileLoaded;
 
+        public static void CloseTab(WorkingTextFile workingTextFile)
+        {
+            int index = WorkingTextFiles.IndexOf(workingTextFile);
+            if (index >= 0)
+            {
+                if (TabItemsWorkingFiles.Count == 1)
+                {
+                    CreateEmptyWorkingFile(CommonCollections.GetCommonCollectionByName(CommonCollections.CollectionType.Films));
+                    TabItemsWorkingFiles[1].IsSelected = true;
+                }
+                else if (TabItemsWorkingFiles.Count - 1 > index)
+                {
+                    TabItemsWorkingFiles[index + 1].IsSelected = true;
+                }
+                else if (TabItemsWorkingFiles.Count - 1 == index)
+                {
+                    TabItemsWorkingFiles[index - 1].IsSelected = true;
+                }
+                WorkingTextFiles.RemoveAt(index);
+                TabItemsWorkingFiles.RemoveAt(index);
+            }
+        }
+
         public static void CreateEmptyWorkingFile(CommonCollectionType commonCollection)
         {
             WorkingTextFile workingTextFile = new WorkingTextFile(commonCollection);
             WorkingTextFiles.Add(workingTextFile);
 
-            var newTab = CreateNewTab(commonCollection);
+            var newTab = CreateNewTab(workingTextFile);
+
+            TabItemsWorkingFiles.Add(newTab);
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
 
-            TabItemsWorkingFiles.Add(newTab);
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
             workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
+
+            workingTextFile.FileClosing += (sender, e) =>
+            {
+                CloseTab((WorkingTextFile)sender);
+            };
         }
 
         public static void CreateNewWorkingFile(string filePath)
@@ -39,14 +69,20 @@ namespace WatchedFilmsTracker.Source.Managers
             WorkingTextFile workingTextFile = new WorkingTextFile(filePath);
             WorkingTextFiles.Add(workingTextFile);
 
-            var newTab = CreateNewTab(GetCommonCollectionByName(CollectionType.Other));
+            var newTab = CreateNewTab(workingTextFile);
 
             TabItemsWorkingFiles.Add(newTab);
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
+
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
             workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
+
+            workingTextFile.FileClosing += (sender, e) =>
+            {
+                CloseTab((WorkingTextFile)sender);
+            };
         }
 
         public static TabItem CurrentlyOpenedTabItem()
@@ -64,7 +100,7 @@ namespace WatchedFilmsTracker.Source.Managers
             return WorkingTextFiles[indexOfTab];
         }
 
-        private static TabItem CreateNewTab(CommonCollectionType commonCollection)
+        private static TabItem CreateNewTab(WorkingTextFile workingTextFile)
         {
             TabItem tabItem = new TabItem();
             StackPanel stackPanel = new StackPanel
@@ -72,15 +108,32 @@ namespace WatchedFilmsTracker.Source.Managers
                 Orientation = Orientation.Horizontal
             };
 
-            Image headerImage = commonCollection.GetIconImage();
+            Image headerImage = workingTextFile.CommonCollectionType.GetIconImage();
+
+            string tabText;
+            if (string.IsNullOrEmpty(workingTextFile.FilePath))
+                tabText = "new collection";
+            else
+                tabText = Path.GetFileName(workingTextFile.FilePath);
+
             TextBlock textBlock = new TextBlock
             {
-                Text = "new collection",
-                Margin = new System.Windows.Thickness(5, 0, 0, 0)
+                Text = tabText,
+                Margin = new System.Windows.Thickness(5, 0, 5, 0)
             };
+
+            Image closeTabButtonImage = ImageHelper.GetPixelImageFromAssets("TabIcons/closeX.png");
+            Button closeTabButton = new Button();
+            closeTabButton.Click += (sender, e) =>
+            {
+                Debug.WriteLine("button close tab clicke");
+                workingTextFile.TryToCloseFile();
+            };
+            closeTabButton.Content = closeTabButtonImage;
 
             stackPanel.Children.Add(headerImage);
             stackPanel.Children.Add(textBlock);
+            stackPanel.Children.Add(closeTabButton);
 
             tabItem.Header = stackPanel;
 

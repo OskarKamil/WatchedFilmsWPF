@@ -1,7 +1,6 @@
 **Immediate (NOW):**
-- When opening a file, set tab header text as filename.
 - When reading a file, check for [commoncollection type, for example [films]].
-- When saving a file, save [films] in first or any column header.
+- When saving a file, save [films] in first or any column header. Add version number.
 - When saving a file. Abstract which columns are not saved and what metadata [s] etc are not saved in column headers.
 - Fix search feature.
 	- Check what is being saved when search is on.

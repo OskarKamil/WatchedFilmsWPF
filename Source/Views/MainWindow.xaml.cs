@@ -92,9 +92,9 @@ namespace WatchedFilmsTracker
             yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
 
             //TABCONTROL
-            WorkingTextFilesManager.TabControl = TabControlMainWindow;
-            WorkingTextFilesManager.MainWindow = this;
-            TabControlMainWindow.ItemsSource = WorkingTextFilesManager.TabItemsWorkingFiles;
+            TabsWorkingTextFiles.TabControl = TabControlMainWindow;
+            TabsWorkingTextFiles.MainWindow = this;
+            TabControlMainWindow.ItemsSource = TabsWorkingTextFiles.TabItemsWorkingFiles;
 
             TabControlMainWindow.SelectionChanged += (s, e) =>
             {
@@ -104,7 +104,7 @@ namespace WatchedFilmsTracker
                 UpdateCommonCollectionElements(null, null);
             };
 
-            WorkingTextFilesManager.NewFileLoaded += (sender, e) =>
+            TabsWorkingTextFiles.NewFileLoaded += (sender, e) =>
             {
                 e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;
                 e.NewWorkingTextFile.CommonCollectionTypeChanged += UpdateCommonCollectionElements;
@@ -132,12 +132,12 @@ namespace WatchedFilmsTracker
 
         public WorkingTextFile CurrentWorkingFile()
         {
-            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
+            return TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
         }
 
         public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
         {
-            return WorkingTextFilesManager.CurrentlyOpenedWorkingFile();
+            return TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
         }
 
         public void UpdateNumberOfFilms()
@@ -199,12 +199,12 @@ namespace WatchedFilmsTracker
 
         private void AddColumn_Action(object sender, RoutedEventArgs e)
         {
-            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
         }
 
         private void AddNewRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
         {
-            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -301,7 +301,7 @@ namespace WatchedFilmsTracker
         {
             Environment.Exit(0); // remove after fixing, its just to ensure it always closes
 
-            bool canClose = GetCurrentlyOpenedTabWorkingTextFile().CloseFileAndAskToSave();
+            bool canClose = GetCurrentlyOpenedTabWorkingTextFile().TryToCloseFile();
             //todo replace with: check if any of
 
             e.Cancel = !canClose;
@@ -336,7 +336,7 @@ namespace WatchedFilmsTracker
 
                 menuItem.Click += (sender, e) =>
                 {
-                    WorkingTextFilesManager.CreateEmptyWorkingFile(commonCollection);
+                    TabsWorkingTextFiles.CreateEmptyWorkingFile(commonCollection);
                 };
                 contextMenu.Items.Add(menuItem);
             }
@@ -346,13 +346,13 @@ namespace WatchedFilmsTracker
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(WorkingTextFilesManager.CurrentlyOpenedWorkingFile().FilePath))
+            if (File.Exists(TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().FilePath))
             {
-                Process.Start("explorer.exe", "/select, " + WorkingTextFilesManager.CurrentlyOpenedWorkingFile().FilePath);
+                Process.Start("explorer.exe", "/select, " + TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().FilePath);
             }
             else
             {
-                Debug.WriteLine($"{WorkingTextFilesManager.CurrentlyOpenedWorkingFile().FilePath} cannot be found");
+                Debug.WriteLine($"{TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().FilePath} cannot be found");
             }
         }
 
@@ -367,7 +367,7 @@ namespace WatchedFilmsTracker
 
             if (openFileDialog.ShowDialog() == true)
             {
-                WorkingTextFilesManager.CreateNewWorkingFile(openFileDialog.FileName);
+                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
 
@@ -388,7 +388,7 @@ namespace WatchedFilmsTracker
 
             if (openFileDialog.ShowDialog() == true)
             {
-                WorkingTextFilesManager.CreateNewWorkingFile(openFileDialog.FileName);
+                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
 
@@ -404,12 +404,12 @@ namespace WatchedFilmsTracker
 
         private void RemoveColumnButton_Click(object sender, RoutedEventArgs e)
         {
-            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.DeleteColumn();
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.DeleteColumn();
         }
 
         private void RenameColumnButton_Click(object sender, RoutedEventArgs e)
         {
-            WorkingTextFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.RenameColumn();
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.RenameColumn();
         }
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)

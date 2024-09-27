@@ -32,7 +32,7 @@
                                        Text=""
                                        VerticalAlignment="Center"
                                        TextWrapping="WrapWithOverflow"
-                                       Width="175"
+                                       Width="200"
                                        TextTrimming="CharacterEllipsis" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">

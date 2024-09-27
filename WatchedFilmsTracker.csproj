@@ -19,6 +19,9 @@
     <None Remove="Assets\ButtonIcons\saveAll.png" />
     <None Remove="Assets\ButtonIcons\searchInternetForFilm.png" />
     <None Remove="Assets\TabIcons\books.png" />
+    <None Remove="Assets\TabIcons\closeX.png" />
+    <None Remove="Assets\TabIcons\closeX2.png" />
+    <None Remove="Assets\TabIcons\closeX3.png" />
     <None Remove="Assets\TabIcons\comics.png" />
     <None Remove="Assets\TabIcons\films.png" />
     <None Remove="Assets\TabIcons\games.png" />
@@ -67,6 +70,7 @@
     <Resource Include="Assets\ButtonIcons\selectLast2.png" />
     <Resource Include="Assets\ButtonIcons\openContainingFolder.png" />
     <Resource Include="Assets\TabIcons\books.png" />
+    <Resource Include="Assets\TabIcons\closeX.png" />
     <Resource Include="Assets\TabIcons\comics.png" />
     <Resource Include="Assets\TabIcons\other.png" />
     <Resource Include="Assets\TabIcons\films.png" />
