@@ -96,13 +96,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             AfterFileHasBeenLoaded();
         }
 
-        public event Action CollectionHasChanged;
+        public event EventHandler CollectionHasChanged;
 
         public event EventHandler<CommonCollectionTypeChangedEventArgs> CommonCollectionTypeChanged;
 
         public event EventHandler FileClosing;
 
-        public event EventHandler<CollectionOfRecords> SavedComplete;
+        public event EventHandler SavedComplete;
 
         public void AfterFileHasBeenLoaded()
         {
@@ -147,7 +147,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             AnyChange = true;
             UnsavedChanges = true;
-            CollectionHasChanged?.Invoke();
+            CollectionHasChanged?.Invoke(this, EventArgs.Empty);
             TabsWorkingTextFiles.MainWindow.UpdateStatistics();
         }
 
@@ -297,7 +297,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //        if (filmRecord == null) return;
         public void OnSaveCompleted(CollectionOfRecords filmsFile)
         {
-            SavedComplete?.Invoke(this, filmsFile);
+            SavedComplete?.Invoke(this, EventArgs.Empty);
         }
 
         public void OpenFilepath(string? newFilePath)
@@ -352,8 +352,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
 
             CollectionOfRecords.StartWriter(filePath);
-            OnSaveCompleted(CollectionOfRecords);
             UnsavedChanges = false;
+
+            OnSaveCompleted(CollectionOfRecords);
 
             return true;
         }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Controls;
+using System.Windows.Input;
 using WatchedFilmsTracker.Source.Helpers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
@@ -57,6 +58,8 @@ namespace WatchedFilmsTracker.Source.Managers
 
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
             workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
+            workingTextFile.CollectionHasChanged += UpdateTabText;
+            workingTextFile.SavedComplete += UpdateTabText;
 
             workingTextFile.FileClosing += (sender, e) =>
             {
@@ -78,6 +81,8 @@ namespace WatchedFilmsTracker.Source.Managers
 
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
             workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
+            workingTextFile.CollectionHasChanged += UpdateTabText;
+            workingTextFile.SavedComplete += UpdateTabText;
 
             workingTextFile.FileClosing += (sender, e) =>
             {
@@ -124,11 +129,18 @@ namespace WatchedFilmsTracker.Source.Managers
 
             Image closeTabButtonImage = ImageHelper.GetPixelImageFromAssets("TabIcons/closeX.png");
             Button closeTabButton = new Button();
+
             closeTabButton.Click += (sender, e) =>
             {
                 Debug.WriteLine("button close tab clicke");
                 workingTextFile.TryToCloseFile();
             };
+            tabItem.MouseDown += (sender, e) =>
+            {
+                if (e.MiddleButton == MouseButtonState.Pressed)
+                    workingTextFile.TryToCloseFile();
+            };
+
             closeTabButton.Content = closeTabButtonImage;
 
             stackPanel.Children.Add(headerImage);
@@ -157,10 +169,69 @@ namespace WatchedFilmsTracker.Source.Managers
             return null;
         }
 
+        private static TextBlock GetTextBlockFromTab(TabItem tabItem)
+        {
+            StackPanel headerPanel = tabItem.Header as StackPanel;
+
+            if (headerPanel != null)
+            {
+                TextBlock headerText = headerPanel.Children[1] as TextBlock;
+
+                if (headerText != null)
+                {
+                    return headerText;
+                }
+            }
+
+            return null;
+        }
+
         private static void UpdateTabIconAndText(object? sender, WorkingTextFile.CommonCollectionTypeChangedEventArgs e)
         {
             TabItem tabItem = CurrentlyOpenedTabItem();
             GetImageFromTab(tabItem).Source = e.NewCommonCollectionType.GetIconImageSource();
+        }
+
+        private static void UpdateTabText(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("update tab text called");
+            WorkingTextFile workingTextFile = (WorkingTextFile)sender;
+            int tabIndex = WorkingTextFiles.IndexOf(workingTextFile);
+            if (tabIndex != -1)
+            {
+                TabItem tabItem = TabItemsWorkingFiles[tabIndex];
+                TextBlock textBlock = GetTextBlockFromTab(tabItem);
+
+                if (textBlock != null)
+                {
+                    Debug.WriteLine("textlbock not null");
+
+                    string currentTabText = textBlock.Text;
+
+                    if (workingTextFile.UnsavedChanges)
+                    {
+                        Debug.WriteLine("unsaved changes yes");
+
+                        if (!currentTabText.StartsWith("* "))
+                        {
+                            textBlock.Text = "* " + currentTabText;
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("unsaved changes no");
+
+                        if (currentTabText.StartsWith("* "))
+                        {
+                            textBlock.Text = currentTabText.Substring(2);
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("textlbock IS null");
+                }
+            }
         }
 
         public class NewFileLoadedEventArgs : EventArgs

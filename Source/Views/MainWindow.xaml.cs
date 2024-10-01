@@ -108,6 +108,7 @@ namespace WatchedFilmsTracker
             {
                 e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;
                 e.NewWorkingTextFile.CommonCollectionTypeChanged += UpdateCommonCollectionElements;
+                e.NewWorkingTextFile.SavedComplete += UpdateStageTitle;
             };
 
             //SNAPSHOT SERVICE
@@ -524,8 +525,6 @@ namespace WatchedFilmsTracker
 
         private void UpdateCommonCollectionElements(object? sender, WorkingTextFile.CommonCollectionTypeChangedEventArgs e)
         {
-            Debug.WriteLine("current collection type button should be changed");
-
             TextBlockCurrentFileCollectionType.Text = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.Name;
             ImageCurrentFileCollectionType.Source = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.GetIconImageSource();
         }
@@ -534,6 +533,11 @@ namespace WatchedFilmsTracker
         {
             TextBlockFilePath.Text = GetCurrentlyOpenedTabWorkingTextFile().FilePath;
             LabelCurrentDelimiter.Content = "[tab]";
+        }
+
+        private void UpdateStageTitle(object? sender, EventArgs e)
+        {
+            UpdateStageTitle();
         }
 
         //private async Task UpdateReportDecadalStatistics()

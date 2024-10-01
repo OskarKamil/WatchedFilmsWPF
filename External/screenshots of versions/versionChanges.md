@@ -112,7 +112,12 @@
 - The table highlight colour changes when Windows accent colour changes.
 
 #### 0.015
-- When pressed [New film record] button, the program will start editing cell under "English title" column, so you can start typing immediately.
-- The program can read any CSV file. No longer strict number of columns.
-- Added button [Add column].
-- Added button [Remove column].
+- New tab system. Now more than 1 file can be opened. Each opened file will have its own tab with icon depending on common collection type. The tabs cannot be dragged and reordered at the moment. But common standard actions are supported like closing the tab with X icon or using middle button of a mouse (scroll wheel click) to close a tab.
+- New buttons: [Add column], [Remove column], [Rename column], [Save all].
+- New behaviour for [New file] button. A context menu will show with common collection templates: Books, Comics, Films, Games, Other, Series.
+- New behaviour for [Add record] button. When pressed [Add record] button, the program will start editing first cell.
+- New program versatility. The program can read any CSV file. The columns are automatically generated.
+- The program can read first line of CSV file as a comment if some metadata are present.
+- The program now can add a comment as a first line in CSV file that will incluse metadata about the file like the common collection type or details about which columns are used in statistics panel.
+- New Panel on the right showing file information like filepath, delimited, common collection type with an option to change delimited and common collection type.
+- New settings option to reopen last opened files on startup.

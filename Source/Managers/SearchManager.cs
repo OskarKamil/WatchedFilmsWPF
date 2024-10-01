@@ -53,7 +53,7 @@ namespace WatchedFilmsTracker.Source.Managers
             filmsGrid.ItemsSource = filteredList;
         }
 
-        private void FileManager_AnyChangeHappenedEvent()
+        private void FileManager_AnyChangeHappenedEvent(object sender, EventArgs e)
         {
             SearchFilms();
         }
