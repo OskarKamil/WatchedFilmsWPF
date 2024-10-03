@@ -104,6 +104,8 @@ namespace WatchedFilmsTracker
                 UpdateCommonCollectionElements(null, null);
             };
 
+            
+
             TabsWorkingTextFiles.NewFileLoaded += (sender, e) =>
             {
                 e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;

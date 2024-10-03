@@ -278,11 +278,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return UnsavedChanges;
         }
 
-        public void NewFile()
-        {
-            OpenFilepath(null);
-        }
-
         //        // Create context menu
         //        ContextMenu contextMenu = new ContextMenu();
         public void NewFile(CollectionType collectionType)

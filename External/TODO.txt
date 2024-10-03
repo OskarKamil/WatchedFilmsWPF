@@ -1,5 +1,4 @@
 **Immediate (NOW):**
-- When change happens to file, add * at the beginning to the tab.
 - When reading a file, check for [commoncollection type, for example [films]].
 - When saving a file, save [films] in first or any column header. Add version number.
 - When saving a file. Abstract which columns are not saved and what metadata [s] etc are not saved in column headers.
@@ -42,6 +41,7 @@
 - Simplify tabs and working text files lists. Create a dictionary that will connect them. Or tabitem reference is in workingtextfile.
 - When removing column, set selection in the same way when removing a row.
 - ctrl+w to close currently opened tab.
+- Columns cannot have symbols: # and other symbols used in metadata parser, maybe ; or # or | or , or more
 
 **Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.

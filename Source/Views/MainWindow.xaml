@@ -9,7 +9,7 @@
         MinHeight="225"
         MinWidth="1150"
         ScrollViewer.CanContentScroll="True"
-        Height="396">
+        Height="600">
     <Grid>
 
         <!-- Upper panel for all data-->
@@ -23,17 +23,18 @@
                         Background="White">
 
                 <!--File information-->
-                <GroupBox>
+                <GroupBox Background="#33FF0000">
                     <GroupBox.Header>File information</GroupBox.Header>
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>File path: </Label>
-                            <TextBlock x:Name="TextBlockFilePath"
-                                       Text=""
-                                       VerticalAlignment="Center"
-                                       TextWrapping="WrapWithOverflow"
-                                       Width="200"
-                                       TextTrimming="CharacterEllipsis" />
+                        <StackPanel Orientation="Vertical">
+                            <Label>File path:</Label>
+                            <TextBox x:Name="TextBlockFilePath"
+                                     Text="MyData\MyMedia.csv"
+                                     VerticalAlignment="Center"
+                                     TextWrapping="WrapWithOverflow"
+                                     Width="230"
+                                     IsReadOnly="True"
+                                     HorizontalAlignment="Left" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Delimiter: "></Label>
@@ -46,7 +47,7 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     Click="ButtonCurrentFileCollectionType_Click">
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Vertical">
                                     <Image x:Name="ImageCurrentFileCollectionType"
                                            Source="/Assets/TabIcons/other.png"
                                            Stretch="None"
@@ -59,11 +60,20 @@
                                 </StackPanel>
                             </Button>
                         </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <Label>Metadata:</Label>
+                            <TextBox x:Name="TextBlockMetadata"
+                                     Text="# WatchedFilmsTracker 0.015"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Center"
+                                     IsReadOnly="True"
+                                     Width="232" />
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
 
                 <!--Settings border-->
-                <GroupBox>
+                <GroupBox Background="#330010FF">
                     <GroupBox.Header>Settings</GroupBox.Header>
 
                     <StackPanel Orientation="Vertical">
@@ -131,7 +141,7 @@
                 </GroupBox>
 
                 <!--Total Statistics border-->
-                <GroupBox>
+                <GroupBox Background="#334DFF00">
                     <GroupBox.Header>Total statistics</GroupBox.Header>
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal"
@@ -158,7 +168,8 @@
                     </StackPanel>
                 </GroupBox>
 
-                <GroupBox>
+                <!--Decadal Statistics border-->
+                <GroupBox Background="#33E600FF">
                     <GroupBox.Header>Decadal statistics</GroupBox.Header>
 
                     <Grid>
@@ -169,7 +180,8 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox>
+                <!--Yearly Statistics border-->
+                <GroupBox Background="#3300FFA7">
                     <GroupBox.Header>Yearly statistics</GroupBox.Header>
                     <Grid>
                         <DataGrid x:Name="yearlyGrid"

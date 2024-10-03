@@ -215,6 +215,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void ReadTextFile(string filePath)
         {
             reader = new CSVreader();
+            
             ObservableCollectionOfRecords = reader.ReadCsvReturnObservableCollection(filePath);
             columns = reader.GetColumns();
             DataGridManager = new DataGridManager(workingTextFile.DataGrid);
