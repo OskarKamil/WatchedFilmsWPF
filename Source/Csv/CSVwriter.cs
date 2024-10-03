@@ -25,7 +25,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             }
         }
 
-        public void Close()
+        public void CloseFile()
         {
             filmsWriter.Close();
         }

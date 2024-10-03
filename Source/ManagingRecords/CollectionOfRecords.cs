@@ -15,20 +15,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     {
         public ObservableCollection<RecordModel> ObservableCollectionOfRecords { get; set; }
         internal DataGridManager DataGridManager { get; set; }
-        private List<DataGridTextColumn> columns;
+        public List<DataGridTextColumn> Columns;
         private string fileColumnHeaders;
-        private CSVreader reader;
         private WorkingTextFile workingTextFile;
-        private CSVwriter writer;
 
-        public CollectionOfRecords(string filePath, WorkingTextFile filmsTextFile)
+        public CollectionOfRecords(WorkingTextFile filmsTextFile)
         {
             this.workingTextFile = filmsTextFile;
 
-            if (string.IsNullOrEmpty(filePath))
-                ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
-            else
-                ReadTextFile(filePath);
+            ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -68,12 +63,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             //StartEditingNewRecord();
 
             workingTextFile.AnyChangeHappen();
-        }
-
-        public void CloseReader()
-        {
-            if (reader != null)
-                reader.CloseFile();
         }
 
         public void CreateColumnsInBlankFile()
@@ -212,15 +201,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
-        public void ReadTextFile(string filePath)
-        {
-            reader = new CSVreader();
-            
-            ObservableCollectionOfRecords = reader.ReadCsvReturnObservableCollection(filePath);
-            columns = reader.GetColumns();
-            DataGridManager = new DataGridManager(workingTextFile.DataGrid);
-            DataGridManager.BuildColumnsFromList(columns);
-        }
+   
 
         public void RefreshFurtherIDs(int idOfSelected)
         {
@@ -238,14 +219,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
-        public void StartWriter(string newFilePath)
-        {
-            if (reader != null) CloseReader();
-            writer = new CSVwriter(newFilePath);
-
-            writer.SaveListIntoCSV(ObservableCollectionOfRecords.ToList(), workingTextFile.DataGrid);
-            CloseWriter();
-        }
+     
 
         internal void RenameColumn()
         {
@@ -280,11 +254,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             //throw new NotImplementedException();
             return;
-        }
-
-        private void CloseWriter()
-        {
-            writer?.Close();
         }
 
         private void ShiftBindingAfterDeletion(int index)

@@ -12,17 +12,18 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         private int _maxColumns;
         private ObservableCollection<RecordModel> _records;
         private string fileColumns;
-        private string filePath;
+        private string filepath;
         private StreamReader filmsFile;
         private IEnumerator<string> iterator;
         private string lineFromFile;
         private List<string> valuesFromLine;
 
-        public CSVreader()
+        public CSVreader(string filepath)
         {
             _maxColumns = 0;
             _columns = new List<DataGridTextColumn>();
             _records = new ObservableCollection<RecordModel>();
+            this.filepath = filepath;
         }
 
         public void CloseFile()
@@ -42,7 +43,12 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 
         public string GetFilePath()
         {
-            return filePath;
+            return filepath;
+        }
+
+        public ObservableCollection<RecordModel> GetObservableCollection()
+        {
+            return new ObservableCollection<RecordModel>(_records);
         }
 
         public ObservableCollection<RecordModel> GetRecords()
@@ -82,9 +88,9 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             iterator = valuesFromLine.GetEnumerator();
         }
 
-        public ObservableCollection<RecordModel> ReadCsvReturnObservableCollection(string filePath)
+        public void ReadFile()
         {
-            var lines = File.ReadAllLines(filePath);
+            var lines = File.ReadAllLines(filepath);
             bool headersProcessed = false;
 
             foreach (var line in lines)
@@ -125,9 +131,6 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             }
 
             FillEmptyValues();
-
-            // Return an ObservableCollection of FilmRecord
-            return new ObservableCollection<RecordModel>(_records);
         }
 
         private void FillEmptyValues()

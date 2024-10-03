@@ -42,6 +42,8 @@
 - When removing column, set selection in the same way when removing a row.
 - ctrl+w to close currently opened tab.
 - Columns cannot have symbols: # and other symbols used in metadata parser, maybe ; or # or | or , or more
+- After pressing SaveAs, open this new file in a tab.
+- When closing a new unsaved file, additionally ask if SaveLocally.
 
 **Upcoming (SOON):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.

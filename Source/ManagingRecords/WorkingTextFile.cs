@@ -12,6 +12,7 @@ using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.RecordValueValidator;
+using WatchedFilmsTracker.Source.Services.Csv;
 using WatchedFilmsTracker.Source.Statistics;
 using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.Models.CommonCollections;
@@ -74,7 +75,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid = CreateGridInTheUI();
 
-            CollectionOfRecords = new CollectionOfRecords("", this);
+            CollectionOfRecords = new CollectionOfRecords(this);
+
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
 
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
@@ -88,7 +90,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid = CreateGridInTheUI();
             FilePath = filePath;
-            CollectionOfRecords = new CollectionOfRecords(filePath, this);
+            CollectionOfRecords = new CollectionOfRecords(this);
+
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                ReadTextFile();
+            }
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
 
@@ -124,8 +131,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             StatisticsManager = new StatisticsManager(GetObservableCollectionOfRecords());
 
-            CollectionOfRecords.CloseReader();
-
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
@@ -150,23 +155,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionHasChanged?.Invoke(this, EventArgs.Empty);
             TabsWorkingTextFiles.MainWindow.UpdateStatistics();
         }
-
-        //        // Search film on the internet menu item
-        //        MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
-        //        {
-        //            Header = "Search film on the internet",
-        //            Icon = new Image()
-        //            {
-        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
-        //            }
-        //        };
-        //        searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
-        //        {
-        //            string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
-        //            string url = $"https://www.google.com/search?q={query}";
-        //            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        //        };
-        //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
 
         public DataGrid CreateGridInTheUI()
         {
@@ -203,6 +191,22 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return dataGrid;
         }
 
+        //        // Search film on the internet menu item
+        //        MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
+        //        {
+        //            Header = "Search film on the internet",
+        //            Icon = new Image()
+        //            {
+        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
+        //            }
+        //        };
+        //        searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
+        //        {
+        //            string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
+        //            string url = $"https://www.google.com/search?q={query}";
+        //            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        //        };
+        //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
         public bool DoesExistInLocalMyDataFolder()
         {
             if (string.IsNullOrEmpty(FilePath))
@@ -299,13 +303,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
             {
-                CollectionOfRecords = new CollectionOfRecords("", this);
-                CollectionOfRecords.ReadTextFile(FilePath);
+                CollectionOfRecords = new CollectionOfRecords(this);
+                ReadTextFile();
             }
             else
             {
-                CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
-                CollectionOfRecords.ReadTextFile(FilePath);
+                // CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
+                //CollectionOfRecords.ReadTextFile(FilePath);
             }
             AfterFileHasBeenLoaded();
         }
@@ -316,8 +320,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 if (TryToCloseFile())
                 {
-                    CollectionOfRecords = new CollectionOfRecords("", this);
-                    CollectionOfRecords.ReadTextFile(FilePath);
+                    CollectionOfRecords = new CollectionOfRecords(this);
+                    ReadTextFile();
                 }
                 else
                 {
@@ -326,10 +330,21 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
             else
             {
-                CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
-                CollectionOfRecords.ReadTextFile(FilePath);
+                CollectionOfRecords = new CollectionOfRecords(this);
+                ReadTextFile();
             }
             AfterFileHasBeenLoaded();
+        }
+
+        public void ReadTextFile()
+        {
+            CSVreader reader = new CSVreader(FilePath);
+            reader.ReadFile();
+            CollectionOfRecords.ObservableCollectionOfRecords = reader.GetObservableCollection();
+            CollectionOfRecords.Columns = reader.GetColumns();
+            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
+            CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
+            reader.CloseFile();
         }
 
         /// <returns>
@@ -346,7 +361,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 return saved;
             }
 
-            CollectionOfRecords.StartWriter(filePath);
+            WriteTextFile();
             UnsavedChanges = false;
 
             OnSaveCompleted(CollectionOfRecords);
@@ -374,8 +389,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                CollectionOfRecords.StartWriter(saveFileDialog.FileName);
-                OpenFilepath(saveFileDialog.FileName);
+                WriteTextFile(saveFileDialog.FileName);
+                // OpenFilepath(saveFileDialog.FileName);
                 UnsavedChanges = false;
                 return true;
             }
@@ -384,7 +399,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void SaveFileAtLocation(string filepath)
         {
-            CollectionOfRecords.StartWriter(filepath);
+            WriteTextFile(filepath);
             OpenFilepath(filepath);
         }
 
@@ -463,6 +478,21 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
             RaiseOnClosingFile();
             return UnsavedChanges;
+        }
+
+        public void WriteTextFile()
+        {
+            CSVwriter writer = new CSVwriter(FilePath);
+            writer.SaveListIntoCSV(CollectionOfRecords.ObservableCollectionOfRecords.ToList(), DataGrid);
+            writer.CloseFile();
+        }
+
+        public void WriteTextFile(string newFilepath)
+        {
+            CSVwriter writer = new CSVwriter(newFilepath);
+            FilePath = newFilepath;
+            writer.SaveListIntoCSV(CollectionOfRecords.ObservableCollectionOfRecords.ToList(), DataGrid);
+            writer.CloseFile();
         }
 
         private static void TryToOpenFilepath(string? filepath)
