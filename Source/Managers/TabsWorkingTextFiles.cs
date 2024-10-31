@@ -101,7 +101,7 @@ namespace WatchedFilmsTracker.Source.Managers
             int indexOfTab = TabItemsWorkingFiles.IndexOf(selectedTab);
             if (indexOfTab == -1)
                 return null;
-            Debug.WriteLine($"index of tab is {indexOfTab}, and number of tabs is: {TabItemsWorkingFiles.Count}, or {TabControl.Items.Count} or {WorkingTextFiles.Count}");
+            // Debug.WriteLine($"index of tab is {indexOfTab}, and number of tabs is: {TabItemsWorkingFiles.Count}, or {TabControl.Items.Count} or {WorkingTextFiles.Count}");
             return WorkingTextFiles[indexOfTab];
         }
 
@@ -116,10 +116,10 @@ namespace WatchedFilmsTracker.Source.Managers
             Image headerImage = workingTextFile.CommonCollectionType.GetIconImage();
 
             string tabText;
-            if (string.IsNullOrEmpty(workingTextFile.FilePath))
+            if (string.IsNullOrEmpty(workingTextFile.Filepath))
                 tabText = "new collection";
             else
-                tabText = Path.GetFileName(workingTextFile.FilePath);
+                tabText = Path.GetFileName(workingTextFile.Filepath);
 
             TextBlock textBlock = new TextBlock
             {
@@ -194,7 +194,6 @@ namespace WatchedFilmsTracker.Source.Managers
 
         private static void UpdateTabText(object? sender, EventArgs e)
         {
-            Debug.WriteLine("update tab text called");
             WorkingTextFile workingTextFile = (WorkingTextFile)sender;
             int tabIndex = WorkingTextFiles.IndexOf(workingTextFile);
             if (tabIndex != -1)
@@ -204,14 +203,10 @@ namespace WatchedFilmsTracker.Source.Managers
 
                 if (textBlock != null)
                 {
-                    Debug.WriteLine("textlbock not null");
-
                     string currentTabText = textBlock.Text;
 
                     if (workingTextFile.UnsavedChanges)
                     {
-                        Debug.WriteLine("unsaved changes yes");
-
                         if (!currentTabText.StartsWith("* "))
                         {
                             textBlock.Text = "* " + currentTabText;

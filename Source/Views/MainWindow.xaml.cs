@@ -21,7 +21,7 @@ namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
-        private const string SearchBoxDefaultText = "Film title, year, specific words";
+        private const string SearchBoxDefaultText = "Filter results";
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
@@ -38,6 +38,7 @@ namespace WatchedFilmsTracker
             InitializeComponent(); // must be first line always
             viewModel = new MainWindowViewModel();
             this.DataContext = viewModel;
+
             searchTextBox.Text = SearchBoxDefaultText;
 
             Closing += MainWindow_Closing; // override closing window
@@ -104,8 +105,6 @@ namespace WatchedFilmsTracker
                 UpdateCommonCollectionElements(null, null);
             };
 
-            
-
             TabsWorkingTextFiles.NewFileLoaded += (sender, e) =>
             {
                 e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;
@@ -140,7 +139,16 @@ namespace WatchedFilmsTracker
 
         public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
         {
-            return TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+            WorkingTextFile currentlyOpened = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+
+            TextBoxCommentsBefore.DataContext = currentlyOpened.Metadata;
+            TextBoxProgramComments.DataContext = currentlyOpened.Metadata;
+            TextBoxCommentsAfter.DataContext = currentlyOpened.Metadata;
+            TextBoxFilePath.DataContext = currentlyOpened;
+            LabelAverageRatingRecord.DataContext = currentlyOpened.CollectionOfRecords;
+            LabelTotalRecordsNumber.DataContext = currentlyOpened.CollectionOfRecords;
+
+            return currentlyOpened;
         }
 
         public void UpdateNumberOfFilms()
@@ -157,16 +165,15 @@ namespace WatchedFilmsTracker
                 stageTitle = "*";
             }
 
-            if (GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords is null || string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().FilePath))
+            if (GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords is null || string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().Filepath))
             {
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
-                Debug.WriteLine("collection was null or filepath empty");
-                Debug.WriteLine($"it is:{GetCurrentlyOpenedTabWorkingTextFile().FilePath} ");
+
             }
             else
             {
-                stageTitle += GetCurrentlyOpenedTabWorkingTextFile().FilePath + " - " + ProgramInformation.PROGRAM_NAME;
-                Debug.WriteLine("collection have a proper name");
+                stageTitle += GetCurrentlyOpenedTabWorkingTextFile().Filepath + " - " + ProgramInformation.PROGRAM_NAME;
+          
             }
 
             this.Title = stageTitle;
@@ -296,8 +303,7 @@ namespace WatchedFilmsTracker
 
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            Debug.WriteLine("table scroled");
-            // todo
+
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -349,13 +355,13 @@ namespace WatchedFilmsTracker
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().FilePath))
+            if (File.Exists(TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath))
             {
-                Process.Start("explorer.exe", "/select, " + TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().FilePath);
+                Process.Start("explorer.exe", "/select, " + TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath);
             }
             else
             {
-                Debug.WriteLine($"{TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().FilePath} cannot be found");
+                Debug.WriteLine($"{TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath} cannot be found");
             }
         }
 
@@ -422,12 +428,12 @@ namespace WatchedFilmsTracker
 
         private void RevertChangesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().FilePath))
+            if (string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().Filepath))
             {
                 GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.ObservableCollectionOfRecords.Clear();
             }
             else
-                OpenLastOpenedFiles(GetCurrentlyOpenedTabWorkingTextFile().FilePath);
+                OpenLastOpenedFiles(GetCurrentlyOpenedTabWorkingTextFile().Filepath);
             searchManager.SearchFilms();
         }
 
@@ -533,7 +539,7 @@ namespace WatchedFilmsTracker
 
         private void UpdateFileInformation()
         {
-            TextBlockFilePath.Text = GetCurrentlyOpenedTabWorkingTextFile().FilePath;
+            TextBoxFilePath.Text = GetCurrentlyOpenedTabWorkingTextFile().Filepath;
             LabelCurrentDelimiter.Content = "[tab]";
         }
 

@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Data;
-using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
@@ -53,6 +51,17 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             }
         }
 
+        public DataGridColumn GetColumnByDisplayIndex(int columnDisplayIndex)
+        {
+            return DataGrid.Columns.FirstOrDefault(col => col.DisplayIndex == columnDisplayIndex);
+        }
+
+        public int GetColumnIdByDisplayIndex(int columnDisplayIndex)
+        {
+            var column = DataGrid.Columns.FirstOrDefault(col => col.DisplayIndex == columnDisplayIndex);
+            return column != null ? DataGrid.Columns.IndexOf(column) : -1;
+        }
+
         public int GetIdOfColumnByHeader(string header)
         {
             int columnIndex = -1;
@@ -64,6 +73,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                     break;
                 }
             }
+
             return columnIndex;
         }
 

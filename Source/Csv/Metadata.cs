@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace WatchedFilmsTracker.Source.Csv
 {
@@ -11,27 +6,55 @@ namespace WatchedFilmsTracker.Source.Csv
     {
         public string AllComment { get; set; }
         public string Comment { get; set; }
+        public string CommentAfter { get; set; }
+        public string CommentBefore { get; set; }
         public int CommentLines { get; set; }
-        public string Filepath { get; set; }
         public string ProgramVersion { get; set; }
 
         public Dictionary<string, string> Values { get; set; }
 
-        public Metadata(string filepath)
+        private StringBuilder _comment;
+        private StringBuilder _commentAfter;
+        private StringBuilder _commentBefore;
+
+        public Metadata(List<string> commentLines)
         {
-            Filepath = filepath;
-            CommentLines = ReadAllCommentLines().Count();
+            _commentBefore = new StringBuilder();
+            _commentAfter = new StringBuilder();
+            _comment = new StringBuilder();
+
+            CommentBefore = "";
+            Comment = "";
+            CommentAfter = "";
+            ProcessLines(commentLines);
         }
 
-        public List<string> ReadAllCommentLines()
+        private void ProcessLines(List<string> commentLines)
         {
-            // read all lines starting with #
-            // save all of them to allcomment,
-            //save compatible to comment
-            
-             AllComment = null;
+            if (commentLines != null)
+            {
+                bool programCommentRead = false;
+                foreach (string commentLine in commentLines)
+                {
+                    if (commentLine.StartsWith("# {\"WatchedFilmsTracker\":") && !programCommentRead)
+                    {
+                        _comment.AppendLine(commentLine);
+                        programCommentRead = true;
+                    }
+                    else if (!programCommentRead)
+                    {
+                        _commentBefore.AppendLine(commentLine);
+                    }
+                    else
+                    {
+                        _commentAfter.AppendLine(commentLine);
+                    }
+                }
 
-            return null;
+                Comment = _comment.ToString().Trim();
+                CommentBefore = _commentBefore.ToString().Trim();
+                CommentAfter = _commentAfter.ToString().Trim();
+            }
         }
     }
 }

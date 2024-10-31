@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Controls;
+using WatchedFilmsTracker.Source.Csv;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.ManagingRecords;
 
@@ -16,6 +17,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         private StreamReader filmsFile;
         private IEnumerator<string> iterator;
         private string lineFromFile;
+        public Metadata Metadata;
         private List<string> valuesFromLine;
 
         public CSVreader(string filepath)
@@ -92,11 +94,29 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         {
             var lines = File.ReadAllLines(filepath);
             bool headersProcessed = false;
+            bool commentsProcessed = false;
+            var commentLines = new List<string>();
 
             foreach (var line in lines)
             {
+                // read comments
+                if (!commentsProcessed)
+                {
+                    if (line.StartsWith("#"))
+                    {
+                        commentLines.Add(line);
+                        continue;
+                    }
+                    else
+                    {
+                        Metadata = new Metadata(commentLines);
+                        commentsProcessed = true;
+                    }
+                }
+
                 var values = line.Split('\t').Select(v => v.Trim()).ToList();
 
+                // read headers
                 if (!headersProcessed)
                 {
                     foreach (var header in values)
@@ -111,6 +131,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                     continue;
                 }
 
+                // read data
                 var cells = new List<Cell>();
 
                 for (int i = 0; i < _columns.Count; i++)

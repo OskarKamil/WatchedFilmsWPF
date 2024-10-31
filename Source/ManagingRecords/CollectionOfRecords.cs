@@ -6,7 +6,6 @@ using System.Windows.Data;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.ManagingRecords;
-using WatchedFilmsTracker.Source.Services.Csv;
 using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
@@ -14,8 +13,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     public class CollectionOfRecords
     {
         public ObservableCollection<RecordModel> ObservableCollectionOfRecords { get; set; }
-        internal DataGridManager DataGridManager { get; set; }
         public List<DataGridTextColumn> Columns;
+        internal DataGridManager DataGridManager { get; set; }
         private string fileColumnHeaders;
         private WorkingTextFile workingTextFile;
 
@@ -60,7 +59,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     newRecord.Cells[columnID].Value = formattedString;
             }
 
-            //StartEditingNewRecord();
+            StartEditingNewRecord();
 
             workingTextFile.AnyChangeHappen();
         }
@@ -201,8 +200,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
-   
-
         public void RefreshFurtherIDs(int idOfSelected)
         {
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
@@ -218,8 +215,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 }
             }
         }
-
-     
 
         internal void RenameColumn()
         {
@@ -274,19 +269,28 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         private void StartEditingNewRecord()
         {
-            if (DataGridManager.GetNumberOfColumns() == 0)
+            Debug.WriteLine("editing new record started");
+            if (DataGridManager.GetNumberOfColumns() < 2)
                 return;
 
-            int columnID = DataGridManager.GetIdOfColumnByHeader("English title");
-
-            Debug.WriteLine($"no of columns {DataGridManager.GetNumberOfColumns()}, columnId of english title {columnID}, number of items in datagrid {workingTextFile.DataGrid.Items.Count}, no of columns nin datagrid {workingTextFile.DataGrid.Columns.Count}");
+            // edit column with header "English title"
+            // int columnID = DataGridManager.GetIdOfColumnByHeader("English title");
 
             //number of items in datagrid is 0, check why
 
-            if (columnID != -1)
-                workingTextFile.DataGrid.CurrentCell = new DataGridCellInfo(workingTextFile.DataGrid.Items[workingTextFile.DataGrid.Items.Count - 1], workingTextFile.DataGrid.Columns[columnID]);
+            int columnIndexToEdit = DataGridManager.GetColumnIdByDisplayIndex(1);
+            Debug.WriteLine($"no of columns {DataGridManager.GetNumberOfColumns()}, columnId of english title {columnIndexToEdit}, number of items in datagrid {workingTextFile.DataGrid.Items.Count}, no of columns nin datagrid {workingTextFile.DataGrid.Columns.Count}");
+            if (columnIndexToEdit > 0)
+            {
+                Debug.WriteLine("editing record should started");
 
-            workingTextFile.DataGrid.BeginEdit();
+                workingTextFile.DataGrid.CurrentCell = new DataGridCellInfo(workingTextFile.DataGrid.Items[workingTextFile.DataGrid.Items.Count - 1], workingTextFile.DataGrid.Columns[columnIndexToEdit]);
+                workingTextFile.DataGrid.BeginEdit();
+            }
+            else
+            {
+                Debug.WriteLine("requirements not met");
+            }
         }
     }
 }

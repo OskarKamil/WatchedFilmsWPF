@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using WatchedFilmsTracker.Source.Buttons;
+using WatchedFilmsTracker.Source.Csv;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
@@ -39,11 +40,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         }
 
         public DataGrid DataGrid { get; set; }
-
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
-
         public Grid Grid { get; set; }
-
+        public Metadata Metadata { get; set; }
         public StatisticsManager StatisticsManager { get; set; }
 
         public bool UnsavedChanges
@@ -59,8 +58,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
-        public string FilePath;
-
+        public string Filepath;
         private CommonCollectionType _commonCollectionType;
 
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
@@ -84,15 +82,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             AfterFileHasBeenLoaded();
         }
 
-        public WorkingTextFile(string filePath)
+        public WorkingTextFile(string fileath)
         {
             CommonCollectionType = CommonCollections.GetCommonCollectionByName(CollectionType.Other);
 
             DataGrid = CreateGridInTheUI();
-            FilePath = filePath;
+            Filepath = fileath;
             CollectionOfRecords = new CollectionOfRecords(this);
 
-            if (!string.IsNullOrEmpty(filePath))
+            if (!string.IsNullOrEmpty(fileath))
             {
                 ReadTextFile();
             }
@@ -114,7 +112,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void AfterFileHasBeenLoaded()
         {
             UnsavedChanges = false;
-            GetObservableCollectionOfRecords().CollectionChanged += filmsListHasChanged;
+            GetObservableCollectionOfRecords().CollectionChanged += ListHasChanged;
 
             foreach (var filmRecord in GetObservableCollectionOfRecords())
             {
@@ -125,7 +123,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid.CellEditEnding += CellEditEnding;
 
-            SettingsManager.LastPath = FilePath;
+            SettingsManager.LastPath = Filepath;
 
             CollectionOfRecords.CreateColumnsWithIds();
 
@@ -143,7 +141,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid.SelectedCellsChanged += (obs, args) =>
             {
-                Debug.WriteLine("Selected cells changes, or deselected if filtered");
                 ButtonStateManager.UpdateSelectedCells(this);
             };
         }
@@ -209,15 +206,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
         public bool DoesExistInLocalMyDataFolder()
         {
-            if (string.IsNullOrEmpty(FilePath))
+            if (string.IsNullOrEmpty(Filepath))
 
             {
                 return false;
             }
             else
             {
-                string filePath = Directory.GetParent(FilePath).Name;
-                Debug.WriteLine($"{filePath} is folder where the file is in");
+                string filePath = Directory.GetParent(Filepath).Name;
                 if (filePath == "MyData")
                     return true;
                 else
@@ -227,7 +223,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public bool DoesExistOnDisk()
         {
-            if (string.IsNullOrEmpty(FilePath))
+            if (string.IsNullOrEmpty(Filepath))
 
             {
                 return false;
@@ -338,8 +334,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void ReadTextFile()
         {
-            CSVreader reader = new CSVreader(FilePath);
+            CSVreader reader = new CSVreader(Filepath);
             reader.ReadFile();
+            Metadata = reader.Metadata;
             CollectionOfRecords.ObservableCollectionOfRecords = reader.GetObservableCollection();
             CollectionOfRecords.Columns = reader.GetColumns();
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
@@ -352,7 +349,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         /// </returns>
         public bool Save()
         {
-            string filePath = FilePath;
+            string filePath = Filepath;
             bool saved = false;
 
             if (string.IsNullOrEmpty(filePath) || !Path.Exists(Path.GetDirectoryName(filePath)))
@@ -378,9 +375,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             saveFileDialog.Title = "Save file as";
             saveFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
 
-            if (!string.IsNullOrEmpty(FilePath))
+            if (!string.IsNullOrEmpty(Filepath))
             {
-                string parentDirectory = Directory.GetParent(FilePath)?.FullName;
+                string parentDirectory = Directory.GetParent(Filepath)?.FullName;
                 if (!string.IsNullOrEmpty(parentDirectory))
                 {
                     saveFileDialog.InitialDirectory = parentDirectory;
@@ -441,7 +438,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 // New file not on disk or autosave off
                 // Ask to save because file not on disk, could be a draft so ask
                 // Autosave off so ask
-                if (string.IsNullOrEmpty(FilePath) || SettingsManager.AutoSave == false)
+                if (string.IsNullOrEmpty(Filepath) || SettingsManager.AutoSave == false)
                 {
                     SaveChangesDialog.CustomDialogResult result = ShowSaveChangesDialog();
                     if (result == SaveChangesDialog.CustomDialogResult.Save)
@@ -482,7 +479,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void WriteTextFile()
         {
-            CSVwriter writer = new CSVwriter(FilePath);
+            CSVwriter writer = new CSVwriter(Filepath);
             writer.SaveListIntoCSV(CollectionOfRecords.ObservableCollectionOfRecords.ToList(), DataGrid);
             writer.CloseFile();
         }
@@ -490,7 +487,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void WriteTextFile(string newFilepath)
         {
             CSVwriter writer = new CSVwriter(newFilepath);
-            FilePath = newFilepath;
+            Filepath = newFilepath;
             writer.SaveListIntoCSV(CollectionOfRecords.ObservableCollectionOfRecords.ToList(), DataGrid);
             writer.CloseFile();
         }
@@ -525,15 +522,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
-        private void filmsListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void ListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            Debug.Print("list changed listener");
+           // Debug.WriteLine("list changed listener");
             ButtonStateManager.UpdateAtLeastOneRecord(this);
-            AnyChangeHappen();
-        }
-
-        private void FilmsListHasChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
                 // New items added to the list
@@ -558,9 +550,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     }
                 }
             }
+            AnyChangeHappen();
         }
 
-        private void RaiseOnClosingFile()
+           private void RaiseOnClosingFile()
         {
             Debug.WriteLine("closing file event raised");
             FileClosing?.Invoke(this, EventArgs.Empty);

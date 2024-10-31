@@ -27,14 +27,17 @@
                     <GroupBox.Header>File information</GroupBox.Header>
                     <StackPanel>
                         <StackPanel Orientation="Vertical">
-                            <Label>File path:</Label>
-                            <TextBox x:Name="TextBlockFilePath"
-                                     Text="MyData\MyMedia.csv"
-                                     VerticalAlignment="Center"
-                                     TextWrapping="WrapWithOverflow"
-                                     Width="230"
-                                     IsReadOnly="True"
-                                     HorizontalAlignment="Left" />
+
+                            <GroupBox>
+                                <GroupBox.Header>File path</GroupBox.Header>
+                                <TextBox x:Name="TextBoxFilePath"
+                                         Text="{Binding Filepath}"
+                                         VerticalAlignment="Center"
+                                         TextWrapping="WrapWithOverflow"
+                                         Width="230"
+                                         IsReadOnly="True"
+                                         HorizontalAlignment="Left" />
+                            </GroupBox>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Delimiter: "></Label>
@@ -61,13 +64,36 @@
                             </Button>
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
-                            <Label>Metadata:</Label>
-                            <TextBox x:Name="TextBlockMetadata"
-                                     Text="# WatchedFilmsTracker 0.015"
-                                     HorizontalAlignment="Left"
-                                     VerticalAlignment="Center"
-                                     IsReadOnly="True"
-                                     Width="232" />
+                            <GroupBox>
+                                <GroupBox.Header>Comments before</GroupBox.Header>
+                                <TextBox x:Name="TextBoxCommentsBefore"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         IsReadOnly="True"
+                                         TextWrapping="WrapWithOverflow"
+                                         Width="232"
+                                         Text="{Binding CommentBefore}" />
+                            </GroupBox>
+                            <GroupBox>
+                                <GroupBox.Header>Comments</GroupBox.Header>
+                                <TextBox x:Name="TextBoxProgramComments"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         TextWrapping="WrapWithOverflow"
+                                         IsReadOnly="True"
+                                         Width="232"
+                                         Text="{Binding Comment}" />
+                            </GroupBox>
+                            <GroupBox>
+                                <GroupBox.Header>Comments after</GroupBox.Header>
+                                <TextBox x:Name="TextBoxCommentsAfter"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         IsReadOnly="True"
+                                         TextWrapping="WrapWithOverflow"
+                                         Width="232"
+                                         Text="{Binding CommentAfter}" />
+                            </GroupBox>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
@@ -93,7 +119,7 @@
                             <GroupBox.Header>On startup</GroupBox.Header>
                             <StackPanel Orientation="Vertical">
                                 <CheckBox x:Name="scrollLastPositionBox"
-                                          Content="Scroll to the last film position"
+                                          Content="Scroll to the bottom of list"
                                           Click="CheckBoxLastFilmPosition" />
                                 <CheckBox x:Name="updateStartUpBox"
                                           Content="Check for updates"
@@ -142,7 +168,7 @@
 
                 <!--Total Statistics border-->
                 <GroupBox Background="#334DFF00">
-                    <GroupBox.Header>Total statistics</GroupBox.Header>
+                    <GroupBox.Header>Collection statistics</GroupBox.Header>
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal"
                                     Visibility="Collapsed">
@@ -157,38 +183,39 @@
                                    Foreground="Red" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Label>Total films:</Label>
-                            <Label x:Name="filmsTotalLabel"
-                                   Content="{Binding TotalFilmsWatched}" />
+                            <Label>Number of records:</Label>
+                            <Label x:Name="LabelTotalRecordsNumber"
+                                   Content="{Binding ObservableCollectionOfRecords.Count}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Label>Average rating per film:</Label>
-                            <Label x:Name="averageRatingLabel">No data</Label>
+                            <Label>Average rating per record:</Label>
+                            <Label x:Name="LabelAverageRatingRecord"
+                                   Content="{Binding ObservableCollectionOfRecords.Count}"></Label>
                         </StackPanel>
+                        <Button>Add custom statistics</Button>
+                        <!--Decadal Statistics border-->
+                        <GroupBox Background="#33E600FF">
+                            <GroupBox.Header>Decadal statistics</GroupBox.Header>
+
+                            <Grid>
+                                <DataGrid x:Name="decadalGrid"
+                                          CanUserResizeColumns="False"
+                                          CanUserResizeRows="False"
+                                          AutoGenerateColumns="False" />
+                            </Grid>
+                        </GroupBox>
+
+                        <!--Yearly Statistics border-->
+                        <GroupBox Background="#3300FFA7">
+                            <GroupBox.Header>Yearly statistics</GroupBox.Header>
+                            <Grid>
+                                <DataGrid x:Name="yearlyGrid"
+                                          CanUserResizeColumns="False"
+                                          CanUserResizeRows="False"
+                                          AutoGenerateColumns="False" />
+                            </Grid>
+                        </GroupBox>
                     </StackPanel>
-                </GroupBox>
-
-                <!--Decadal Statistics border-->
-                <GroupBox Background="#33E600FF">
-                    <GroupBox.Header>Decadal statistics</GroupBox.Header>
-
-                    <Grid>
-                        <DataGrid x:Name="decadalGrid"
-                                  CanUserResizeColumns="False"
-                                  CanUserResizeRows="False"
-                                  AutoGenerateColumns="False" />
-                    </Grid>
-                </GroupBox>
-
-                <!--Yearly Statistics border-->
-                <GroupBox Background="#3300FFA7">
-                    <GroupBox.Header>Yearly statistics</GroupBox.Header>
-                    <Grid>
-                        <DataGrid x:Name="yearlyGrid"
-                                  CanUserResizeColumns="False"
-                                  CanUserResizeRows="False"
-                                  AutoGenerateColumns="False" />
-                    </Grid>
                 </GroupBox>
             </StackPanel>
 
@@ -380,7 +407,7 @@
                     <DockPanel>
                         <GroupBox x:Name="groupBoxQuickActions"
                                   HorizontalAlignment="Left">
-                            <GroupBox.Header>Quick actions</GroupBox.Header>
+                            <GroupBox.Header>Table rows</GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
                                 <Button x:Name="buttonNewFilmRecord"
                                         HorizontalAlignment="Left"
@@ -537,7 +564,7 @@
                           DockPanel.Dock="Left"
                           MaxWidth="{Binding Width, ElementName=groupBoxQuickActions}"
                           Margin="0,0,0,30">
-                    <GroupBox.Header>List of watched films data</GroupBox.Header>
+                    <GroupBox.Header>Collection data</GroupBox.Header>
                     <TabControl x:Name="TabControlMainWindow">
                     </TabControl>
                 </GroupBox>

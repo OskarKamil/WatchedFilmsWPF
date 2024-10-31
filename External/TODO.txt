@@ -1,5 +1,7 @@
-**Immediate (NOW):**
-- When reading a file, check for [commoncollection type, for example [films]].
+**Immediate (This update):**
+- Average rating statistics, fix binding.
+- Predefined statistics. Films are: group by decade 10*10 +"s", count of decade films, average rating 0.## + "/4.00".
+- Prefefined statistics. Games are: group by Platform, etc.
 - When saving a file, save [films] in first or any column header. Add version number.
 - When saving a file. Abstract which columns are not saved and what metadata [s] etc are not saved in column headers.
 - Fix closing program.
@@ -42,10 +44,20 @@
 - When removing column, set selection in the same way when removing a row.
 - ctrl+w to close currently opened tab.
 - Columns cannot have symbols: # and other symbols used in metadata parser, maybe ; or # or | or , or more
+	- Cell values cannot be delimiters.
+	- Column headers cannot be delimiters. or special symbols like ; or # or | or ,.
+	- Metadata comment will point to columns by their ID.
 - After pressing SaveAs, open this new file in a tab.
 - When closing a new unsaved file, additionally ask if SaveLocally.
+- (Maybe 0.016) Custom statistics. Basically options like group by (years), group by decade (decades), sum [column id], average [column id].
+- For unsaved changes in tabs, use pencil icon instead of * so the tab doesn't expand. If saved, make it opacity 1.0.
+- Set up metadata model, statistics etc in JSON file.
+	- Store common collection type, statistics sql code etc.
+	- Example: # {"WatchedFilmsTracker": "0.015", "common_collection_type": "films", "statistics1":{"group_by_decade": 1, "count": 2, "average_max_4.00": 3}}.
+	- Reading and writing metadata.
+- Column titled "#" cannot be deleted.
 
-**Upcoming (SOON):**
+**Upcoming (Next update):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.
 - Create ID column.
 - When adding new record, make sure column #1 exists before focuing and doing edit mode.

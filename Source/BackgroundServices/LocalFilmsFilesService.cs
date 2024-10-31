@@ -81,7 +81,7 @@ namespace WatchedFilmsTracker.Source.BackgroundServices
 
         private void MoveOriginalFile()
         {
-            string fileToDelete = myFileManager.FilePath;
+            string fileToDelete = myFileManager.Filepath;
             CopyOriginalFile();
             File.Delete(fileToDelete);
         }
