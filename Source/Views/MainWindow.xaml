@@ -185,12 +185,12 @@
                         <StackPanel Orientation="Horizontal">
                             <Label>Number of records:</Label>
                             <Label x:Name="LabelTotalRecordsNumber"
-                                   Content="{Binding ObservableCollectionOfRecords.Count}" />
+                                   Content="{Binding TotalRecordsNumber}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Label>Average rating per record:</Label>
                             <Label x:Name="LabelAverageRatingRecord"
-                                   Content="{Binding ObservableCollectionOfRecords.Count}"></Label>
+                                   Content="{Binding FormattedAverageRating}"></Label>
                         </StackPanel>
                         <Button>Add custom statistics</Button>
                         <!--Decadal Statistics border-->
@@ -283,7 +283,7 @@
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                             <Button x:Name="buttonOpenLocally"
                                     VerticalAlignment="Top"
-                                    Click="OpenFileLocallyButton_Click">
+                                    Click="ButtonOpenFileLocally_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Assets/ButtonIcons/loadLocally.png"
                                            Stretch="None"
@@ -409,11 +409,11 @@
                                   HorizontalAlignment="Left">
                             <GroupBox.Header>Table rows</GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <Button x:Name="buttonNewFilmRecord"
+                                <Button x:Name="buttonAddRecord"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         UseLayoutRounding="False"
-                                        Click="AddNewRecord_Action">
+                                        Click="ButtonAddRecord_Action">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\addrecord.png"
                                                Stretch="None"

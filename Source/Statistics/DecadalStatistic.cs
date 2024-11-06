@@ -22,7 +22,7 @@ namespace WatchedFilmsTracker.Source.Models
             get => averageRating; set
             {
                 averageRating = value;
-                averageRatingString = StatisticsManager.FormattedRating(averageRating);
+                averageRatingString = CollectionStatistics.GetFormattedRating(averageRating);
             }
         }
 

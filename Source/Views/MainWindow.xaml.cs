@@ -52,7 +52,7 @@ namespace WatchedFilmsTracker
 
             ButtonManager.UnsavedChangeButtons.Add(buttonSave);
 
-            ButtonManager.OpenedFileButtons.Add(buttonNewFilmRecord);
+            ButtonManager.OpenedFileButtons.Add(buttonAddRecord);
             ButtonManager.OpenedFileButtons.Add(buttonClearAll);
             ButtonManager.OpenedFileButtons.Add(ButtonCurrentFileCollectionType);
 
@@ -145,15 +145,10 @@ namespace WatchedFilmsTracker
             TextBoxProgramComments.DataContext = currentlyOpened.Metadata;
             TextBoxCommentsAfter.DataContext = currentlyOpened.Metadata;
             TextBoxFilePath.DataContext = currentlyOpened;
-            LabelAverageRatingRecord.DataContext = currentlyOpened.CollectionOfRecords;
-            LabelTotalRecordsNumber.DataContext = currentlyOpened.CollectionOfRecords;
+            LabelAverageRatingRecord.DataContext = currentlyOpened.CollectionStatistics;
+            LabelTotalRecordsNumber.DataContext = currentlyOpened.CollectionStatistics;
 
             return currentlyOpened;
-        }
-
-        public void UpdateNumberOfFilms()
-        {
-            viewModel.TotalFilmsWatched = GetCurrentlyOpenedTabWorkingTextFile().StatisticsManager.GetNumberOfTotalWatchedFilms();
         }
 
         public void UpdateStageTitle()
@@ -168,12 +163,10 @@ namespace WatchedFilmsTracker
             if (GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords is null || string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().Filepath))
             {
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
-
             }
             else
             {
                 stageTitle += GetCurrentlyOpenedTabWorkingTextFile().Filepath + " - " + ProgramInformation.PROGRAM_NAME;
-          
             }
 
             this.Title = stageTitle;
@@ -212,11 +205,6 @@ namespace WatchedFilmsTracker
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
         }
 
-        private void AddNewRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
-        {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
-        }
-
         private void ApplyUserSettingsToTheProgram()
         {
             autosaveBox.IsChecked = SettingsManager.AutoSave;
@@ -229,6 +217,10 @@ namespace WatchedFilmsTracker
             this.Height = SettingsManager.WindowHeight;
         }
 
+        private void ButtonAddRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
+        {
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
+        }
         private void ButtonCurrentFileCollectionType_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -303,7 +295,6 @@ namespace WatchedFilmsTracker
 
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -380,7 +371,7 @@ namespace WatchedFilmsTracker
             }
         }
 
-        private void OpenFileLocallyButton_Click(object sender, RoutedEventArgs e)
+        private void ButtonOpenFileLocally_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = "Open file";

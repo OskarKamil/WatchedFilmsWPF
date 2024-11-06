@@ -27,6 +27,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public event EventHandler<EventArgs> RecordHasChanged;
+
         public void AddEmptyRecordToList()
         {
             RecordModel newRecord = new RecordModel(new List<Cell>());
@@ -34,7 +36,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             for (int i = 0; i < DataGridManager.DataGrid.Columns.Count; i++)
             {
                 {
-                    newRecord.Cells.Add(new Cell(string.Empty));
+                    newRecord.AddNewCell();
                 }
             }
 
@@ -42,7 +44,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (indexOfColumnID != -1)
                 newRecord.Cells[indexOfColumnID].NumberValue = (ObservableCollectionOfRecords.Count + 1);
 
-            newRecord.CellChanged += workingTextFile.FilmRecord_PropertyChanged;
+            newRecord.RecordCellTextHasChanged += newRecord_RecordCellTextHasChanged;
+
             ObservableCollectionOfRecords.Add(newRecord);
             workingTextFile.DataGrid.SelectedCells.Clear();
             if (workingTextFile.DataGrid.ItemsSource == ObservableCollectionOfRecords)
@@ -64,12 +67,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
-        public void CreateColumnsInBlankFile()
+        public void AddRecordFromText(string text, string delimiter)
         {
-            foreach (string columnHeader in workingTextFile.CommonCollectionType.DefaultColumnHeaders)
+            RecordModel newRecord = new RecordModel(new List<Cell>());
+            List<string> values = text.Split(delimiter).ToList();
+
+            //todo check why need to use columns.count instead of DataGridManager.DataGrid.Columns.Count
+            for (int i = 0; i < Columns.Count; i++)
             {
-                CreateNewColumn(columnHeader);
+                newRecord.AddNewCell(values[i]);
             }
+
+            //int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
+            //if (indexOfColumnID != -1)
+            //    newRecord.Cells[indexOfColumnID].NumberValue = (ObservableCollectionOfRecords.Count + 1);
+
+            ObservableCollectionOfRecords.Add(newRecord);
+
+            newRecord.RecordCellTextHasChanged += newRecord_RecordCellTextHasChanged;
         }
 
         public DataGridTextColumn CreateColumnsWithIds()
@@ -87,6 +102,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
             workingTextFile.UnsavedChanges = false;
             return newColumn;
+        }
+
+        public void CreateDefaultColumnsForCommonCollectionType()
+        {
+            foreach (string columnHeader in workingTextFile.CommonCollectionType.DefaultColumnHeaders)
+            {
+                CreateNewColumn(columnHeader);
+            }
         }
 
         public DataGridTextColumn CreateNewColumn(string columnHeader)
@@ -200,6 +223,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
+        public void PopulateListWithData(List<string> list, string delimiter)
+        {
+            foreach (string line in list)
+            {
+                AddRecordFromText(line, delimiter);
+            }
+        }
+
         public void RefreshFurtherIDs(int idOfSelected)
         {
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
@@ -245,6 +276,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        protected virtual void newRecord_RecordCellTextHasChanged(object sender, EventArgs e)
+        {
+            Debug.WriteLine("Record cell has changed, INVOKED FROM COLLECTION OF RECORDS");
+            RecordHasChanged?.Invoke(this, e);
+            return;
+        }
+
         private void AdjustColumnsRepresentation(object sender, EventArgs e)
         {
             //throw new NotImplementedException();
@@ -276,20 +314,17 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             // edit column with header "English title"
             // int columnID = DataGridManager.GetIdOfColumnByHeader("English title");
 
-            //number of items in datagrid is 0, check why
-
             int columnIndexToEdit = DataGridManager.GetColumnIdByDisplayIndex(1);
-            Debug.WriteLine($"no of columns {DataGridManager.GetNumberOfColumns()}, columnId of english title {columnIndexToEdit}, number of items in datagrid {workingTextFile.DataGrid.Items.Count}, no of columns nin datagrid {workingTextFile.DataGrid.Columns.Count}");
+            //Debug.WriteLine($"no of columns {DataGridManager.GetNumberOfColumns()}, columnId of english title {columnIndexToEdit}, number of items in datagrid {workingTextFile.DataGrid.Items.Count}, no of columns nin datagrid {workingTextFile.DataGrid.Columns.Count}");
+
             if (columnIndexToEdit > 0)
             {
-                Debug.WriteLine("editing record should started");
-
                 workingTextFile.DataGrid.CurrentCell = new DataGridCellInfo(workingTextFile.DataGrid.Items[workingTextFile.DataGrid.Items.Count - 1], workingTextFile.DataGrid.Columns[columnIndexToEdit]);
                 workingTextFile.DataGrid.BeginEdit();
             }
             else
             {
-                Debug.WriteLine("requirements not met");
+                return;
             }
         }
     }

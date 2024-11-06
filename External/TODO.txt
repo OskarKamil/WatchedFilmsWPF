@@ -1,5 +1,7 @@
 **Immediate (This update):**
-- Average rating statistics, fix binding.
+- Fix average rating statistics.
+	- Fix up and clean up events and event handlers. Too many and some of them are reduntant.
+- Date sorting doesn't work. It sorts as a text, not as a date.
 - Predefined statistics. Films are: group by decade 10*10 +"s", count of decade films, average rating 0.## + "/4.00".
 - Prefefined statistics. Games are: group by Platform, etc.
 - When saving a file, save [films] in first or any column header. Add version number.

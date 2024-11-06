@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.IO;
+﻿using System.IO;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.Csv;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
@@ -9,22 +8,22 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 {
     public class CSVreader
     {
+        public Metadata Metadata;
         private List<DataGridTextColumn> _columns;
+        private List<string> _listOfRecords;
         private int _maxColumns;
-        private ObservableCollection<RecordModel> _records;
         private string fileColumns;
         private string filepath;
         private StreamReader filmsFile;
         private IEnumerator<string> iterator;
         private string lineFromFile;
-        public Metadata Metadata;
         private List<string> valuesFromLine;
 
         public CSVreader(string filepath)
         {
             _maxColumns = 0;
             _columns = new List<DataGridTextColumn>();
-            _records = new ObservableCollection<RecordModel>();
+            _listOfRecords = new List<string>();
             this.filepath = filepath;
         }
 
@@ -48,14 +47,9 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             return filepath;
         }
 
-        public ObservableCollection<RecordModel> GetObservableCollection()
+        public List<string> GetListOfRecords()
         {
-            return new ObservableCollection<RecordModel>(_records);
-        }
-
-        public ObservableCollection<RecordModel> GetRecords()
-        {
-            return _records;
+            return _listOfRecords;
         }
 
         public bool HasNextLine()
@@ -132,38 +126,16 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                 }
 
                 // read data
-                var cells = new List<Cell>();
-
-                for (int i = 0; i < _columns.Count; i++)
-                {
-                    string cellValue = i < values.Count ? values[i] : string.Empty;
-                    cells.Add(new Cell(cellValue));
-                }
-
-                // Create a new FilmRecord with the populated list
-                var record = new RecordModel(cells);
-                _records.Add(record);
+                _listOfRecords.Add(line);
 
                 // Update max columns if needed
-                if (values.Count > _maxColumns)
+                int columnsInThisLine = line.Split('\t').Length;
+                if (columnsInThisLine > _maxColumns)
                 {
-                    _maxColumns = values.Count;
+                    _maxColumns = columnsInThisLine;
                 }
             }
 
-            FillEmptyValues();
-        }
-
-        private void FillEmptyValues()
-        {
-            // Ensure all FilmRecords have the same number of Cells
-            foreach (var record in _records)
-            {
-                while (record.Cells.Count < _columns.Count)
-                {
-                    record.Cells.Add(new Cell(string.Empty));
-                }
-            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 
 namespace WatchedFilmsTracker.Source.ManagingRecords
 {
@@ -39,6 +40,7 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
                 {
                     _value = value;
                     OnPropertyChanged(nameof(Value));
+                    OnCellHasChanged(EventArgs.Empty);
                     Validate();
                 }
             }
@@ -54,6 +56,8 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
             Validate();
         }
 
+        public event EventHandler CellHasChanged;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public override string ToString() => Value;
@@ -63,7 +67,13 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
             Value = newValue; // This will automatically trigger OnPropertyChanged via the Value setter
         }
 
-        protected void OnPropertyChanged(string propertyName)
+        protected virtual void OnCellHasChanged(EventArgs e)
+        {
+            Debug.WriteLine("cell has been edited, FROM CELL CLASS");
+            CellHasChanged?.Invoke(this, e);
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

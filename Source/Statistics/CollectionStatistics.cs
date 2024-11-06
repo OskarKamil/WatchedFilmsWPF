@@ -1,29 +1,109 @@
 ﻿using System.Collections.ObjectModel;
-using System.Globalization;
+using System.ComponentModel;
+using System.Diagnostics;
+using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.Statistics
 {
-    public class StatisticsManager
+    public class CollectionStatistics : INotifyPropertyChanged
     {
-        private ObservableCollection<RecordModel> filmRecords;
+        public CollectionOfRecords CollectionOfRecords { get; }
 
-        public StatisticsManager(ObservableCollection<RecordModel> filmsObservableList)
+        public string FormattedAverageRating
         {
-            filmRecords = filmsObservableList;
+            get => _formattedAverageRating;
+            private set
+            {
+                _formattedAverageRating = value;
+                OnPropertyChanged(nameof(FormattedAverageRating));
+            }
         }
 
-        public static string FormattedRating(double rating)
+        public ObservableCollection<RecordModel> ObservableRecords { get; }
+
+        public int TotalRecordsNumber
+        {
+            get => _totalRecordsNumber;
+            private set
+            {
+                _totalRecordsNumber = value;
+                OnPropertyChanged(nameof(TotalRecordsNumber));
+            }
+        }
+
+        internal DataGridManager DataGridInfo
+        {
+            get => _dataGridInfo;
+            set
+            {
+                _dataGridInfo = value;
+                UpdateStatistics();
+            }
+        }
+
+        private DataGridManager _dataGridInfo;
+        private string _formattedAverageRating;
+        private int _totalRecordsNumber;
+
+        public CollectionStatistics(CollectionOfRecords recordList)
+        {
+            CollectionOfRecords = recordList;
+            ObservableRecords = recordList.ObservableCollectionOfRecords;
+            ObservableRecords.CollectionChanged += Collection_RecordHasChanged;
+            CollectionOfRecords.RecordHasChanged += Collection_RecordHasChanged;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public static string GetFormattedRating(double rating)
         {
             string formattedRating = rating.ToString("#.00") + "/4";
             return formattedRating;
         }
 
-        //public static double GetAverageFilmRating(Collection<FilmRecord> listOfFilms)
+        private void Collection_RecordHasChanged(object? sender, EventArgs e)
+        {
+            Debug.WriteLine("best place, it should update statistics");
+            UpdateStatistics();
+        }
+
+        private string GetFormattedAverageRating()
+        {
+            int ratingColumnId = DataGridInfo.GetIdOfColumnByHeader("Rating");
+            if (ratingColumnId == -1)
+            {
+                return "\"Rating\" column not found";
+            }
+
+            if (ObservableRecords.Count == 0)
+                return "0.00/4";
+
+            double totalRating = 0;
+            int validRecords = 0;
+
+            foreach (var record in ObservableRecords)
+            {
+                if (double.TryParse(record.Cells[ratingColumnId].Value, out double rating))
+                {
+                    totalRating += rating;
+                    validRecords++;
+                }
+            }
+
+            double averageRating = validRecords > 0 ? totalRating / validRecords : 0;
+            return averageRating.ToString("0.00") + "/4";
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        //public double GetAverageFilmRating()
         //{
         //    double averageRating = 0;
-        //    int correction = 0;
-        //    foreach (FilmRecord film in listOfFilms)
+        //    foreach (RecordModel record in ObservableRecords)
         //    {
         //        try
         //        {
@@ -35,19 +115,13 @@ namespace WatchedFilmsTracker.Source.Statistics
         //        }
         //    }
         //    averageRating /= listOfFilms.Count - correction;
-
         //    return averageRating;
         //}
-
-        public static int GetNumberOfTotalWatchedFilms(Collection<RecordModel> listOfFilms)
+        private void UpdateStatistics()
         {
-            return listOfFilms.Count;
+            TotalRecordsNumber = ObservableRecords.Count;
+            FormattedAverageRating = GetFormattedAverageRating();
         }
-
-        //public double GetAverageFilmRating()
-        //{
-        //    return GetAverageFilmRating(filmRecords);
-        //}
 
         //public string GetAverageWatchStatistics()
         //{
@@ -112,11 +186,6 @@ namespace WatchedFilmsTracker.Source.Statistics
         //        return decadalStatistics;
         //    }, cancellationToken);
         //}
-
-        public int GetNumberOfTotalWatchedFilms()
-        {
-            return GetNumberOfTotalWatchedFilms(filmRecords);
-        }
 
         //public async Task<ObservableCollection<YearlyStatistic>> GetYearlyReport(CancellationToken cancellationToken)
         //{

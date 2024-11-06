@@ -26,6 +26,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public CollectionOfRecords CollectionOfRecords { get; set; }
 
+        public CollectionStatistics CollectionStatistics { get; set; }
+
         public CommonCollectionType CommonCollectionType
         {
             get => _commonCollectionType;
@@ -43,7 +45,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
         public Grid Grid { get; set; }
         public Metadata Metadata { get; set; }
-        public StatisticsManager StatisticsManager { get; set; }
 
         public bool UnsavedChanges
         {
@@ -63,41 +64,36 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
 
-        private StatisticsManager _statisticsManager;
-
         private bool _unsavedChanges;
 
         public WorkingTextFile(CommonCollectionType commonCollection)
         {
             CommonCollectionType = commonCollection;
-
             DataGrid = CreateGridInTheUI();
-
             CollectionOfRecords = new CollectionOfRecords(this);
+            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
-
-            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
-            CollectionOfRecords.CreateColumnsInBlankFile();
+            CollectionOfRecords.CreateDefaultColumnsForCommonCollectionType();
             AfterFileHasBeenLoaded();
         }
 
-        public WorkingTextFile(string fileath)
+        public WorkingTextFile(string filepath)
         {
             CommonCollectionType = CommonCollections.GetCommonCollectionByName(CollectionType.Other);
-
             DataGrid = CreateGridInTheUI();
-            Filepath = fileath;
+            Filepath = filepath;
             CollectionOfRecords = new CollectionOfRecords(this);
+            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
 
-            if (!string.IsNullOrEmpty(fileath))
+            if (!string.IsNullOrEmpty(filepath))
             {
                 ReadTextFile();
             }
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
-
-            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
+            CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
+            // build columns based on file
             AfterFileHasBeenLoaded();
         }
 
@@ -114,11 +110,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             UnsavedChanges = false;
             GetObservableCollectionOfRecords().CollectionChanged += ListHasChanged;
 
-            foreach (var filmRecord in GetObservableCollectionOfRecords())
-            {
-                filmRecord.CellChanged += FilmRecord_PropertyChanged;
-            }
-
             DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
             DataGrid.CellEditEnding += CellEditEnding;
@@ -127,7 +118,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             CollectionOfRecords.CreateColumnsWithIds();
 
-            StatisticsManager = new StatisticsManager(GetObservableCollectionOfRecords());
+            CollectionStatistics = new CollectionStatistics(CollectionOfRecords);
+            CollectionStatistics.DataGridInfo = CollectionOfRecords.DataGridManager;
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
@@ -245,13 +237,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //        };
         //        deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
         //        contextMenu.Items.Add(deleteRecordMenuItem);
-        public void FilmRecord_PropertyChanged(object sender, CellChangedEventArgs e)
-        {
-            if (e.PropertyName != "IdInList")
-            {
-                AnyChangeHappen();
-            }
-        }
 
         public ObservableCollection<RecordModel> GetObservableCollectionOfRecords()
         {
@@ -337,10 +322,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CSVreader reader = new CSVreader(Filepath);
             reader.ReadFile();
             Metadata = reader.Metadata;
-            CollectionOfRecords.ObservableCollectionOfRecords = reader.GetObservableCollection();
             CollectionOfRecords.Columns = reader.GetColumns();
-            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
-            CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
+            CollectionOfRecords.PopulateListWithData(reader.GetListOfRecords(), "\t");
             reader.CloseFile();
         }
 
@@ -409,11 +392,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void setUpFilmsDataGrid(DataGrid dataGrid)
         {
             DataGrid = dataGrid;
-        }
-
-        public void setUpStatisticsManager(StatisticsManager newStatisticsManager)
-        {
-            StatisticsManager = newStatisticsManager;
         }
 
         public SaveChangesDialog.CustomDialogResult ShowSaveChangesDialog()
@@ -524,7 +502,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         private void ListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-           // Debug.WriteLine("list changed listener");
+            // Debug.WriteLine("list changed listener");
             ButtonStateManager.UpdateAtLeastOneRecord(this);
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -553,7 +531,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             AnyChangeHappen();
         }
 
-           private void RaiseOnClosingFile()
+        private void RaiseOnClosingFile()
         {
             Debug.WriteLine("closing file event raised");
             FileClosing?.Invoke(this, EventArgs.Empty);
