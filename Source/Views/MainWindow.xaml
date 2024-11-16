@@ -166,6 +166,13 @@
                     </StackPanel>
                 </GroupBox>
 
+                <!--Collection Preferences-->
+                <GroupBox Background="#337200FF">
+                    <GroupBox.Header>Collection preferences</GroupBox.Header>
+                    <StackPanel>
+                        <Label Content="List of columns and data types" />
+                    </StackPanel></GroupBox>
+                
                 <!--Total Statistics border-->
                 <GroupBox Background="#334DFF00">
                     <GroupBox.Header>Collection statistics</GroupBox.Header>

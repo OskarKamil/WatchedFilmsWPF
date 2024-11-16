@@ -52,6 +52,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void AddNewCell()
         {
             Cell newCell = new Cell(string.Empty);
+            newCell.CellDataType = DataType.Number;
             Cells.Add(newCell);
 
             newCell.PropertyChanged += RecordModelChanged;

@@ -25,7 +25,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         public DataGridTextColumn AddColumnAtIndex(int index, string header)
         {
             var newColumn = new DataGridTextColumn { Header = header };
-            DataGrid.Columns.Insert(0, newColumn);
+            DataGrid.Columns.Insert(index, newColumn);
             return newColumn;
         }
 

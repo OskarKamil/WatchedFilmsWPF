@@ -42,7 +42,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
             if (indexOfColumnID != -1)
-                newRecord.Cells[indexOfColumnID].NumberValue = (ObservableCollectionOfRecords.Count + 1);
+            {
+                newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
+            }
 
             newRecord.RecordCellTextHasChanged += newRecord_RecordCellTextHasChanged;
 
@@ -62,7 +64,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     newRecord.Cells[columnID].Value = formattedString;
             }
 
-            StartEditingNewRecord();
+            StartEditingRecord(newRecord);
 
             workingTextFile.AnyChangeHappen();
         }
@@ -94,11 +96,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newColumn.IsReadOnly = true;
             newColumn.CanUserReorder = false;
 
-            newColumn.Binding = new Binding($"Cells[{0}].NumberValue");
+            newColumn.Binding = new Binding($"Cells[{0}].Value");
+            newColumn.SortMemberPath = ($"Cells[{0}].ComparableValue");
 
             for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
             {
-                ObservableCollectionOfRecords[i].Cells[0].NumberValue = (i + 1);
+                ObservableCollectionOfRecords[i].Cells[0].Value = (i + 1).ToString();
+                ObservableCollectionOfRecords[i].Cells[0].CellDataType = DataType.Number;
             }
             workingTextFile.UnsavedChanges = false;
             return newColumn;
@@ -201,7 +205,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
             if (indexOfColumnID != -1)
             {
-                int selectedIdColumnValue = selected.Cells[indexOfColumnID].NumberValue;
+                int selectedIdColumnValue = int.Parse(selected.Cells[indexOfColumnID].Value);
                 ObservableCollectionOfRecords.Remove(selected);
                 RefreshFurtherIDs(selectedIdColumnValue);
             }
@@ -239,9 +243,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
                 {
                     RecordModel record = ObservableCollectionOfRecords[i];
-                    if (idOfSelected <= record.Cells[indexOfColumnID].NumberValue)
+                    if (idOfSelected <= int.Parse(record.Cells[indexOfColumnID].Value))
                     {
-                        record.Cells[indexOfColumnID].NumberValue -= 1;
+                        int currentIndex = int.Parse(record.Cells[indexOfColumnID].Value);
+                        record.Cells[indexOfColumnID].Value = (currentIndex - 1).ToString();
                     }
                 }
             }
@@ -305,21 +310,17 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
-        private void StartEditingNewRecord()
+        private void StartEditingRecord(RecordModel recordToEdit)
         {
             Debug.WriteLine("editing new record started");
             if (DataGridManager.GetNumberOfColumns() < 2)
                 return;
 
-            // edit column with header "English title"
-            // int columnID = DataGridManager.GetIdOfColumnByHeader("English title");
-
             int columnIndexToEdit = DataGridManager.GetColumnIdByDisplayIndex(1);
-            //Debug.WriteLine($"no of columns {DataGridManager.GetNumberOfColumns()}, columnId of english title {columnIndexToEdit}, number of items in datagrid {workingTextFile.DataGrid.Items.Count}, no of columns nin datagrid {workingTextFile.DataGrid.Columns.Count}");
 
             if (columnIndexToEdit > 0)
             {
-                workingTextFile.DataGrid.CurrentCell = new DataGridCellInfo(workingTextFile.DataGrid.Items[workingTextFile.DataGrid.Items.Count - 1], workingTextFile.DataGrid.Columns[columnIndexToEdit]);
+                workingTextFile.DataGrid.CurrentCell = new DataGridCellInfo(recordToEdit, workingTextFile.DataGrid.Columns[columnIndexToEdit]);
                 workingTextFile.DataGrid.BeginEdit();
             }
             else
