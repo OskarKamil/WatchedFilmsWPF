@@ -118,12 +118,15 @@
                         <GroupBox>
                             <GroupBox.Header>On startup</GroupBox.Header>
                             <StackPanel Orientation="Vertical">
-                                <CheckBox x:Name="scrollLastPositionBox"
+                                <CheckBox x:Name="checkboxScrollLastPosition"
                                           Content="Scroll to the bottom of list"
                                           Click="CheckBoxLastFilmPosition" />
-                                <CheckBox x:Name="updateStartUpBox"
+                                <CheckBox x:Name="checkboxCheckForUpdatesStartup"
                                           Content="Check for updates"
                                           Click="CheckBoxUpdateStartup" />
+                                <CheckBox x:Name="checkboxReopenLastFiles"
+                                          Content="Reopen files from last session"
+                                          Checked="CheckBoxReopenFilesLastSession" />
                             </StackPanel>
                         </GroupBox>
                         <Grid Margin="0,0,0,5">
@@ -171,8 +174,9 @@
                     <GroupBox.Header>Collection preferences</GroupBox.Header>
                     <StackPanel>
                         <Label Content="List of columns and data types" />
-                    </StackPanel></GroupBox>
-                
+                    </StackPanel>
+                </GroupBox>
+
                 <!--Total Statistics border-->
                 <GroupBox Background="#334DFF00">
                     <GroupBox.Header>Collection statistics</GroupBox.Header>

@@ -209,8 +209,8 @@ namespace WatchedFilmsTracker
         {
             autosaveBox.IsChecked = SettingsManager.AutoSave;
             defaultDateBox.IsChecked = SettingsManager.DefaultDateIsToday;
-            updateStartUpBox.IsChecked = SettingsManager.CheckUpdateOnStartup;
-            scrollLastPositionBox.IsChecked = SettingsManager.ScrollLastPosition;
+            checkboxCheckForUpdatesStartup.IsChecked = SettingsManager.CheckUpdateOnStartup;
+            checkboxScrollLastPosition.IsChecked = SettingsManager.ScrollLastPosition;
             this.Left = SettingsManager.WindowLeft;
             this.Top = SettingsManager.WindowTop;
             this.Width = SettingsManager.WindowWidth;
@@ -602,14 +602,14 @@ namespace WatchedFilmsTracker
                 PanelVersion.Background = updateBrush;
 
                 // Set hyperlink to open release page
-                string uri = "https://github.com/OskarKamil/WatchedFilmsWPF/releases/tag/" + CheckForUpdateService.NewVersionString;
+                string uri = "https://github.com/OskarKamil/WatchedFilmsWPF/releases/tag/" + CheckForUpdateService.NewVersion;
                 TextBlockNewVersion.Visibility = System.Windows.Visibility.Visible;
                 Hyperlink releasesPage = new Hyperlink() { NavigateUri = new Uri(uri) };
                 releasesPage.RequestNavigate += (sender, e) =>
                 {
                     Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
                 };
-                releasesPage.Inlines.Add($"{CheckForUpdateService.NewVersionString} is available. Click here to open download page.");
+                releasesPage.Inlines.Add($"{CheckForUpdateService.NewVersion} is available. Click here to open download page.");
 
                 TextBlockNewVersion.Inlines.Add(releasesPage);
 
@@ -643,6 +643,11 @@ namespace WatchedFilmsTracker
                 Width = 1200;
                 Height = 600;
             }
+        }
+
+        private void CheckBoxReopenFilesLastSession(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
