@@ -1,6 +1,4 @@
 **Immediate (This update):**
-- Fix average rating statistics.
-	- Fix up and clean up events and event handlers. Too many and some of them are reduntant.
 - Date sorting doesn't work. It sorts as a text, not as a date.
 	- Centralise how columns are created. Make sure columns are created in one place only from one method. When column is created, make sure it immediately has set Binding and Sortpath in the same place instead of jumping around. Binding and Sortpath must be done immediately when column is created.
 - Create list of columns and their preferred data types. Display it in the GUI so user can choose what data type a column holds, this will be used for the proper sorting.

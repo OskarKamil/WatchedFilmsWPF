@@ -46,7 +46,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
             }
 
-            newRecord.RecordCellTextHasChanged += newRecord_RecordCellTextHasChanged;
+            newRecord.PropertyChanged += newRecord_RecordCellTextHasChanged;
 
             ObservableCollectionOfRecords.Add(newRecord);
             workingTextFile.DataGrid.SelectedCells.Clear();
@@ -86,7 +86,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             ObservableCollectionOfRecords.Add(newRecord);
 
-            newRecord.RecordCellTextHasChanged += newRecord_RecordCellTextHasChanged;
+            newRecord.PropertyChanged += newRecord_RecordCellTextHasChanged;
         }
 
         public DataGridTextColumn CreateColumnsWithIds()

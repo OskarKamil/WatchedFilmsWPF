@@ -32,7 +32,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                         Debug.WriteLine("does it even work?");
 
                         cell.PropertyChanged += RecordModelChanged;
-                        cell.CellHasChanged += cell_TextChanged;
                     }
                 }
             }
@@ -47,8 +46,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public event EventHandler RecordCellTextHasChanged;
-
         public void AddNewCell()
         {
             Cell newCell = new Cell(string.Empty);
@@ -56,15 +53,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             Cells.Add(newCell);
 
             newCell.PropertyChanged += RecordModelChanged;
-            newCell.CellHasChanged += cell_TextChanged;
         }
+
         public void AddNewCell(string text)
         {
             Cell newCell = new Cell(text);
             Cells.Add(newCell);
 
             newCell.PropertyChanged += RecordModelChanged;
-            newCell.CellHasChanged += cell_TextChanged;
         }
 
         public void InsertNewCellAt(int index)
@@ -80,29 +76,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected virtual void OnRecordModelChanged(CellValueChangedEventArgs e)
-        {
-            Debug.WriteLine("cell has changed, invoked from RecordModel");
-
-            RecordCellTextHasChanged?.Invoke(this, e);
-            //    NotifyPropertyChanged(nameof(Cells)); // Notify that a change in a Cell has occurred
-        }
-
-        private void cell_TextChanged(object? sender, EventArgs e)
-        {
-            Debug.WriteLine("cell has changed, invoked from RecordModel");
-
-            RecordCellTextHasChanged?.Invoke(this, e);
-            //    NotifyPropertyChanged(nameof(Cells)); // Notify that a change in a Cell has occurred
-        }
-
         private void RecordModelChanged(object sender, PropertyChangedEventArgs e)
         {
             Debug.WriteLine("cell has been edited");
             if (sender is Cell cell)
             {
                 if (e.PropertyName == "Value")
-                    OnRecordModelChanged(new CellValueChangedEventArgs(cell, e.PropertyName));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(e.PropertyName));
             }
         }
     }
