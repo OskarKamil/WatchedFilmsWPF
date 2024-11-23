@@ -489,7 +489,7 @@
                                 <Button x:Name="buttonAddColumn"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
-                                        Click="AddColumn_Action">
+                                        Click="ButtonAddColumn_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="/Assets/ButtonIcons/addColumn.png"
                                                Stretch="None"

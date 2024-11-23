@@ -25,10 +25,9 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
         }
 
+        public event EventHandler<EventArgs> AnyRecordHasChanged;
+
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public event EventHandler<EventArgs> RecordHasChanged;
-
         public void AddEmptyRecordToList()
         {
             RecordModel newRecord = new RecordModel(new List<Cell>());
@@ -40,16 +39,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 }
             }
 
+            // fill in # id column
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
             if (indexOfColumnID != -1)
             {
                 newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
             }
 
-            newRecord.PropertyChanged += newRecord_RecordCellTextHasChanged;
-
             ObservableCollectionOfRecords.Add(newRecord);
             workingTextFile.DataGrid.SelectedCells.Clear();
+
             if (workingTextFile.DataGrid.ItemsSource == ObservableCollectionOfRecords)
             {
                 workingTextFile.DataGrid.SelectedItem = newRecord;
@@ -63,6 +62,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (columnID != -1)
                     newRecord.Cells[columnID].Value = formattedString;
             }
+
+            newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
 
             StartEditingRecord(newRecord);
 
@@ -86,7 +87,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             ObservableCollectionOfRecords.Add(newRecord);
 
-            newRecord.PropertyChanged += newRecord_RecordCellTextHasChanged;
+            newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
         }
 
         public DataGridTextColumn CreateColumnsWithIds()
@@ -118,6 +119,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public DataGridTextColumn CreateNewColumn(string columnHeader)
         {
+            // todo datagrid manager should have columnsdatatypes, and each time column is inserted in the middle, it will update cells
             var column = DataGridManager.AddColumn(columnHeader);
             foreach (var RecordModel in ObservableCollectionOfRecords)
             {
@@ -281,11 +283,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
-        protected virtual void newRecord_RecordCellTextHasChanged(object sender, EventArgs e)
+        protected virtual void HandleRecordCellTextHasChanged(object sender, EventArgs e)
         {
             Debug.WriteLine("Record cell has changed, INVOKED FROM COLLECTION OF RECORDS");
-            RecordHasChanged?.Invoke(this, e);
+            OnAnyRecordHasChanged(this, e);
             return;
+        }
+
+        protected virtual void OnAnyRecordHasChanged(object sender, EventArgs e)
+        {
+            AnyRecordHasChanged?.Invoke(this, e);
         }
 
         private void AdjustColumnsRepresentation(object sender, EventArgs e)

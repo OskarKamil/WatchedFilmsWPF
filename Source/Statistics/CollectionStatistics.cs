@@ -51,7 +51,7 @@ namespace WatchedFilmsTracker.Source.Statistics
             CollectionOfRecords = recordList;
             ObservableRecords = recordList.ObservableCollectionOfRecords;
             ObservableRecords.CollectionChanged += Collection_RecordHasChanged;
-            CollectionOfRecords.RecordHasChanged += Collection_RecordHasChanged;
+            CollectionOfRecords.AnyRecordHasChanged += Collection_RecordHasChanged;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -26,12 +26,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (_cells != value)
                 {
                     _cells = value;
-                    NotifyPropertyChanged(nameof(Cells));
+                    OnPropertyChanged(nameof(Cells));
                     foreach (var cell in _cells)
                     {
                         Debug.WriteLine("does it even work?");
 
-                        cell.PropertyChanged += RecordModelChanged;
+                        cell.PropertyChanged += OnRecordModelChanged;
                     }
                 }
             }
@@ -52,7 +52,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newCell.CellDataType = DataType.Number;
             Cells.Add(newCell);
 
-            newCell.PropertyChanged += RecordModelChanged;
+            newCell.PropertyChanged += OnRecordModelChanged;
         }
 
         public void AddNewCell(string text)
@@ -60,7 +60,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             Cell newCell = new Cell(text);
             Cells.Add(newCell);
 
-            newCell.PropertyChanged += RecordModelChanged;
+            newCell.PropertyChanged += OnRecordModelChanged;
         }
 
         public void InsertNewCellAt(int index)
@@ -68,15 +68,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             Cell newCell = new Cell(string.Empty);
             Cells.Insert(index, newCell);
 
-            newCell.PropertyChanged += RecordModelChanged;
+            newCell.PropertyChanged += OnRecordModelChanged;
         }
 
-        protected virtual void NotifyPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void RecordModelChanged(object sender, PropertyChangedEventArgs e)
+        private void OnRecordModelChanged(object sender, PropertyChangedEventArgs e)
         {
             Debug.WriteLine("cell has been edited");
             if (sender is Cell cell)

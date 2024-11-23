@@ -200,7 +200,7 @@ namespace WatchedFilmsTracker
             aboutWindow.ShowDialog();
         }
 
-        private void AddColumn_Action(object sender, RoutedEventArgs e)
+        private void ButtonAddColumn_Click(object sender, RoutedEventArgs e)
         {
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
         }
