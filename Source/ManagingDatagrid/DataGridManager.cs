@@ -1,12 +1,14 @@
-﻿using System.Windows.Controls;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Controls;
 using System.Windows.Data;
+using WatchedFilmsTracker.Source.ManagingDatagrid;
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
     internal class DataGridManager
     {
         public DataGrid DataGrid { get; set; }
-        private readonly List<DataGridTextColumn> columns = new List<DataGridTextColumn>();
+        private readonly ObservableCollection<ColumnInformation> columns = new ObservableCollection<ColumnInformation>();
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
 
@@ -19,6 +21,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Add(newColumn);
+            columns.Add(new ColumnInformation(newColumn, ManagingRecords.DataType.String));
             return newColumn;
         }
 
@@ -26,6 +29,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Insert(index, newColumn);
+            columns.Insert(index, new ColumnInformation(newColumn, ManagingRecords.DataType.String));
             return newColumn;
         }
 
