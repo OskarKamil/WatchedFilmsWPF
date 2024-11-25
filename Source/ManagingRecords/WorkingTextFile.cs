@@ -73,6 +73,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords = new CollectionOfRecords(this);
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
 
+            CollectionOfRecords.CreateColumnsWithIds();
+
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
             CollectionOfRecords.CreateDefaultColumnsForCommonCollectionType();
             AfterFileHasBeenLoaded();
@@ -86,6 +88,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords = new CollectionOfRecords(this);
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
 
+            CollectionOfRecords.CreateColumnsWithIds();
+
+            // todo build columns using datagrid manager
+            // open readtextfile method and fix it, all the binding is done on line 101 in method BuildColumnsFromList(CollectionOfRecords.Columns);
             if (!string.IsNullOrEmpty(filepath))
             {
                 ReadTextFile();
@@ -93,7 +99,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
             CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
-            // build columns based on file
+            // all the binding is done above
             AfterFileHasBeenLoaded();
         }
 
@@ -115,8 +121,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid.CellEditEnding += CellEditEnding;
 
             SettingsManager.LastPath = Filepath;
-
-            CollectionOfRecords.CreateColumnsWithIds();
 
             CollectionStatistics = new CollectionStatistics(CollectionOfRecords);
             CollectionStatistics.DataGridInfo = CollectionOfRecords.DataGridManager;
@@ -322,7 +326,10 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CSVreader reader = new CSVreader(Filepath);
             reader.ReadFile();
             Metadata = reader.Metadata;
+
+            // replace this with foreach, build records based on reader.getcolumns
             CollectionOfRecords.Columns = reader.GetColumns();
+
             CollectionOfRecords.PopulateListWithData(reader.GetListOfRecords(), "\t");
             reader.CloseFile();
         }

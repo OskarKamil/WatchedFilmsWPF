@@ -29,6 +29,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public event EventHandler<EventArgs> AnyRecordHasChanged;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         public void AddEmptyRecordToList()
         {
             RecordModel newRecord = new RecordModel(new List<Cell>());
@@ -76,7 +77,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             RecordModel newRecord = new RecordModel(new List<Cell>());
             List<string> values = text.Split(delimiter).ToList();
 
-            //todo check why need to use columns.count instead of DataGridManager.DataGrid.Columns.Count
             for (int i = 0; i < Columns.Count; i++)
             {
                 newRecord.AddNewCell(values[i]);
@@ -157,7 +157,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
-        public void DeleteColumn()
+        public void IdentifyColumnForDeletion()
         {
             int columnID;
             var selectedCells = DataGridManager.DataGrid.SelectedCells;
@@ -166,7 +166,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
                 columnID = DataGridManager.DataGrid.Columns.IndexOf(firstSelectedColumn);
-                workingTextFile.AnyChangeHappen();
             }
             else
             {
@@ -174,16 +173,17 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 return;
             }
 
-            DeleteColumn(columnID);
+            DeleteColumnAt(columnID);
         }
 
-        public void DeleteColumn(int columndID)
+        public void DeleteColumnAt(int columndID)
         {
             foreach (RecordModel recordModel in ObservableCollectionOfRecords)
             {
                 recordModel.Cells.RemoveAt(columndID);
             }
-            DataGridManager.DataGrid.Columns.RemoveAt(columndID);
+
+            DataGridManager.RemoveColumnAt(columndID);
             for (int i = columndID; i < DataGridManager.DataGrid.Columns.Count; i++)
             {
                 // Cast the column to DataGridBoundColumn or DataGridTextColumn
@@ -273,7 +273,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 RenameColumnDialog.ShowDialog();
                 if (RenameColumnDialog.Result == Views.RenameColumnDialog.CustomDialogResult.Confirm)
                 {
-                    firstSelectedColumn.Header = RenameColumnDialog.NewColumnName;
+                    DataGridManager.RenameColumnAt(columnID, RenameColumnDialog.NewColumnName);
+
                     workingTextFile.UnsavedChanges = true;
                 }
             }

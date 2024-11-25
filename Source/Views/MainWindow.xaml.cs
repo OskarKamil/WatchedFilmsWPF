@@ -406,7 +406,7 @@ namespace WatchedFilmsTracker
 
         private void RemoveColumnButton_Click(object sender, RoutedEventArgs e)
         {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.DeleteColumn();
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.IdentifyColumnForDeletion();
         }
 
         private void RenameColumnButton_Click(object sender, RoutedEventArgs e)

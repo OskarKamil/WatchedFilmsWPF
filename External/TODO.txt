@@ -1,6 +1,5 @@
 **Immediate (This update):**
-- Date sorting doesn't work. It sorts as a text, not as a date.
-	- Centralise how columns are created. Make sure columns are created in one place only from one method. When column is created, make sure it immediately has set Binding and Sortpath in the same place instead of jumping around. Binding and Sortpath must be done immediately when column is created.
+- When file is read, it will build columns using datagridmanager instead of creating columns themselves.
 - Create list of columns and their preferred data types. Display it in the GUI so user can choose what data type a column holds, this will be used for the proper sorting.
 	- When creating new cell, check status of preferred data types and make the cell the preferred data type.
 	- Check if deleting column will also change how columns sort.

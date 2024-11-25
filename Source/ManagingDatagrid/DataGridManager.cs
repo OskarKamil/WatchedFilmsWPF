@@ -4,13 +4,12 @@ using System.Windows.Data;
 using WatchedFilmsTracker.Source.ManagingDatagrid;
 using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
-
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
     internal class DataGridManager
     {
-        public DataGrid DataGrid { get; set; }
         public ObservableCollection<ColumnInformation> ColumnsAndDataTypes { get; } = new ObservableCollection<ColumnInformation>();
+        public DataGrid DataGrid { get; set; }
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
 
@@ -27,6 +26,20 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             return newColumn;
         }
 
+        //    for (int i = 0; i < ColumnRepresentation.Count; i++)
+        //    {
+        //        if (ColumnRepresentation[i] != -1)
+        //        {
+        //            var binding = new Binding($"Properties[{ColumnRepresentation[i]}]");
+        //            var column = new DataGridTextColumn
+        //            {
+        //                Header = $"Column {i + 1}",
+        //                Binding = binding
+        //            };
+        //            dataGrid.Columns.Add(column);
+        //        }
+        //    }
+        //}
         public DataGridTextColumn AddColumnAtIndex(int index, string header)
         {
             var newColumn = new DataGridTextColumn { Header = header };
@@ -88,6 +101,25 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             return DataGrid.Columns.Count;
         }
 
+        //private void RefreshColumns()
+        //{
+        //    dataGrid.Columns.Clear();
+        public void RemoveColumnAt(int columnIndex)
+        {
+            if (columnIndex >= 0 && columnIndex < DataGrid.Columns.Count)
+            {
+                DataGrid.Columns.RemoveAt(columnIndex);
+                ColumnsAndDataTypes.RemoveAt(columnIndex);
+            }
+        }
+
+        public void RenameColumnAt(int columnIndex, string header)
+        {
+            DataGrid.Columns[columnIndex].Header = header;
+            ColumnsAndDataTypes[columnIndex].DataGridTextColumn.Header = header;
+            ColumnsAndDataTypes[columnIndex].OnPropertyChanged(nameof(ColumnInformation.DisplayText));
+        }
+
         public void ResetToDefault()
         {
             for (int i = 0; i < DataGrid.Columns.Count; i++)
@@ -96,42 +128,14 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 DataGrid.Columns[i].Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
             }
         }
+
+        //private void SwapColumns(int index1, int index2)
+        //{
+        //    if (index1 >= 0 && index1 < ColumnRepresentation.Count &&
+        //        index2 >= 0 && index2 < ColumnRepresentation.Count)
+        //    {
+        //        var temp = ColumnRepresentation[index1];
+        //        ColumnRepresentation[index1] = ColumnRepresentation[index2];
+        //        ColumnRepresentation[index2] = temp;
     }
-
-    //private void RefreshColumns()
-    //{
-    //    dataGrid.Columns.Clear();
-
-    //    for (int i = 0; i < ColumnRepresentation.Count; i++)
-    //    {
-    //        if (ColumnRepresentation[i] != -1)
-    //        {
-    //            var binding = new Binding($"Properties[{ColumnRepresentation[i]}]");
-    //            var column = new DataGridTextColumn
-    //            {
-    //                Header = $"Column {i + 1}",
-    //                Binding = binding
-    //            };
-    //            dataGrid.Columns.Add(column);
-    //        }
-    //    }
-    //}
-
-    //private void RemoveColumn(int columnIndex)
-    //{
-    //    if (columnIndex >= 0 && columnIndex < ColumnRepresentation.Count)
-    //    {
-    //        ColumnRepresentation[columnIndex] = -1; // Mark column as removed
-    //        RefreshColumns();
-    //    }
-    //}
-
-    //private void SwapColumns(int index1, int index2)
-    //{
-    //    if (index1 >= 0 && index1 < ColumnRepresentation.Count &&
-    //        index2 >= 0 && index2 < ColumnRepresentation.Count)
-    //    {
-    //        var temp = ColumnRepresentation[index1];
-    //        ColumnRepresentation[index1] = ColumnRepresentation[index2];
-    //        ColumnRepresentation[index2] = temp;
 }
