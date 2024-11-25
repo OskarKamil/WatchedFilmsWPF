@@ -1,23 +1,20 @@
 ﻿using System.ComponentModel;
+using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
+
 
 namespace WatchedFilmsTracker.Source.ManagingRecords
 {
-    public enum DataType
-    {
-        String,
-        Number,
-        Date
-    }
+
 
     public class Cell : INotifyPropertyChanged
     {
-        public DataType CellDataType { get; set; }
+        public DataType DataType { get; set; }
 
         public object ComparableValue
         {
             get
             {
-                return CellDataType switch
+                return DataType switch
                 {
                     DataType.Number => int.TryParse(Value, out var number) ? number : Value,
                     DataType.Date => DateTime.TryParseExact(Value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out var date) ? date : Value,
@@ -58,14 +55,14 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
 
         public Cell(string value)
         {
-            CellDataType = DataType.String;
+            DataType = DataType.String;
             Value = value;
             Validate();
         }
 
         public Cell(string value, DataType datatype)
         {
-            CellDataType = datatype;
+            DataType = datatype;
             Value = value;
             Validate();
         }

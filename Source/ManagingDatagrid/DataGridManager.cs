@@ -2,6 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.ManagingDatagrid;
+using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
+
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
@@ -21,7 +23,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Add(newColumn);
-            columns.Add(new ColumnInformation(newColumn, ManagingRecords.DataType.String));
+            columns.Add(new ColumnInformation(newColumn, DataType.String));
             return newColumn;
         }
 
@@ -29,7 +31,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Insert(index, newColumn);
-            columns.Insert(index, new ColumnInformation(newColumn, ManagingRecords.DataType.String));
+            columns.Insert(index, new ColumnInformation(newColumn, DataType.String));
             return newColumn;
         }
 

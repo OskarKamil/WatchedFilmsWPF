@@ -7,6 +7,7 @@ using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Views;
+using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
@@ -103,7 +104,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
             {
                 ObservableCollectionOfRecords[i].Cells[0].Value = (i + 1).ToString();
-                ObservableCollectionOfRecords[i].Cells[0].CellDataType = DataType.Number;
+                ObservableCollectionOfRecords[i].Cells[0].DataType = DataType.Number;
             }
             workingTextFile.UnsavedChanges = false;
             return newColumn;

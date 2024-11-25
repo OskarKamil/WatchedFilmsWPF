@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using WatchedFilmsTracker.Source.ManagingRecords;
+using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
 namespace WatchedFilmsTracker.Source.ManagingDatagrid
 {

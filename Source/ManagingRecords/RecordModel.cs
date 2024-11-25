@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using WatchedFilmsTracker.Source.ManagingRecords;
+using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
@@ -49,7 +50,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void AddNewCell()
         {
             Cell newCell = new Cell(string.Empty);
-            newCell.CellDataType = DataType.Number;
+            newCell.DataType = DataType.Number;
             Cells.Add(newCell);
 
             newCell.PropertyChanged += OnRecordModelChanged;
