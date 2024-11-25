@@ -147,6 +147,7 @@ namespace WatchedFilmsTracker
             TextBoxFilePath.DataContext = currentlyOpened;
             LabelAverageRatingRecord.DataContext = currentlyOpened.CollectionStatistics;
             LabelTotalRecordsNumber.DataContext = currentlyOpened.CollectionStatistics;
+            ItemsColumnsDataTypes.DataContext = currentlyOpened.CollectionStatistics.DataGridInfo;
 
             return currentlyOpened;
         }
@@ -221,6 +222,7 @@ namespace WatchedFilmsTracker
         {
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
+
         private void ButtonCurrentFileCollectionType_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -647,7 +649,6 @@ namespace WatchedFilmsTracker
 
         private void CheckBoxReopenFilesLastSession(object sender, RoutedEventArgs e)
         {
-
         }
     }
 }

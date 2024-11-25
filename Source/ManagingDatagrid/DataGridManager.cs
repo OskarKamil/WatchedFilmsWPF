@@ -10,7 +10,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
     internal class DataGridManager
     {
         public DataGrid DataGrid { get; set; }
-        private readonly ObservableCollection<ColumnInformation> columns = new ObservableCollection<ColumnInformation>();
+        public ObservableCollection<ColumnInformation> ColumnsAndDataTypes { get; } = new ObservableCollection<ColumnInformation>();
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
 
@@ -23,7 +23,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Add(newColumn);
-            columns.Add(new ColumnInformation(newColumn, DataType.String));
+            ColumnsAndDataTypes.Add(new ColumnInformation(newColumn, DataType.String));
             return newColumn;
         }
 
@@ -31,7 +31,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Insert(index, newColumn);
-            columns.Insert(index, new ColumnInformation(newColumn, DataType.String));
+            ColumnsAndDataTypes.Insert(index, new ColumnInformation(newColumn, DataType.String));
             return newColumn;
         }
 

@@ -174,9 +174,19 @@
                     <GroupBox.Header>Collection preferences</GroupBox.Header>
                     <StackPanel>
                         <Label Content="List of columns and data types" />
-
-                        <StackPanel x:Name="StackPanelColumnList"
-                                    Orientation="Vertical"></StackPanel>
+                        <ItemsControl x:Name="ItemsColumnsDataTypes"
+                                      ItemsSource="{Binding ColumnsAndDataTypes}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel></StackPanel>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Content="{Binding DisplayText}"></Label>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <Button>Apply changes</Button>
                     </StackPanel>
                 </GroupBox>

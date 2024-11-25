@@ -8,6 +8,7 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
     {
         public DataGridTextColumn DataGridTextColumn { get; set; }
         public DataType DataType { get; set; }
+        public String DisplayText => $"{DataGridTextColumn.Header} - {DataType}";
 
         public ColumnInformation(DataGridTextColumn dataGridTextColumn, DataType dataType)
         {
