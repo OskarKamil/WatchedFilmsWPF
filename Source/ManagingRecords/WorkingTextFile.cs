@@ -88,10 +88,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords = new CollectionOfRecords(this);
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
 
-            CollectionOfRecords.CreateColumnsWithIds();
-
-            // todo build columns using datagrid manager
-            // open readtextfile method and fix it, all the binding is done on line 101 in method BuildColumnsFromList(CollectionOfRecords.Columns);
             if (!string.IsNullOrEmpty(filepath))
             {
                 ReadTextFile();
@@ -99,7 +95,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
             CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
-            // all the binding is done above
+            CollectionOfRecords.CreateColumnsWithIds();
+
             AfterFileHasBeenLoaded();
         }
 

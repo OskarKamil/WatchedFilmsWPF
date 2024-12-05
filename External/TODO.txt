@@ -3,6 +3,7 @@
 - Create list of columns and their preferred data types. Display it in the GUI so user can choose what data type a column holds, this will be used for the proper sorting.
 	- When creating new cell, check status of preferred data types and make the cell the preferred data type.
 	- Check if deleting column will also change how columns sort.
+- When deleting a column from a read file causes an error.
 - Predefined statistics. Films are: group by decade 10*10 +"s", count of decade films, average rating 0.## + "/4.00".
 - Prefefined statistics. Games are: group by Platform, etc.
 - When saving a file, save [films] in first or any column header. Add version number.

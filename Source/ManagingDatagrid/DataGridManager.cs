@@ -55,18 +55,8 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
             for (int i = 0; i < columns.Count; i++)
             {
-                var column = columns[i];
-
-                var dataGridColumn = new DataGridTextColumn
-                {
-                    Header = column.Header,
-                    // Bind to the corresponding index in the Values list of the data model
-                    Binding = new Binding($"Cells[{i}].Value"),
-                    MaxWidth = 300
-                };
-
-                // Add the column to the DataGrid
-                DataGrid.Columns.Add(dataGridColumn);
+                var dataGridColumn = AddColumn(columns[i].Header.ToString());
+                dataGridColumn.Binding = new Binding($"Cells[{i}].Value");
             }
         }
 
