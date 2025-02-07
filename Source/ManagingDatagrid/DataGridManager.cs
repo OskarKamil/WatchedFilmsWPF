@@ -40,12 +40,13 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         //        }
         //    }
         //}
-        public DataGridTextColumn AddColumnAtIndex(int index, string header)
+        public ColumnInformation AddColumnAtIndex(int index, string header)
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Insert(index, newColumn);
-            ColumnsAndDataTypes.Insert(index, new ColumnInformation(newColumn, DataType.String));
-            return newColumn;
+            var newColumnInformation = new ColumnInformation(newColumn, DataType.String);
+            ColumnsAndDataTypes.Insert(index, newColumnInformation);
+            return newColumnInformation;
         }
 
         public void BuildColumnsFromList(List<DataGridTextColumn> columns)
@@ -57,6 +58,20 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             {
                 var dataGridColumn = AddColumn(columns[i].Header.ToString());
                 dataGridColumn.Binding = new Binding($"Cells[{i}].Value");
+            }
+        }
+
+        public void ChangeDataTypeOfColumn(int columnIndex, DataType dataType)
+        {
+            ColumnsAndDataTypes[columnIndex].DataType = dataType;
+        }
+
+        public void ChangeDataTypeOfColumn(ColumnInformation columnInformation, DataType dataType)
+        {
+            int index = ColumnsAndDataTypes.IndexOf(columnInformation);
+            if (index != -1)
+            {
+                ColumnsAndDataTypes[index].DataType = dataType;
             }
         }
 
@@ -118,7 +133,6 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 DataGrid.Columns[i].Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
             }
         }
-
         //private void SwapColumns(int index1, int index2)
         //{
         //    if (index1 >= 0 && index1 < ColumnRepresentation.Count &&

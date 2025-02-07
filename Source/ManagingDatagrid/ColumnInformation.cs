@@ -5,7 +5,7 @@ using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
 namespace WatchedFilmsTracker.Source.ManagingDatagrid
 {
-    internal class ColumnInformation : INotifyPropertyChanged
+    public class ColumnInformation : INotifyPropertyChanged
     {
         public DataGridTextColumn DataGridTextColumn
         {

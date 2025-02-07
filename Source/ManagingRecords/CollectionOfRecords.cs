@@ -8,6 +8,7 @@ using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
+using WatchedFilmsTracker.Source.ManagingDatagrid;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
@@ -93,10 +94,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public DataGridTextColumn CreateColumnsWithIds()
         {
-            var newColumn = CreateNewColumnAtIndex(0, "#");
+            var newColumnInformation = CreateNewColumnAtIndex(0, "#");
+            var newColumn = newColumnInformation.DataGridTextColumn;
             newColumn.DisplayIndex = 0;
             newColumn.IsReadOnly = true;
             newColumn.CanUserReorder = false;
+            
 
             newColumn.Binding = new Binding($"Cells[{0}].Value");
             newColumn.SortMemberPath = ($"Cells[{0}].ComparableValue");
@@ -106,6 +109,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 ObservableCollectionOfRecords[i].Cells[0].Value = (i + 1).ToString();
                 ObservableCollectionOfRecords[i].Cells[0].DataType = DataType.Number;
             }
+            newColumnInformation.DataType = DataType.Number;
             workingTextFile.UnsavedChanges = false;
             return newColumn;
         }
@@ -137,14 +141,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return column;
         }
 
-        public DataGridTextColumn CreateNewColumnAtIndex(int index, string columnHeader)
+        public ColumnInformation CreateNewColumnAtIndex(int index, string columnHeader)
         {
-            var column = DataGridManager.AddColumnAtIndex(index, columnHeader);
+            ColumnInformation column = DataGridManager.AddColumnAtIndex(index, columnHeader);
             foreach (var RecordModel in ObservableCollectionOfRecords)
             {
                 RecordModel.InsertNewCellAt(index);
             }
-            column.Binding = new Binding($"Cells[{index}].Value");
+            column.DataGridTextColumn.Binding = new Binding($"Cells[{index}].Value");
 
             workingTextFile.UnsavedChanges = true;
             ShiftBindingAfterInsertion(0);

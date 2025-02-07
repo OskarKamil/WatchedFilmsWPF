@@ -1,6 +1,4 @@
 **Immediate (This update):**
-- When creating a # column, each cell is a Number data type but the column in DataGridManager is a string. It should be a Number.
-	- First test it with adding new file instead of reading existing one.
 - Create list of columns and their preferred data types. Display it in the GUI so user can choose what data type a column holds, this will be used for the proper sorting.
 	- When creating new cell, check status of preferred data types and make the cell the preferred data type.
 	- Check if deleting column will also change how columns sort.
