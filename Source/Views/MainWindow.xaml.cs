@@ -650,5 +650,17 @@ namespace WatchedFilmsTracker
         private void CheckBoxReopenFilesLastSession(object sender, RoutedEventArgs e)
         {
         }
+
+        private void ShowColumnTypesClick(object sender, RoutedEventArgs e)
+        {
+            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridInfo.ColumnsAndDataTypes;
+            foreach (var item in info)
+            {
+                Debug.WriteLine(item.ToString());
+                
+            }
+
+
+        }
     }
 }

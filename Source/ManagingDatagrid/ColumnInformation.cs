@@ -14,7 +14,7 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
             {
                 _dataGridTextColumn = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(DisplayText));
+                OnPropertyChanged(nameof(DataGridTextColumn));
             }
         }
 
@@ -25,7 +25,7 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
             {
                 _dataType = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(DisplayText));
+                OnPropertyChanged(nameof(DataType));
             }
         }
 
@@ -37,6 +37,11 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
         {
             _dataGridTextColumn = dataGridTextColumn;
             _dataType = dataType;
+        }
+
+        public override string ToString()
+        {
+            return $"{DataGridTextColumn.Header} - {DataType}";
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

@@ -157,25 +157,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
-        public void IdentifyColumnForDeletion()
-        {
-            int columnID;
-            var selectedCells = DataGridManager.DataGrid.SelectedCells;
-
-            if (selectedCells.Count > 0)
-            {
-                var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
-                columnID = DataGridManager.DataGrid.Columns.IndexOf(firstSelectedColumn);
-            }
-            else
-            {
-                Debug.WriteLine("no selected cells");
-                return;
-            }
-
-            DeleteColumnAt(columnID);
-        }
-
         public void DeleteColumnAt(int columndID)
         {
             foreach (RecordModel recordModel in ObservableCollectionOfRecords)
@@ -230,6 +211,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             workingTextFile.AnyChangeHappen();
         }
 
+        public void IdentifyColumnForDeletion()
+        {
+            int columnID;
+            var selectedCells = DataGridManager.DataGrid.SelectedCells;
+
+            if (selectedCells.Count > 0)
+            {
+                var firstSelectedColumn = selectedCells.Select(sc => sc.Column).FirstOrDefault();
+                columnID = DataGridManager.DataGrid.Columns.IndexOf(firstSelectedColumn);
+            }
+            else
+            {
+                Debug.WriteLine("no selected cells");
+                return;
+            }
+
+            DeleteColumnAt(columnID);
+        }
         public void PopulateListWithData(List<string> list, string delimiter)
         {
             foreach (string line in list)

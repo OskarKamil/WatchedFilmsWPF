@@ -1,15 +1,10 @@
 ﻿using System.ComponentModel;
 using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
-
 namespace WatchedFilmsTracker.Source.ManagingRecords
 {
-
-
     public class Cell : INotifyPropertyChanged
     {
-        public DataType DataType { get; set; }
-
         public object ComparableValue
         {
             get
@@ -23,6 +18,8 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
             }
         }
 
+        public DataType DataType { get; set; }
+
         public bool IsValid
         {
             get => _isValid;
@@ -35,7 +32,6 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
                 }
             }
         }
-
         public string Value
         {
             get => _value;

@@ -20,6 +20,20 @@ using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
+    /// <summary>
+    /// The <c>WorkingTextFile</c> class is responsible for managing the operations related to a text file
+    /// that contains a collection of records. It handles reading from and writing to the file, managing
+    /// the state of the records, and updating the UI components associated with the records.
+    /// 
+    /// This class provides functionalities to:
+    /// - Load records from a text file and populate a DataGrid.
+    /// - Track changes to the records and manage unsaved changes.
+    /// - Save records back to the text file.
+    /// - Handle various events related to the collection of records and the UI.
+    /// 
+    /// The class also maintains metadata about the file and provides methods to interact with the records
+    /// and their representation in the UI.
+    /// </summary>
     public class WorkingTextFile
     {
         public bool AnyChange { get; set; }

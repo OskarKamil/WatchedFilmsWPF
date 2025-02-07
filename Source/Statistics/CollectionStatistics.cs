@@ -6,6 +6,21 @@ using WatchedFilmsTracker.Source.ManagingFilmsFile;
 
 namespace WatchedFilmsTracker.Source.Statistics
 {
+    /// <summary>
+    /// The <c>CollectionStatistics</c> class is responsible for managing and calculating statistics
+    /// related to a collection of records. It provides functionalities to track changes in the collection,
+    /// update statistical data, and notify the UI of any changes. This class is part of a WPF project and
+    /// implements the <see cref="INotifyPropertyChanged"/> interface to support data binding.
+    ///
+    /// Responsibilities of this class include:
+    /// - Calculating the total number of records.
+    /// - Formatting and calculating the average rating of the records.
+    /// - Handling changes in the collection and updating statistics accordingly.
+    /// - Providing formatted statistical data for display in the UI.
+    ///
+    /// The class interacts with the <see cref="CollectionOfRecords"/> to access the records and the
+    /// <see cref="DataGridManager"/> to manage the data grid columns.
+    /// </summary>
     public class CollectionStatistics : INotifyPropertyChanged
     {
         public CollectionOfRecords CollectionOfRecords { get; }

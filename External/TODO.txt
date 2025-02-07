@@ -1,5 +1,6 @@
 **Immediate (This update):**
-- When file is read, it will build columns using datagridmanager instead of creating columns themselves.
+- When creating a # column, each cell is a Number data type but the column in DataGridManager is a string. It should be a Number.
+	- First test it with adding new file instead of reading existing one.
 - Create list of columns and their preferred data types. Display it in the GUI so user can choose what data type a column holds, this will be used for the proper sorting.
 	- When creating new cell, check status of preferred data types and make the cell the preferred data type.
 	- Check if deleting column will also change how columns sort.
@@ -60,6 +61,8 @@
 	- Example: # {"WatchedFilmsTracker": "0.015", "common_collection_type": "films", "statistics1":{"group_by_decade": 1, "count": 2, "average_max_4.00": 3}}.
 	- Reading and writing metadata.
 - Column titled "#" cannot be deleted.
+- Option on how to save metadata.
+	- 0 - no metadata. 1 - metadata in first line as a comment. 2 - file is like JSON file with metadata. 3 - metadata in separate file.
 
 **Upcoming (Next update):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.
