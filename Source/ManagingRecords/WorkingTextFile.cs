@@ -102,6 +102,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords = new CollectionOfRecords(this);
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
 
+
             if (!string.IsNullOrEmpty(filepath))
             {
                 ReadTextFile();

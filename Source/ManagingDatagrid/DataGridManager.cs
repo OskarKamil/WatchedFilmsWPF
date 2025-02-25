@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.ManagingDatagrid;
@@ -6,9 +8,11 @@ using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
 {
-    internal class DataGridManager
+    public class DataGridManager : INotifyPropertyChanged
     {
-        public ObservableCollection<ColumnInformation> ColumnsAndDataTypes { get; } = new ObservableCollection<ColumnInformation>();
+        public IEnumerable<DataType> AllDataTypes => GetValues();
+        public ObservableCollection<ColumnInformation> ColumnsAndDataTypes { get; } = new();
+
         public DataGrid DataGrid { get; set; }
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
@@ -18,11 +22,13 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             DataGrid = dataGrid;
         }
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public DataGridTextColumn AddColumn(string header)
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Add(newColumn);
-            ColumnsAndDataTypes.Add(new ColumnInformation(newColumn, DataType.String));
+            ColumnsAndDataTypes.Add(new ColumnInformation(newColumn, DataType.String, this)); // "this" passed explicitly
             return newColumn;
         }
 
@@ -44,7 +50,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Insert(index, newColumn);
-            var newColumnInformation = new ColumnInformation(newColumn, DataType.String);
+            var newColumnInformation = new ColumnInformation(newColumn, DataType.String, this);
             ColumnsAndDataTypes.Insert(index, newColumnInformation);
             return newColumnInformation;
         }
@@ -133,6 +139,10 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                 DataGrid.Columns[i].Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
             }
         }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
+                                                                                                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
         //private void SwapColumns(int index1, int index2)
         //{
         //    if (index1 >= 0 && index1 < ColumnRepresentation.Count &&

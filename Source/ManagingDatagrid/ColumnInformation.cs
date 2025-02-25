@@ -1,19 +1,21 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
+using WatchedFilmsTracker.Source.DataGridHelpers;
 using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
 namespace WatchedFilmsTracker.Source.ManagingDatagrid
 {
     public class ColumnInformation : INotifyPropertyChanged
     {
+        public DataGridManager DataGridManager { get; }
+
         public DataGridTextColumn DataGridTextColumn
         {
             get => _dataGridTextColumn;
             set
             {
                 _dataGridTextColumn = value;
-                OnPropertyChanged();
                 OnPropertyChanged(nameof(DataGridTextColumn));
             }
         }
@@ -24,7 +26,6 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
             set
             {
                 _dataType = value;
-                OnPropertyChanged();
                 OnPropertyChanged(nameof(DataType));
             }
         }
@@ -33,15 +34,11 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
         private DataGridTextColumn _dataGridTextColumn;
         private DataType _dataType;
 
-        public ColumnInformation(DataGridTextColumn dataGridTextColumn, DataType dataType)
+        public ColumnInformation(DataGridTextColumn dataGridTextColumn, DataType dataType, DataGridManager dataGridManager)
         {
-            _dataGridTextColumn = dataGridTextColumn;
+            DataGridTextColumn = dataGridTextColumn;
             _dataType = dataType;
-        }
-
-        public override string ToString()
-        {
-            return $"{DataGridTextColumn.Header} - {DataType}";
+            DataGridManager = dataGridManager;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -49,6 +46,11 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
         public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public override string ToString()
+        {
+            return $"{DataGridTextColumn.Header} - {DataType}";
         }
     }
 }

@@ -1,7 +1,10 @@
 **Immediate (This update):**
-- Create list of columns and their preferred data types. Display it in the GUI so user can choose what data type a column holds, this will be used for the proper sorting.
-	- When creating new cell, check status of preferred data types and make the cell the preferred data type.
-	- Check if deleting column will also change how columns sort.
+- Changing column data type.
+	- Create a radio button so each column can has a different data type.
+		- Data value converter between enums, radio button text and column data type.
+		- When data type changed, change all cells to the new data type.
+- When creating new cell, check status of preferred data types and make the cell the preferred data type.
+- Check if deleting column will also change how columns sort.
 - When deleting a column from a read file causes an error.
 - Predefined statistics. Films are: group by decade 10*10 +"s", count of decade films, average rating 0.## + "/4.00".
 - Prefefined statistics. Games are: group by Platform, etc.
@@ -61,6 +64,8 @@
 - Column titled "#" cannot be deleted.
 - Option on how to save metadata.
 	- 0 - no metadata. 1 - metadata in first line as a comment. 2 - file is like JSON file with metadata. 3 - metadata in separate file.
+- List of columns, their types, should also display their index in the datagrid and Z-index as well.
+	- Show a button to reset zindex into index or adapt index to zindex.
 
 **Upcoming (Next update):**
 - Reading from any number of csv values works. Uncomment code and fix it one by one.
@@ -101,6 +106,9 @@
 - Create my own ModernButton class.
 - Implement delete rows, columns function.
 	- When user hovers over a button, highlight the to be deleted columns/rows.
+
+- Try to adapt xUnits into my project to enforce business rules.
+	- Ask ChatGPT what kinds of tests I can do.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.
