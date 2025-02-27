@@ -99,6 +99,7 @@ namespace WatchedFilmsTracker
 
             TabControlMainWindow.SelectionChanged += (s, e) =>
             {
+                UpdateDataContextForCurrentlyOpenedTabWorkingTextFile();
                 UpdateButtons();
                 UpdateStageTitle();
                 UpdateFileInformation();
@@ -123,7 +124,7 @@ namespace WatchedFilmsTracker
 
         public event EventHandler FileOpened;
 
-        public void ButtonDeleteFilmRecord_Click(object sender, RoutedEventArgs e) // RemoveRecord, DeleteRecord
+        public void ButtonDeleteRecord_Click(object sender, RoutedEventArgs e) // RemoveRecord, DeleteRecord
         {
             if (GetCurrentlyOpenedTabWorkingTextFile().HasSelectedCells())
             {
@@ -137,7 +138,9 @@ namespace WatchedFilmsTracker
             return TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
         }
 
-        public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile()
+        public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile() => TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+
+        public void UpdateDataContextForCurrentlyOpenedTabWorkingTextFile()
         {
             WorkingTextFile currentlyOpened = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
 
@@ -149,7 +152,7 @@ namespace WatchedFilmsTracker
             LabelTotalRecordsNumber.DataContext = currentlyOpened.CollectionStatistics;
             ItemsColumnsDataTypes.DataContext = currentlyOpened.CollectionStatistics.DataGridInfo;
 
-            return currentlyOpened;
+           // return currentlyOpened;
         }
 
         public void UpdateStageTitle()
@@ -201,11 +204,6 @@ namespace WatchedFilmsTracker
             aboutWindow.ShowDialog();
         }
 
-        private void ButtonAddColumn_Click(object sender, RoutedEventArgs e)
-        {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
-        }
-
         private void ApplyUserSettingsToTheProgram()
         {
             autosaveBox.IsChecked = SettingsManager.AutoSave;
@@ -218,6 +216,10 @@ namespace WatchedFilmsTracker
             this.Height = SettingsManager.WindowHeight;
         }
 
+        private void ButtonAddColumn_Click(object sender, RoutedEventArgs e)
+        {
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
+        }
         private void ButtonAddRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
         {
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
@@ -233,6 +235,27 @@ namespace WatchedFilmsTracker
         {
             Button button = sender as Button;
             button.ContextMenu.IsOpen = true;
+        }
+
+        private void ButtonOpenFileLocally_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Open file";
+            openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+
+            string programDirectory = Environment.CurrentDirectory;
+            string myDataDirectory = Path.Combine(programDirectory, "MyData");
+            if (!Directory.Exists(myDataDirectory))
+            {
+                Directory.CreateDirectory(myDataDirectory);
+            }
+
+            openFileDialog.InitialDirectory = myDataDirectory;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
+            }
         }
 
         private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
@@ -260,6 +283,10 @@ namespace WatchedFilmsTracker
             CheckBox checkBox = (CheckBox)sender;
             SettingsManager.ScrollLastPosition = (bool)checkBox.IsChecked;
             checkBox.IsChecked = SettingsManager.ScrollLastPosition;
+        }
+
+        private void CheckBoxReopenFilesLastSession(object sender, RoutedEventArgs e)
+        {
         }
 
         private void CheckBoxUpdateStartup(object sender, RoutedEventArgs e)
@@ -372,28 +399,6 @@ namespace WatchedFilmsTracker
                 TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
-
-        private void ButtonOpenFileLocally_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Open file";
-            openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
-
-            string programDirectory = Environment.CurrentDirectory;
-            string myDataDirectory = Path.Combine(programDirectory, "MyData");
-            if (!Directory.Exists(myDataDirectory))
-            {
-                Directory.CreateDirectory(myDataDirectory);
-            }
-
-            openFileDialog.InitialDirectory = myDataDirectory;
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
-            }
-        }
-
         private void OpenLastOpenedFiles(string? newFilePath)
         {
             //   workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
@@ -504,6 +509,15 @@ namespace WatchedFilmsTracker
 
         {
             GetCurrentlyOpenedTabWorkingTextFile().ScrollToBottomOfList();
+        }
+
+        private void ShowColumnTypesClick(object sender, RoutedEventArgs e)
+        {
+            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridInfo.ColumnsAndDataTypes;
+            foreach (var item in info)
+            {
+                Debug.WriteLine(item.ToString());
+            }
         }
 
         private void UpdateAverageFilmRating()
@@ -645,22 +659,6 @@ namespace WatchedFilmsTracker
                 Width = 1200;
                 Height = 600;
             }
-        }
-
-        private void CheckBoxReopenFilesLastSession(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void ShowColumnTypesClick(object sender, RoutedEventArgs e)
-        {
-            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridInfo.ColumnsAndDataTypes;
-            foreach (var item in info)
-            {
-                Debug.WriteLine(item.ToString());
-                
-            }
-
-
         }
     }
 }

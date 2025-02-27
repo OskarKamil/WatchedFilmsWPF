@@ -140,8 +140,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             }
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
-                                                                                                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         //private void SwapColumns(int index1, int index2)
         //{

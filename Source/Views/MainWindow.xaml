@@ -497,7 +497,7 @@
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         UseLayoutRounding="False"
-                                        Click="ButtonDeleteFilmRecord_Click">
+                                        Click="ButtonDeleteRecord_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\deleterecord.png"
                                                Stretch="None"
