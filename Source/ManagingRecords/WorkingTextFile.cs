@@ -135,7 +135,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             SettingsManager.LastPath = Filepath;
 
             CollectionStatistics = new CollectionStatistics(CollectionOfRecords);
-            CollectionStatistics.DataGridInfo = CollectionOfRecords.DataGridManager;
+            CollectionStatistics.DataGridManager = CollectionOfRecords.DataGridManager;
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();

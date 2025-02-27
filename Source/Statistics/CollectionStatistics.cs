@@ -19,7 +19,7 @@ namespace WatchedFilmsTracker.Source.Statistics
     /// - Providing formatted statistical data for display in the UI.
     ///
     /// The class interacts with the <see cref="CollectionOfRecords"/> to access the records and the
-    /// <see cref="DataGridManager"/> to manage the data grid columns.
+    /// <see cref="DataGridHelpers.DataGridManager"/> to manage the data grid columns.
     /// </summary>
     public class CollectionStatistics : INotifyPropertyChanged
     {
@@ -47,7 +47,7 @@ namespace WatchedFilmsTracker.Source.Statistics
             }
         }
 
-        internal DataGridManager DataGridInfo
+        internal DataGridManager DataGridManager
         {
             get => _dataGridInfo;
             set
@@ -85,7 +85,7 @@ namespace WatchedFilmsTracker.Source.Statistics
 
         private string GetFormattedAverageRating()
         {
-            int ratingColumnId = DataGridInfo.GetIdOfColumnByHeader("Rating");
+            int ratingColumnId = DataGridManager.GetIdOfColumnByHeader("Rating");
             if (ratingColumnId == -1)
             {
                 return "\"Rating\" column not found";

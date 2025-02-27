@@ -150,9 +150,9 @@ namespace WatchedFilmsTracker
             TextBoxFilePath.DataContext = currentlyOpened;
             LabelAverageRatingRecord.DataContext = currentlyOpened.CollectionStatistics;
             LabelTotalRecordsNumber.DataContext = currentlyOpened.CollectionStatistics;
-            ItemsColumnsDataTypes.DataContext = currentlyOpened.CollectionStatistics.DataGridInfo;
+            ItemsColumnsDataTypes.DataContext = currentlyOpened.CollectionOfRecords.DataGridManager;
 
-           // return currentlyOpened;
+            // return currentlyOpened;
         }
 
         public void UpdateStageTitle()
@@ -220,6 +220,7 @@ namespace WatchedFilmsTracker
         {
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
         }
+
         private void ButtonAddRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
         {
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
@@ -399,6 +400,7 @@ namespace WatchedFilmsTracker
                 TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
+
         private void OpenLastOpenedFiles(string? newFilePath)
         {
             //   workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
@@ -513,7 +515,7 @@ namespace WatchedFilmsTracker
 
         private void ShowColumnTypesClick(object sender, RoutedEventArgs e)
         {
-            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridInfo.ColumnsAndDataTypes;
+            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridManager.ColumnsAndDataTypes;
             foreach (var item in info)
             {
                 Debug.WriteLine(item.ToString());
