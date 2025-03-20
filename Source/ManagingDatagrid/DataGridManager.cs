@@ -12,7 +12,6 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
     {
         public IEnumerable<DataType> AllDataTypes => GetValues();
         public ObservableCollection<ColumnInformation> ColumnsAndDataTypes { get; } = new();
-
         public DataGrid DataGrid { get; set; }
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();

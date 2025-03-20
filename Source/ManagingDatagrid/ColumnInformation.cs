@@ -31,6 +31,7 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
         }
 
         public String DisplayText => $"{DataGridTextColumn.Header} - {DataType}";
+        public Guid UniqueId { get; }
         private DataGridTextColumn _dataGridTextColumn;
         private DataType _dataType;
 
@@ -39,6 +40,7 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
             DataGridTextColumn = dataGridTextColumn;
             _dataType = dataType;
             DataGridManager = dataGridManager;
+            UniqueId = Guid.NewGuid();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
