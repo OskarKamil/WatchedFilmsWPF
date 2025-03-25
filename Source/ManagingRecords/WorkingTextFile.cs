@@ -24,13 +24,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     /// The <c>WorkingTextFile</c> class is responsible for managing the operations related to a text file
     /// that contains a collection of records. It handles reading from and writing to the file, managing
     /// the state of the records, and updating the UI components associated with the records.
-    /// 
+    ///
     /// This class provides functionalities to:
     /// - Load records from a text file and populate a DataGrid.
     /// - Track changes to the records and manage unsaved changes.
     /// - Save records back to the text file.
     /// - Handle various events related to the collection of records and the UI.
-    /// 
+    ///
     /// The class also maintains metadata about the file and provides methods to interact with the records
     /// and their representation in the UI.
     /// </summary>
@@ -56,8 +56,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         }
 
         public DataGrid DataGrid { get; set; }
+
         public Action<object, RoutedEventArgs> DeleteRecordAction { get; set; }
+
         public Grid Grid { get; set; }
+
         public Metadata Metadata { get; set; }
 
         public bool UnsavedChanges
@@ -74,6 +77,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         }
 
         public string Filepath;
+
         private CommonCollectionType _commonCollectionType;
 
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
@@ -101,7 +105,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             Filepath = filepath;
             CollectionOfRecords = new CollectionOfRecords(this);
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
-
 
             if (!string.IsNullOrEmpty(filepath))
             {
@@ -240,6 +243,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 return true;
             }
+        }
+
+        public DataGridManager GetDataGridManager()
+        {
+            return CollectionOfRecords.DataGridManager;
         }
 
         //        // Delete record menu item

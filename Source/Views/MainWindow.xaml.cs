@@ -343,6 +343,11 @@ namespace WatchedFilmsTracker
             SettingsManager.SaveToConfFile();
         }
 
+        private void MakeAllColumnsTextDEBUGClick(object sender, RoutedEventArgs e)
+        {
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().GetDataGridManager().MakeAllColumnsStringDEBUG();
+        }
+
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
         {
             // Disable the button and update the UI

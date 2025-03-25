@@ -25,8 +25,11 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
             get => _dataType;
             set
             {
-                _dataType = value;
-                OnPropertyChanged(nameof(DataType));
+                if (_dataType != value)
+                {
+                    _dataType = value;
+                    OnPropertyChanged(nameof(DataType));
+                }
             }
         }
 

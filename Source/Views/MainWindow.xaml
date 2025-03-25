@@ -1,6 +1,7 @@
 ﻿<Window x:Class="WatchedFilmsTracker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:WatchedFilmsTracker.Source.Converters"
         Title="MainWindow"
         KeyDown="Window_KeyDown"
         MinHeight="225"
@@ -9,6 +10,8 @@
         Height="600">
 
     <Window.Resources>
+        <converters:DataTypeComparisonConverter x:Key="DataTypeComparisonConverter" />
+
         <DataTemplate x:Key="ColumnItemTemplate">
             <StackPanel Orientation="Vertical"
                         Margin="3">
@@ -31,7 +34,27 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <RadioButton Content="{Binding}"
-                                         GroupName="{Binding DataContext.UniqueId, RelativeSource={RelativeSource AncestorType=StackPanel}}" />
+                                         GroupName="{Binding DataContext.UniqueId, RelativeSource={RelativeSource AncestorType=StackPanel}}">
+                                <RadioButton.Style>
+                                    <Style TargetType="RadioButton">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource DataTypeComparisonConverter}">
+                                                        <Binding Path="DataContext.DataType"
+                                                                 RelativeSource="{RelativeSource AncestorType=StackPanel}" />
+                                                        <Binding />
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background"
+                                                        Value="#FF7D7D7D" />
+                                                <Setter Property="FontWeight"
+                                                        Value="Bold" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </RadioButton.Style>
+                            </RadioButton>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>
@@ -51,234 +74,242 @@
                    LastChildFill="True">
 
             <!--Right Panel, Statistics and settings-->
-            <StackPanel Orientation="Vertical"
-                        MinWidth="250"
-                        DockPanel.Dock="Right"
-                        Background="White">
+            <ScrollViewer DockPanel.Dock="Right"
+                          Margin="0,0,0,30">
+                <StackPanel Orientation="Vertical"
+                            MinWidth="250"
+                            Background="White">
 
-                <!--File information-->
-                <Expander Header="File information">
-                    <GroupBox Background="#33FF0000">
+                    <!--File information-->
+                    <Expander Header="File information">
+                        <GroupBox Background="#33FF0000">
 
-                        <GroupBox.Header>File information</GroupBox.Header>
-                        <StackPanel>
+                            <GroupBox.Header>File information</GroupBox.Header>
+                            <StackPanel>
+                                <StackPanel Orientation="Vertical">
+
+                                    <GroupBox>
+                                        <GroupBox.Header>File path</GroupBox.Header>
+                                        <TextBox x:Name="TextBoxFilePath"
+                                                 Text="{Binding Filepath}"
+                                                 VerticalAlignment="Center"
+                                                 TextWrapping="WrapWithOverflow"
+                                                 Width="230"
+                                                 IsReadOnly="True"
+                                                 HorizontalAlignment="Left" />
+                                    </GroupBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Delimiter: "></Label>
+                                    <Label x:Name="LabelCurrentDelimiter"
+                                           Content=""></Label>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Collection type: "></Label>
+                                    <Button x:Name="ButtonCurrentFileCollectionType"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Click="ButtonCurrentFileCollectionType_Click">
+                                        <StackPanel Orientation="Vertical">
+                                            <Image x:Name="ImageCurrentFileCollectionType"
+                                                   Source="/Assets/TabIcons/other.png"
+                                                   Stretch="None"
+                                                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                                   RenderOptions.EdgeMode="Aliased" />
+                                            <TextBlock x:Name="TextBlockCurrentFileCollectionType"
+                                                       Text="Other"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <GroupBox>
+                                        <GroupBox.Header>Comments before</GroupBox.Header>
+                                        <TextBox x:Name="TextBoxCommentsBefore"
+                                                 HorizontalAlignment="Left"
+                                                 VerticalAlignment="Center"
+                                                 IsReadOnly="True"
+                                                 TextWrapping="WrapWithOverflow"
+                                                 Width="232"
+                                                 Text="{Binding CommentBefore}" />
+                                    </GroupBox>
+                                    <GroupBox>
+                                        <GroupBox.Header>Comments</GroupBox.Header>
+                                        <TextBox x:Name="TextBoxProgramComments"
+                                                 HorizontalAlignment="Left"
+                                                 VerticalAlignment="Center"
+                                                 TextWrapping="WrapWithOverflow"
+                                                 IsReadOnly="True"
+                                                 Width="232"
+                                                 Text="{Binding Comment}" />
+                                    </GroupBox>
+                                    <GroupBox>
+                                        <GroupBox.Header>Comments after</GroupBox.Header>
+                                        <TextBox x:Name="TextBoxCommentsAfter"
+                                                 HorizontalAlignment="Left"
+                                                 VerticalAlignment="Center"
+                                                 IsReadOnly="True"
+                                                 TextWrapping="WrapWithOverflow"
+                                                 Width="232"
+                                                 Text="{Binding CommentAfter}" />
+                                    </GroupBox>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </Expander>
+
+                    <!--Settings border-->
+                    <Expander IsExpanded="True"
+                              Header="Settings">
+                        <GroupBox Background="#330010FF">
+                            <GroupBox.Header>Settings</GroupBox.Header>
                             <StackPanel Orientation="Vertical">
-
                                 <GroupBox>
-                                    <GroupBox.Header>File path</GroupBox.Header>
-                                    <TextBox x:Name="TextBoxFilePath"
-                                             Text="{Binding Filepath}"
-                                             VerticalAlignment="Center"
-                                             TextWrapping="WrapWithOverflow"
-                                             Width="230"
-                                             IsReadOnly="True"
-                                             HorizontalAlignment="Left" />
-                                </GroupBox>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="Delimiter: "></Label>
-                                <Label x:Name="LabelCurrentDelimiter"
-                                       Content=""></Label>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="Collection type: "></Label>
-                                <Button x:Name="ButtonCurrentFileCollectionType"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        Click="ButtonCurrentFileCollectionType_Click">
+                                    <GroupBox.Header>General</GroupBox.Header>
                                     <StackPanel Orientation="Vertical">
-                                        <Image x:Name="ImageCurrentFileCollectionType"
-                                               Source="/Assets/TabIcons/other.png"
+                                        <CheckBox x:Name="defaultDateBox"
+                                                  Content="Default date is today"
+                                                  Click="CheckBoxDefaultDate" />
+                                        <CheckBox x:Name="autosaveBox"
+                                                  Content="Autosave changes on close"
+                                                  Click="CheckBoxAutoSave"
+                                                  IsChecked="False" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox>
+                                    <GroupBox.Header>On startup</GroupBox.Header>
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox x:Name="checkboxScrollLastPosition"
+                                                  Content="Scroll to the bottom of list"
+                                                  Click="CheckBoxLastFilmPosition" />
+                                        <CheckBox x:Name="checkboxCheckForUpdatesStartup"
+                                                  Content="Check for updates"
+                                                  Click="CheckBoxUpdateStartup" />
+                                        <CheckBox x:Name="checkboxReopenLastFiles"
+                                                  Content="Reopen files from last session"
+                                                  Checked="CheckBoxReopenFilesLastSession" />
+                                    </StackPanel>
+                                </GroupBox>
+                                <Grid Margin="0,0,0,5">
+                                    <TextBlock Text="Columns order and width"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center" />
+                                    <Button Content="Reset to default"
+                                            HorizontalAlignment="Right"
+                                            Click="ResetColumnsWidthAndOrder"
+                                            VerticalAlignment="Center" />
+                                </Grid>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image x:Name="ImageNewVersionSettings"
+                                               Source="\Assets\ButtonIcons\newVersion.png"
                                                Stretch="None"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                               RenderOptions.EdgeMode="Aliased" />
-                                        <TextBlock x:Name="TextBlockCurrentFileCollectionType"
-                                                   Text="Other"
-                                                   HorizontalAlignment="Left"
-                                                   VerticalAlignment="Center" />
+                                               RenderOptions.EdgeMode="Aliased"
+                                               Margin="0,0,5,0"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               Grid.RowSpan="1"
+                                               Grid.ColumnSpan="1"
+                                               Visibility="Collapsed" />
+                                        <TextBlock x:Name="SettingsUpdateBlock"
+                                                   Text="Program update"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Grid.Column="1" />
                                     </StackPanel>
-                                </Button>
+                                    <Button x:Name="CheckUpdatesButton"
+                                            Content="Check for updates"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                            Click="ManualCheckForUpdate"
+                                            Grid.Column="2"
+                                            Grid.ColumnSpan="1"
+                                            Grid.RowSpan="1" />
+                                </Grid>
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <GroupBox>
-                                    <GroupBox.Header>Comments before</GroupBox.Header>
-                                    <TextBox x:Name="TextBoxCommentsBefore"
-                                             HorizontalAlignment="Left"
-                                             VerticalAlignment="Center"
-                                             IsReadOnly="True"
-                                             TextWrapping="WrapWithOverflow"
-                                             Width="232"
-                                             Text="{Binding CommentBefore}" />
-                                </GroupBox>
-                                <GroupBox>
-                                    <GroupBox.Header>Comments</GroupBox.Header>
-                                    <TextBox x:Name="TextBoxProgramComments"
-                                             HorizontalAlignment="Left"
-                                             VerticalAlignment="Center"
-                                             TextWrapping="WrapWithOverflow"
-                                             IsReadOnly="True"
-                                             Width="232"
-                                             Text="{Binding Comment}" />
-                                </GroupBox>
-                                <GroupBox>
-                                    <GroupBox.Header>Comments after</GroupBox.Header>
-                                    <TextBox x:Name="TextBoxCommentsAfter"
-                                             HorizontalAlignment="Left"
-                                             VerticalAlignment="Center"
-                                             IsReadOnly="True"
-                                             TextWrapping="WrapWithOverflow"
-                                             Width="232"
-                                             Text="{Binding CommentAfter}" />
-                                </GroupBox>
+                        </GroupBox>
+                    </Expander>
+
+                    <!--Table Structure-->
+                    <Expander IsExpanded="True"
+                              Header="Table Structure">
+                        <GroupBox Background="#337200FF">
+                            <GroupBox.Header>Table structure</GroupBox.Header>
+                            <StackPanel>
+                                <Label Content="List of columns and data types" />
+                                <ItemsControl x:Name="ItemsColumnsDataTypes"
+                                              ItemsSource="{Binding ColumnsAndDataTypes}"
+                                              ItemTemplate="{StaticResource ColumnItemTemplate}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Vertical" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                                <Button Click="ShowColumnTypesClick">DEBUG print columns and data types</Button>
+                                <Button Click="MakeAllColumnsTextDEBUGClick">DEBUG make all columns text</Button>
+                                <Button>NOT WORKING Apply changes</Button>
+                                <Button>NOT WORKING Apply z-index of columns</Button>
+                                <Button>NOT WORKING Apply order of columns</Button>
                             </StackPanel>
+                        </GroupBox>
+                    </Expander>
+
+                    <!--Total Statistics border-->
+                    <GroupBox Background="#334DFF00">
+                        <GroupBox.Header>Collection statistics</GroupBox.Header>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal"
+                                        Visibility="Collapsed">
+                                <Label Foreground="Red">Wrong release year:</Label>
+                                <Label x:Name="wrongReleaseYearLanel"
+                                       Foreground="Red" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        Visibility="Collapsed">
+                                <Label Foreground="Red">Wrong watch date:</Label>
+                                <Label x:Name="wrongWatchDateLanel"
+                                       Foreground="Red" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Number of records:</Label>
+                                <Label x:Name="LabelTotalRecordsNumber"
+                                       Content="{Binding TotalRecordsNumber}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label>Average rating per record:</Label>
+                                <Label x:Name="LabelAverageRatingRecord"
+                                       Content="{Binding FormattedAverageRating}"></Label>
+                            </StackPanel>
+                            <Button>Add custom statistics</Button>
+                            <!--Decadal Statistics border-->
+                            <GroupBox Background="#33E600FF">
+                                <GroupBox.Header>Decadal statistics</GroupBox.Header>
+
+                                <Grid>
+                                    <DataGrid x:Name="decadalGrid"
+                                              CanUserResizeColumns="False"
+                                              CanUserResizeRows="False"
+                                              AutoGenerateColumns="False" />
+                                </Grid>
+                            </GroupBox>
+
+                            <!--Yearly Statistics border-->
+                            <GroupBox Background="#3300FFA7">
+                                <GroupBox.Header>Yearly statistics</GroupBox.Header>
+                                <Grid>
+                                    <DataGrid x:Name="yearlyGrid"
+                                              CanUserResizeColumns="False"
+                                              CanUserResizeRows="False"
+                                              AutoGenerateColumns="False" />
+                                </Grid>
+                            </GroupBox>
                         </StackPanel>
                     </GroupBox>
-                </Expander>
-
-                <!--Settings border-->
-                <GroupBox Background="#330010FF">
-                    <GroupBox.Header>Settings</GroupBox.Header>
-
-                    <StackPanel Orientation="Vertical">
-                        <GroupBox>
-                            <GroupBox.Header>General</GroupBox.Header>
-                            <StackPanel Orientation="Vertical">
-                                <CheckBox x:Name="defaultDateBox"
-                                          Content="Default date is today"
-                                          Click="CheckBoxDefaultDate" />
-                                <CheckBox x:Name="autosaveBox"
-                                          Content="Autosave changes on close"
-                                          Click="CheckBoxAutoSave"
-                                          IsChecked="False" />
-                            </StackPanel>
-                        </GroupBox>
-                        <GroupBox>
-                            <GroupBox.Header>On startup</GroupBox.Header>
-                            <StackPanel Orientation="Vertical">
-                                <CheckBox x:Name="checkboxScrollLastPosition"
-                                          Content="Scroll to the bottom of list"
-                                          Click="CheckBoxLastFilmPosition" />
-                                <CheckBox x:Name="checkboxCheckForUpdatesStartup"
-                                          Content="Check for updates"
-                                          Click="CheckBoxUpdateStartup" />
-                                <CheckBox x:Name="checkboxReopenLastFiles"
-                                          Content="Reopen files from last session"
-                                          Checked="CheckBoxReopenFilesLastSession" />
-                            </StackPanel>
-                        </GroupBox>
-                        <Grid Margin="0,0,0,5">
-                            <TextBlock Text="Columns order and width"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center" />
-                            <Button Content="Reset to default"
-                                    HorizontalAlignment="Right"
-                                    Click="ResetColumnsWidthAndOrder"
-                                    VerticalAlignment="Center" />
-                        </Grid>
-                        <Grid>
-                            <StackPanel Orientation="Horizontal">
-                                <Image x:Name="ImageNewVersionSettings"
-                                       Source="\Assets\ButtonIcons\newVersion.png"
-                                       Stretch="None"
-                                       RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                       RenderOptions.EdgeMode="Aliased"
-                                       Margin="0,0,5,0"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       Grid.RowSpan="1"
-                                       Grid.ColumnSpan="1"
-                                       Visibility="Collapsed" />
-                                <TextBlock x:Name="SettingsUpdateBlock"
-                                           Text="Program update"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Grid.Column="1" />
-                            </StackPanel>
-                            <Button x:Name="CheckUpdatesButton"
-                                    Content="Check for updates"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right"
-                                    Click="ManualCheckForUpdate"
-                                    Grid.Column="2"
-                                    Grid.ColumnSpan="1"
-                                    Grid.RowSpan="1" />
-                        </Grid>
-                    </StackPanel>
-                </GroupBox>
-
-                <!--Table Structure-->
-                <GroupBox Background="#337200FF">
-                    <GroupBox.Header>Table structure</GroupBox.Header>
-                    <StackPanel>
-                        <Label Content="List of columns and data types" />
-                        <ItemsControl x:Name="ItemsColumnsDataTypes"
-                                      ItemsSource="{Binding ColumnsAndDataTypes}"
-                                      ItemTemplate="{StaticResource ColumnItemTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Vertical" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                        <Button Click="ShowColumnTypesClick">DEBUG print columns and data types</Button>
-                        <Button>Apply changes</Button>
-                        <Button>Apply z-index of columns</Button>
-                        <Button>Apply order of columns</Button>
-                    </StackPanel>
-                </GroupBox>
-
-                <!--Total Statistics border-->
-                <GroupBox Background="#334DFF00">
-                    <GroupBox.Header>Collection statistics</GroupBox.Header>
-                    <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal"
-                                    Visibility="Collapsed">
-                            <Label Foreground="Red">Wrong release year:</Label>
-                            <Label x:Name="wrongReleaseYearLanel"
-                                   Foreground="Red" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal"
-                                    Visibility="Collapsed">
-                            <Label Foreground="Red">Wrong watch date:</Label>
-                            <Label x:Name="wrongWatchDateLanel"
-                                   Foreground="Red" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Number of records:</Label>
-                            <Label x:Name="LabelTotalRecordsNumber"
-                                   Content="{Binding TotalRecordsNumber}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label>Average rating per record:</Label>
-                            <Label x:Name="LabelAverageRatingRecord"
-                                   Content="{Binding FormattedAverageRating}"></Label>
-                        </StackPanel>
-                        <Button>Add custom statistics</Button>
-                        <!--Decadal Statistics border-->
-                        <GroupBox Background="#33E600FF">
-                            <GroupBox.Header>Decadal statistics</GroupBox.Header>
-
-                            <Grid>
-                                <DataGrid x:Name="decadalGrid"
-                                          CanUserResizeColumns="False"
-                                          CanUserResizeRows="False"
-                                          AutoGenerateColumns="False" />
-                            </Grid>
-                        </GroupBox>
-
-                        <!--Yearly Statistics border-->
-                        <GroupBox Background="#3300FFA7">
-                            <GroupBox.Header>Yearly statistics</GroupBox.Header>
-                            <Grid>
-                                <DataGrid x:Name="yearlyGrid"
-                                          CanUserResizeColumns="False"
-                                          CanUserResizeRows="False"
-                                          AutoGenerateColumns="False" />
-                            </Grid>
-                        </GroupBox>
-                    </StackPanel>
-                </GroupBox>
-            </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
 
             <!-- Left Panel, buttons and films grid-->
             <DockPanel LastChildFill="True"

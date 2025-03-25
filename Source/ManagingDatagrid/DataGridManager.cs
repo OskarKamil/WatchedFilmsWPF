@@ -111,6 +111,16 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             return DataGrid.Columns.Count;
         }
 
+        public void MakeAllColumnsStringDEBUG()
+        {
+            //Debug it does not actually change the cell types, only the column, the sorting is still the same
+            //Each cell datatype must be changed in order for the new sorting to work
+            foreach (ColumnInformation column in ColumnsAndDataTypes)
+            {
+                column.DataType = DataType.String;
+            }
+        }
+
         //private void RefreshColumns()
         //{
         //    dataGrid.Columns.Clear();
