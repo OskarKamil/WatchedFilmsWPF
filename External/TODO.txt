@@ -1,8 +1,8 @@
 **Immediate (This update):**
-- Changing column data type.
-	- Create a radio button so each column can has a different data type.
-		- Data value converter between enums, radio button text and column data type.
-		- When data type changed, change all cells to the new data type.
+- Create method that will change the DataType Cell in each column.
+- When Apply Data type changes is clicked
+	- Check the status of the radio buttons and apply those changes to the columns.
+
 - When creating new cell, check status of preferred data types and make the cell the preferred data type.
 - Check if deleting column will also change how columns sort.
 - When deleting a column from a read file causes an error.
