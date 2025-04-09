@@ -41,9 +41,14 @@
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource DataTypeComparisonConverter}">
+
+                                                        <!-- Column's actual DataType -->
                                                         <Binding Path="DataContext.DataType"
                                                                  RelativeSource="{RelativeSource AncestorType=StackPanel}" />
-                                                        <Binding />
+
+                                                        <!-- RadioButton's Content explicitly. -->
+                                                        <Binding Path="." />
+                                                    
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background"

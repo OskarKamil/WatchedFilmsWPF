@@ -35,7 +35,6 @@
 - When program opened. Get last opened files. Open them if they exist. Otherwise create empty file.
 - Fix column width and max width etc.
 
-- Switching tabs doesn't change window title.
 - Tabs should have name of file.
 - Save button works as SaveAs.
 - Closing program doesn't work.
