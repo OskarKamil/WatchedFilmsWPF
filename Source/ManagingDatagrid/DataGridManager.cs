@@ -117,13 +117,17 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             //Each cell datatype must be changed in order for the new sorting to work
             foreach (ColumnInformation column in ColumnsAndDataTypes)
             {
-                column.DataType = DataType.String;
+                ChangeColumnDataType(column, DataType.String);
+                column.DataType = DataType.String; // delete this line
             }
         }
 
-        //private void RefreshColumns()
-        //{
-        //    dataGrid.Columns.Clear();
+        public void ChangeColumnDataType(ColumnInformation column, DataType dataType)
+        {
+            column.DataType = DataType.String; // change this line
+            // change each cell type
+        }
+
         public void RemoveColumnAt(int columnIndex)
         {
             if (columnIndex >= 0 && columnIndex < DataGrid.Columns.Count)
