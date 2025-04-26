@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.ManagingDatagrid;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
 
 namespace WatchedFilmsTracker.Source.DataGridHelpers
@@ -13,12 +14,14 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         public IEnumerable<DataType> AllDataTypes => GetValues();
         public ObservableCollection<ColumnInformation> ColumnsAndDataTypes { get; } = new();
         public DataGrid DataGrid { get; set; }
+        public ObservableCollection<RecordModel> Records { get; }
         private readonly List<int> defaultOrder = new List<int>();
         private readonly List<double> defaultWidths = new List<double>();
 
-        public DataGridManager(DataGrid dataGrid)
+        public DataGridManager(DataGrid dataGrid, ObservableCollection<RecordModel> records)
         {
             DataGrid = dataGrid;
+            Records = records;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -63,6 +66,22 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             {
                 var dataGridColumn = AddColumn(columns[i].Header.ToString());
                 dataGridColumn.Binding = new Binding($"Cells[{i}].Value");
+            }
+        }
+
+        public void ChangeColumnDataType(ColumnInformation column, DataType dataType)
+        {
+            column.DataType = dataType;
+
+            int columnIndex = ColumnsAndDataTypes.IndexOf(column);
+            if (columnIndex == -1) return;
+
+            foreach (var record in Records)
+            {
+                if (columnIndex < record.Cells.Count)
+                {
+                    record.Cells[columnIndex].DataType = dataType;
+                }
             }
         }
 
@@ -113,19 +132,10 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
         public void MakeAllColumnsStringDEBUG()
         {
-            //Debug it does not actually change the cell types, only the column, the sorting is still the same
-            //Each cell datatype must be changed in order for the new sorting to work
             foreach (ColumnInformation column in ColumnsAndDataTypes)
             {
                 ChangeColumnDataType(column, DataType.String);
-                column.DataType = DataType.String; // delete this line
             }
-        }
-
-        public void ChangeColumnDataType(ColumnInformation column, DataType dataType)
-        {
-            column.DataType = DataType.String; // change this line
-            // change each cell type
         }
 
         public void RemoveColumnAt(int columnIndex)

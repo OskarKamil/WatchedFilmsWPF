@@ -89,7 +89,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CommonCollectionType = commonCollection;
             DataGrid = CreateGridInTheUI();
             CollectionOfRecords = new CollectionOfRecords(this);
-            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
+            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid, CollectionOfRecords.ObservableCollectionOfRecords);
 
             CollectionOfRecords.CreateColumnsWithIds();
 
@@ -104,7 +104,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid = CreateGridInTheUI();
             Filepath = filepath;
             CollectionOfRecords = new CollectionOfRecords(this);
-            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid);
+            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid, CollectionOfRecords.ObservableCollectionOfRecords);
 
             if (!string.IsNullOrEmpty(filepath))
             {
