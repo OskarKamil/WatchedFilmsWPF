@@ -25,6 +25,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             this.workingTextFile = filmsTextFile;
 
             ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
+            DataGridManager = new DataGridManager(filmsTextFile.DataGrid, ObservableCollectionOfRecords);
         }
 
         public event EventHandler<EventArgs> AnyRecordHasChanged;
@@ -99,7 +100,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newColumn.DisplayIndex = 0;
             newColumn.IsReadOnly = true;
             newColumn.CanUserReorder = false;
-            
 
             newColumn.Binding = new Binding($"Cells[{0}].Value");
             newColumn.SortMemberPath = ($"Cells[{0}].ComparableValue");
@@ -233,6 +233,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DeleteColumnAt(columnID);
         }
+
         public void PopulateListWithData(List<string> list, string delimiter)
         {
             foreach (string line in list)
