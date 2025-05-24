@@ -12,7 +12,9 @@ using WatchedFilmsTracker.Source.BackgroundServices;
 using WatchedFilmsTracker.Source.Buttons;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingDatagrid;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Statistics;
 using static WatchedFilmsTracker.Source.BackgroundServices.CheckForUpdateService;
@@ -124,6 +126,39 @@ namespace WatchedFilmsTracker
 
         public event EventHandler FileOpened;
 
+        /// <summary>
+        /// This method is used in RadioButton_Checked to find what ColumnInfo nested object the control belongs to.
+        /// </summary>
+        /// <typeparam name="T">Searched dependency panel</typeparam>
+        /// <param name="current">type of control</param>
+        /// <returns></returns>
+        public static T FindAncestor<T>(DependencyObject current) where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T)
+                    return (T)current;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Selects each column's RadioButton to the corresponding DataType of the ColumnInformation.
+        /// </summary>
+        public void ApplyColumnsDataTypesToRadioButtons()
+        {
+            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
+            {
+                return;
+            }
+            var manager = GetCurrentlyOpenedTabWorkingTextFile().GetDataGridManager();
+            foreach (var column in manager.ColumnsAndDataTypes)
+            {
+                column.SelectedDataType = column.DataType;
+            }
+        }
+
         public void ButtonDeleteRecord_Click(object sender, RoutedEventArgs e) // RemoveRecord, DeleteRecord
         {
             if (GetCurrentlyOpenedTabWorkingTextFile().HasSelectedCells())
@@ -204,6 +239,21 @@ namespace WatchedFilmsTracker
             aboutWindow.ShowDialog();
         }
 
+        private void ApplyChangesClick(object sender, RoutedEventArgs e)
+        {
+            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
+            {
+                return;
+            }
+            var manager = GetCurrentlyOpenedTabWorkingTextFile().GetDataGridManager();
+            foreach (var column in manager.ColumnsAndDataTypes)
+            {
+                manager.ChangeColumnDataType(column, column.SelectedDataType);
+            }
+
+            GetCurrentlyOpenedTabWorkingTextFile().AnyChangeHappen();
+        }
+
         private void ApplyUserSettingsToTheProgram()
         {
             autosaveBox.IsChecked = SettingsManager.AutoSave;
@@ -221,7 +271,7 @@ namespace WatchedFilmsTracker
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
         }
 
-        private void ButtonAddRecord_Action(object sender, RoutedEventArgs e) // AddRecord, NewRecord
+        private void ButtonAddRecord_Click(object sender, RoutedEventArgs e) // AddRecord, NewRecord
         {
             TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
@@ -345,7 +395,14 @@ namespace WatchedFilmsTracker
 
         private void MakeAllColumnsTextDEBUGClick(object sender, RoutedEventArgs e)
         {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().GetDataGridManager().MakeAllColumnsStringDEBUG();
+            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
+            {
+                return;
+            }
+
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().GetDataGridManager().ChangeDataTypeAllColumns(CellDataType.DataType.String);
+
+            ApplyColumnsDataTypesToRadioButtons();
         }
 
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
@@ -414,6 +471,31 @@ namespace WatchedFilmsTracker
         private void OpenLocalFolderButton_Click(object sender, RoutedEventArgs e)
         {
             LocalFilmsFilesService.OpenMyDataDirectoryFileExplorer();
+        }
+
+        /// <summary>
+        /// Checks if DataContext of RadioButton is of CellDataType.DataType.
+        /// Finds ColumnInformation associated with RadioButton.
+        /// Sets the columnInfo.SelectedDataType to columnInfo.SelectedDataType
+        /// which is RadioButton DataContext value.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            var clickedRadioButton = sender as RadioButton;
+            if (clickedRadioButton == null) return;
+
+            // Get the selected type from the RadioButton content
+            if (clickedRadioButton.DataContext is CellDataType.DataType selectedType)
+            {
+                // Navigate up the visual tree to find the parent ColumnInformation
+                var columnInfo = FindAncestor<StackPanel>(clickedRadioButton)?.DataContext as ColumnInformation;
+                if (columnInfo != null)
+                {
+                    columnInfo.SelectedDataType = selectedType;
+                }
+            }
         }
 
         private void RemoveColumnButton_Click(object sender, RoutedEventArgs e)

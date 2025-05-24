@@ -1,8 +1,6 @@
 **Immediate (This update):**
-- Change all cell types in the column.
-	- Test if it works by sorting ID column.
-
-- When creating new row. Check data types of columns and create cell with correct data type.
+- One file MyFilms.csv from root project folder won't open.
+- When creating new record. Check data types of columns and create cell with correct data type.
 
 - When Apply Data type changes is clicked
 	- Check the status of the radio buttons and apply those changes to the columns.
