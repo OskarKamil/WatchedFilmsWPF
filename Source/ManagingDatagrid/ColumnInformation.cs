@@ -10,6 +10,21 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
     {
         public DataGridManager DataGridManager { get; }
 
+        private DataType _selectedDataType;
+        public DataType SelectedDataType
+        {
+            get => _selectedDataType;
+            set
+            {
+                if (_selectedDataType != value)
+                {
+
+                    _selectedDataType = value;
+                    OnPropertyChanged(nameof(SelectedDataType));
+                }
+            }
+        }
+
         public DataGridTextColumn DataGridTextColumn
         {
             get => _dataGridTextColumn;
@@ -28,6 +43,7 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
                 if (_dataType != value)
                 {
                     _dataType = value;
+                    SelectedDataType = _dataType;
                     OnPropertyChanged(nameof(DataType));
                 }
             }
@@ -42,6 +58,7 @@ namespace WatchedFilmsTracker.Source.ManagingDatagrid
         {
             DataGridTextColumn = dataGridTextColumn;
             _dataType = dataType;
+            SelectedDataType = dataType;
             DataGridManager = dataGridManager;
             UniqueId = Guid.NewGuid();
         }

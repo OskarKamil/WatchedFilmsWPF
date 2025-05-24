@@ -34,21 +34,25 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <RadioButton Content="{Binding}"
-                                         GroupName="{Binding DataContext.UniqueId, RelativeSource={RelativeSource AncestorType=StackPanel}}">
+                                         GroupName="{Binding DataContext.UniqueId, RelativeSource={RelativeSource AncestorType=StackPanel}}"
+                                         Checked="RadioButton_Checked">
+                                <RadioButton.IsChecked>
+                                    <MultiBinding Converter="{StaticResource DataTypeComparisonConverter}"
+                                                  Mode="OneWay">
+                                        <Binding Path="DataContext.SelectedDataType"
+                                                 RelativeSource="{RelativeSource AncestorType=StackPanel}" />
+                                        <Binding Path="." />
+                                    </MultiBinding>
+                                </RadioButton.IsChecked>
                                 <RadioButton.Style>
                                     <Style TargetType="RadioButton">
                                         <Style.Triggers>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource DataTypeComparisonConverter}">
-
-                                                        <!-- Column's actual DataType -->
                                                         <Binding Path="DataContext.DataType"
                                                                  RelativeSource="{RelativeSource AncestorType=StackPanel}" />
-
-                                                        <!-- RadioButton's Content explicitly. -->
                                                         <Binding Path="." />
-                                                    
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background"
@@ -255,7 +259,7 @@
                                 </ItemsControl>
                                 <Button Click="ShowColumnTypesClick">DEBUG print columns and data types</Button>
                                 <Button Click="MakeAllColumnsTextDEBUGClick">DEBUG make all columns text</Button>
-                                <Button>NOT WORKING Apply changes</Button>
+                                <Button Click="ApplyChangesClick">Apply changes</Button>
                                 <Button>NOT WORKING Apply z-index of columns</Button>
                                 <Button>NOT WORKING Apply order of columns</Button>
                             </StackPanel>
@@ -510,7 +514,7 @@
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         UseLayoutRounding="False"
-                                        Click="ButtonAddRecord_Action">
+                                        Click="ButtonAddRecord_Click">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Source="\Assets\ButtonIcons\addrecord.png"
                                                Stretch="None"

@@ -85,6 +85,14 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             }
         }
 
+        public void ChangeDataTypeAllColumns(DataType newType)
+        {
+            foreach (ColumnInformation column in ColumnsAndDataTypes)
+            {
+                ChangeColumnDataType(column, newType);
+            }
+        }
+
         public void ChangeDataTypeOfColumn(int columnIndex, DataType dataType)
         {
             ColumnsAndDataTypes[columnIndex].DataType = dataType;
