@@ -91,7 +91,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords = new CollectionOfRecords(this);
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid, CollectionOfRecords.ObservableCollectionOfRecords);
 
-            CollectionOfRecords.CreateColumnsWithIds();
+            CollectionOfRecords.CreateColumnWithIds();
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
             CollectionOfRecords.CreateDefaultColumnsForCommonCollectionType();
@@ -106,14 +106,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords = new CollectionOfRecords(this);
             CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid, CollectionOfRecords.ObservableCollectionOfRecords);
 
-            if (!string.IsNullOrEmpty(filepath))
-            {
-                ReadTextFile();
-            }
+            ReadTextFile();
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
             CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
-            CollectionOfRecords.CreateColumnsWithIds();
+            CollectionOfRecords.CreateColumnWithIds();
 
             AfterFileHasBeenLoaded();
         }
@@ -347,7 +344,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             reader.ReadFile();
             Metadata = reader.Metadata;
 
-            // replace this with foreach, build records based on reader.getcolumns
             CollectionOfRecords.Columns = reader.GetColumns();
 
             CollectionOfRecords.PopulateListWithData(reader.GetListOfRecords(), "\t");
