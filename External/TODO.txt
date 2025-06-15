@@ -2,8 +2,13 @@
 - One file MyFilms.csv from root project folder won't open.
 - When creating new record. Check data types of columns and create cell with correct data type.
 
-- When Apply Data type changes is clicked
-	- Check the status of the radio buttons and apply those changes to the columns.
+- Editing a cell doesn't inform the file of unsaved changes and save button is not active.
+
+- Simplify how reading a file works.
+	- The program creates columns, adds data, removes columns, adds columns again.
+
+- Try again if MyFilms.csv works.
+	- If works, go to populating collection.txt file and update documentation.
 
 - When creating new cell, check status of preferred data types and make the cell the preferred data type.
 - Check if deleting column will also change how columns sort.

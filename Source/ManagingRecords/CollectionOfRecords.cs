@@ -93,7 +93,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
         }
 
-        public DataGridTextColumn CreateColumnsWithIds()
+        public DataGridTextColumn CreateColumnWithIds()
         {
             var newColumnInformation = CreateNewColumnAtIndex(0, "#");
             var newColumn = newColumnInformation.DataGridTextColumn;
