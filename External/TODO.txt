@@ -1,5 +1,8 @@
 **Immediate (This update):**
-- One file MyFilms.csv from root project folder won't open.
+- MyFilms.csv file if the first row has extra [tab] symbol at the end, the file load will fail.
+	- Ragged CSV file, with first line (line of column headers) has more values than the rest, will cause it to fail.
+	- Padding, normalizing, rectangularizing the data does not work properly. Probably because first line are headers and are treated differently.
+
 - When creating new record. Check data types of columns and create cell with correct data type.
 
 - Editing a cell doesn't inform the file of unsaved changes and save button is not active.

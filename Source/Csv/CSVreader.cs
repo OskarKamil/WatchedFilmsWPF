@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.Csv;
-using WatchedFilmsTracker.Source.ManagingFilmsFile;
-using WatchedFilmsTracker.Source.ManagingRecords;
 
 namespace WatchedFilmsTracker.Source.Services.Csv
 {
@@ -12,12 +10,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         private List<DataGridTextColumn> _columns;
         private List<string> _listOfRecords;
         private int _maxColumns;
-        private string fileColumns;
         private string filepath;
-        private StreamReader filmsFile;
-        private IEnumerator<string> iterator;
-        private string lineFromFile;
-        private List<string> valuesFromLine;
 
         public CSVreader(string filepath)
         {
@@ -37,51 +30,9 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             return _columns;
         }
 
-        public string GetFileColumns()
-        {
-            return fileColumns;
-        }
-
-        public string GetFilePath()
-        {
-            return filepath;
-        }
-
         public List<string> GetListOfRecords()
         {
             return _listOfRecords;
-        }
-
-        public bool HasNextLine()
-        {
-            return !filmsFile.EndOfStream;
-        }
-
-        public string NextLine()
-        {
-            if (HasNextLine())
-                return filmsFile.ReadLine();
-            else
-                return "";
-        }
-
-        public string NextValueFromLine()
-        {
-            if (valuesFromLine == null)
-            {
-                string[] valuesArray = lineFromFile.Split('\t');
-                valuesFromLine = new List<string>(valuesArray);
-                iterator = valuesFromLine.GetEnumerator();
-            }
-            iterator.MoveNext();
-            return iterator.Current;
-        }
-
-        public void PrepareValuesFromCurrentLine()
-        {
-            string[] valuesArray = lineFromFile.Split('\t');
-            valuesFromLine = new List<string>(valuesArray);
-            iterator = valuesFromLine.GetEnumerator();
         }
 
         public void ReadFile()
@@ -107,6 +58,16 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                         commentsProcessed = true;
                     }
                 }
+
+                // todo rectancugalize data
+                // read all data
+                //  keep track of the longest row
+                // rectangularize data
+                // store column headers
+
+                // outside of this method
+                // create columns
+                // populate cells, each population, check column data
 
                 var values = line.Split('\t').Select(v => v.Trim()).ToList();
 
@@ -135,7 +96,6 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                     _maxColumns = columnsInThisLine;
                 }
             }
-
         }
     }
 }
