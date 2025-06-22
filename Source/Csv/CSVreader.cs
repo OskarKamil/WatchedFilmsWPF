@@ -61,7 +61,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
 
                 // todo rectancugalize data
                 // read all data
-                //  keep track of the longest row
+                // keep track of the longest row
                 // rectangularize data
                 // store column headers
 

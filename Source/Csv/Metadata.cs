@@ -29,32 +29,42 @@ namespace WatchedFilmsTracker.Source.Csv
             ProcessLines(commentLines);
         }
 
+        /// <summary>
+        /// Processes the comment lines in CSV file. It also trims the comment lines of tabs because some other programs may rectangularize the file by adding more tabs or separators for the comment.
+        /// </summary>
+        /// <param name="commentLines"></param>
         private void ProcessLines(List<string> commentLines)
         {
-            if (commentLines != null)
-            {
-                bool programCommentRead = false;
-                foreach (string commentLine in commentLines)
-                {
-                    if (commentLine.StartsWith("# {\"WatchedFilmsTracker\":") && !programCommentRead)
-                    {
-                        _comment.AppendLine(commentLine);
-                        programCommentRead = true;
-                    }
-                    else if (!programCommentRead)
-                    {
-                        _commentBefore.AppendLine(commentLine);
-                    }
-                    else
-                    {
-                        _commentAfter.AppendLine(commentLine);
-                    }
-                }
+            if (commentLines == null)
+                return;
 
-                Comment = _comment.ToString().Trim();
-                CommentBefore = _commentBefore.ToString().Trim();
-                CommentAfter = _commentAfter.ToString().Trim();
+            bool programCommentRead = false;
+            _comment.Clear();
+            _commentBefore.Clear();
+            _commentAfter.Clear();
+
+            foreach (string commentLine in commentLines)
+            {
+                string trimmedLine = commentLine.TrimEnd(); // only remove trailing tabs/spaces
+
+                if (commentLine.StartsWith("# {\"WatchedFilmsTracker\":") && !programCommentRead)
+                {
+                    _comment.AppendLine(trimmedLine);
+                    programCommentRead = true;
+                }
+                else if (!programCommentRead)
+                {
+                    _commentBefore.AppendLine(trimmedLine);
+                }
+                else
+                {
+                    _commentAfter.AppendLine(trimmedLine);
+                }
             }
+
+            Comment = _comment.ToString().Trim();
+            CommentBefore = _commentBefore.ToString().Trim();
+            CommentAfter = _commentAfter.ToString().Trim();
         }
     }
 }
