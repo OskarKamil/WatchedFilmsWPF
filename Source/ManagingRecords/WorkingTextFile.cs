@@ -347,7 +347,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             CollectionOfRecords.Columns = reader.GetColumns();
 
             CollectionOfRecords.PopulateListWithData(reader.GetListOfRecords(), "\t");
-            reader.CloseFile();
         }
 
         /// <returns>
