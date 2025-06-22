@@ -93,6 +93,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
         }
 
+        public void AddRecordFromStringList(List<string> list, string delimiter)
+        {
+            RecordModel newRecord = new RecordModel(new List<Cell>());
+
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                newRecord.AddNewCell(list[i]);
+            }
+
+            //int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
+            //if (indexOfColumnID != -1)
+            //    newRecord.Cells[indexOfColumnID].NumberValue = (ObservableCollectionOfRecords.Count + 1);
+
+            ObservableCollectionOfRecords.Add(newRecord);
+
+            newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
+        }
+
         public DataGridTextColumn CreateColumnWithIds()
         {
             var newColumnInformation = CreateNewColumnAtIndex(0, "#");
@@ -234,11 +252,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DeleteColumnAt(columnID);
         }
 
-        public void PopulateListWithData(List<string> list, string delimiter)
+        public void PopulateListWithData(List<List<string>> list, string delimiter)
         {
-            foreach (string line in list)
+            foreach (var record in list)
             {
-                AddRecordFromText(line, delimiter);
+                AddRecordFromStringList(record, delimiter);
             }
         }
 

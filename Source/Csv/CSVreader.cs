@@ -8,7 +8,7 @@ namespace WatchedFilmsTracker.Source.Services.Csv
     {
         public Metadata Metadata;
         private List<DataGridTextColumn> _columns;
-        private List<string> _listOfRecords;
+        private List<List<string>> _listOfRecords;
         private int _maxColumns;
         private string filepath;
 
@@ -16,13 +16,8 @@ namespace WatchedFilmsTracker.Source.Services.Csv
         {
             _maxColumns = 0;
             _columns = new List<DataGridTextColumn>();
-            _listOfRecords = new List<string>();
+            _listOfRecords = new List<List<string>>();
             this.filepath = filepath;
-        }
-
-        public void CloseFile()
-        {
-            //  filmsFile.Close();
         }
 
         public List<DataGridTextColumn> GetColumns()
@@ -30,9 +25,31 @@ namespace WatchedFilmsTracker.Source.Services.Csv
             return _columns;
         }
 
-        public List<string> GetListOfRecords()
+        public List<List<string>> GetListOfRecords()
         {
             return _listOfRecords;
+        }
+
+        public void NormalizeData(List<List<String>> recordsList)
+        {
+            // generate missing columns
+            int columnsToAdd = _maxColumns - _columns.Count;
+            for (int i = 0; i < columnsToAdd; i++)
+            {
+                _columns.Add(new DataGridTextColumn
+                {
+                    Header = "",
+                });
+            }
+
+            foreach (var record in recordsList)
+            {
+                int valuesToAdd = _maxColumns - record.Count;
+                for (int i = 0; i < valuesToAdd; i++)
+                {
+                    record.Add("");
+                }
+            }
         }
 
         public void ReadFile()
@@ -59,16 +76,6 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                     }
                 }
 
-                // todo rectancugalize data
-                // read all data
-                // keep track of the longest row
-                // rectangularize data
-                // store column headers
-
-                // outside of this method
-                // create columns
-                // populate cells, each population, check column data
-
                 var values = line.Split('\t').Select(v => v.Trim()).ToList();
 
                 // read headers
@@ -87,15 +94,16 @@ namespace WatchedFilmsTracker.Source.Services.Csv
                 }
 
                 // read data
-                _listOfRecords.Add(line);
+                _listOfRecords.Add(values);
 
                 // Update max columns if needed
-                int columnsInThisLine = line.Split('\t').Length;
-                if (columnsInThisLine > _maxColumns)
+
+                if (values.Count > _maxColumns)
                 {
-                    _maxColumns = columnsInThisLine;
+                    _maxColumns = values.Count;
                 }
             }
+            NormalizeData(_listOfRecords);
         }
     }
 }
