@@ -1,0 +1,47 @@
+To open the collection and load up the DataGrid (table) one has to create a new file or open an existing file. There are two possible scenarios.
+
+1. Create new file.
+Pressing [New file] button will open a context menu to choose a collection like: Books, Films, Games, Other.
+
+MainWindow.xaml.cs
+CreateEmptyWorkingFile(CommonCollectionType commonCollection);
+	new WorkingTextFile(commonCollection);
+		new CollectionOfRecords(this);
+		CollectionOfRecords.CreateColumnsWithIds();
+		CollectionOfRecords.CreateDefaultColumnsForCommonCollectionType();
+
+As you can see. In the first scenario in the MainWindow.xaml.cs after pressing the [New file] button, it will display context menu to choose a type of collection.
+Then it creates a WorkingTextFile object with argument of commonCollection.
+Then the object of CollectionOfRecords is created. This constructor doesn't do anything, it simply sets up the object but doesn't create any records yet.
+Then still inside the WorkingTextFile constructor, when given collection type, it will create a first row and first column of IDs (# is the header).
+Then the method CreateDefaultColumnsForCommonCollectionType() will will the template of the collection type and will generate columns for this collection.
+
+2. Open existing file.
+Pressing [Open file] button will open up a file chooser to select a file.
+
+MainWindow.xaml.cs
+TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
+	new WorkingTextFile(filePath);
+		new CollectionOfRecords(this);
+		ReadTextFile();
+			new CSVreader(Filepath);
+			reader.ReadFile();
+				// reads all lines, creates missing cells, creates columns and their headers, stores all the data
+			CollectionOfRecords.Columns = reader.GetColumns();
+			CollectionOfRecords.PopulateListWithData(reader.GetListOfRecords(), "\t");
+		CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
+		CollectionOfRecords.CreateColumnsWithIds();
+
+As before it starts with creating a new WorkingTextFile object, but the argument to the constructor is a string instead of commonCollection.
+It creates empty collection.
+Then the method ReadTextFile() is invoked which will read the file from the filepath.
+The method reads the whole csv or txt file. Stores information about column headers and all the data including comments.
+
+### PROBLEMATIC PART
+Columns are added to the collection object.
+Collection is populated with data.
+Columns are removed, and built again.
+Column with IDs (# is the header) is being built.
+###
+
+The problematic part is that the columns are created, then populated, then removed and created again. Removing one method breaks the program. Needs to be investigated and fixed in the future.

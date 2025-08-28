@@ -13,7 +13,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\ButtonIcons\addColumn.png" />
+    <None Remove="Assets\ButtonIcons\removeColumn.png" />
+    <None Remove="Assets\ButtonIcons\renameColumn.png" />
+    <None Remove="Assets\ButtonIcons\saveAll.png" />
     <None Remove="Assets\ButtonIcons\searchInternetForFilm.png" />
+    <None Remove="Assets\TabIcons\books.png" />
+    <None Remove="Assets\TabIcons\closeX.png" />
+    <None Remove="Assets\TabIcons\closeX2.png" />
+    <None Remove="Assets\TabIcons\closeX3.png" />
+    <None Remove="Assets\TabIcons\comics.png" />
+    <None Remove="Assets\TabIcons\films.png" />
+    <None Remove="Assets\TabIcons\games.png" />
+    <None Remove="Assets\TabIcons\other.png" />
+    <None Remove="Assets\TabIcons\series.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +39,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\ButtonIcons\about2.png" />
+    <Resource Include="Assets\ButtonIcons\addColumn.png" />
     <Resource Include="Assets\ButtonIcons\addRecord.png" />
     <Resource Include="Assets\ButtonIcons\clear2.png" />
     <Resource Include="Assets\ButtonIcons\deleteRecord.png" />
@@ -34,6 +48,9 @@
     <Resource Include="Assets\ButtonIcons\icon2.png" />
     <Resource Include="Assets\ButtonIcons\icon_old.png" />
     <Resource Include="Assets\ButtonIcons\loadLocally.png" />
+    <Resource Include="Assets\ButtonIcons\removeColumn.png" />
+    <Resource Include="Assets\ButtonIcons\renameColumn.png" />
+    <Resource Include="Assets\ButtonIcons\saveAll.png" />
     <Resource Include="Assets\ButtonIcons\search.png" />
     <Resource Include="Assets\ButtonIcons\searchInternetForFilm.png" />
     <Resource Include="Assets\ButtonIcons\x.png" />
@@ -52,6 +69,13 @@
     <Resource Include="Assets\ButtonIcons\selectLast.png" />
     <Resource Include="Assets\ButtonIcons\selectLast2.png" />
     <Resource Include="Assets\ButtonIcons\openContainingFolder.png" />
+    <Resource Include="Assets\TabIcons\books.png" />
+    <Resource Include="Assets\TabIcons\closeX.png" />
+    <Resource Include="Assets\TabIcons\comics.png" />
+    <Resource Include="Assets\TabIcons\other.png" />
+    <Resource Include="Assets\TabIcons\films.png" />
+    <Resource Include="Assets\TabIcons\games.png" />
+    <Resource Include="Assets\TabIcons\series.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -74,7 +98,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="REM Ensure the target directory exists&#xA;mkdir &quot;$(PublishDir)&quot;&#xD;&#xA;&#xA;REM Copy ReadMe.txt file to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ReadMe.txt&quot; &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ExampleFile.csv to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ExampleFile.csv&quot; &quot;$(PublishDir)&quot;" />
+    <Exec Command="REM Ensure the target directory exists&#xA;mkdir &quot;$(PublishDir)&quot;&#xD;&#xA;&#xA;REM Copy ReadMe.txt file to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ReadMe.txt&quot; &quot;$(PublishDir)&quot;&#xA;&#xA;REM Copy ExampleFile.csv to the PublishOutput directory&#xA;copy /Y &quot;$(ProjectDir)Assets\TextFiles\ExampleFile.csv&quot; &quot;$(PublishDir)&quot;&#xD;&#xA;&#xD;&#xA;REM Create WatchedFilmsTracker directory&#xA;mkdir &quot;$(PublishDir)WatchedFilmsTracker&quot;" />
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

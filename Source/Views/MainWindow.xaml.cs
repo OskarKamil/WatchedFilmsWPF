@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -8,25 +7,31 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using WatchedFilmsTracker.Source;
+using WatchedFilmsTracker.Source.BackgroundServices;
+using WatchedFilmsTracker.Source.Buttons;
+using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingDatagrid;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Models;
-using WatchedFilmsTracker.Source.Services;
-using static WatchedFilmsTracker.Source.Services.CheckForUpdateService;
+using WatchedFilmsTracker.Source.Statistics;
+using static WatchedFilmsTracker.Source.BackgroundServices.CheckForUpdateService;
 
 namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
-        private const string SearchBoxDefaultText = "Film title, year, specific words";
+        private const string SearchBoxDefaultText = "Filter results";
         private CancellationTokenSource cancellationTokenSourceForDecadalStatistics;
         private CancellationTokenSource cancellationTokenSourceForYearlyStatistics;
         private DecadalStatisticsTableManager decadalStatisticsTableManager;
-        private FilmsTableColumnManager filmsColumnsManager;
-        private FilmsTextFile filmsFileHandler;
+        private DataGridManager filmsColumnsManager;
         private LocalFilmsFilesService localFilmsFilesService;
         private SearchManager searchManager;
         private MainWindowViewModel viewModel;
+
         private YearlyStatisticsTableManager yearlyStatisticsTableManager;
 
         public MainWindow()
@@ -35,29 +40,29 @@ namespace WatchedFilmsTracker
             InitializeComponent(); // must be first line always
             viewModel = new MainWindowViewModel();
             this.DataContext = viewModel;
+
             searchTextBox.Text = SearchBoxDefaultText;
-            
 
             Closing += MainWindow_Closing; // override closing window
-
-            //PROGRAM STATE MANAGER
-            ProgramStateManager programStateManager = new ProgramStateManager(this);
 
             //BUTTON MANAGER
             ButtonManager.AlwaysActiveButtons.Add(buttonOpenFile);
             ButtonManager.AlwaysActiveButtons.Add(buttonAbout);
             ButtonManager.AlwaysActiveButtons.Add(buttonSaveAs);
-            ButtonManager.AlwaysActiveButtons.Add(buttonNewFile);
+            ButtonManager.AlwaysActiveButtons.Add(ButtonNewFile);
             ButtonManager.AlwaysActiveButtons.Add(buttonOpenLocally);
 
             ButtonManager.UnsavedChangeButtons.Add(buttonSave);
 
-            ButtonManager.OpenedFileButtons.Add(buttonNewFilmRecord);
+            ButtonManager.OpenedFileButtons.Add(buttonAddRecord);
             ButtonManager.OpenedFileButtons.Add(buttonClearAll);
+            ButtonManager.OpenedFileButtons.Add(ButtonCurrentFileCollectionType);
 
             ButtonManager.AtLeastOneRecordButtons.Add(buttonSelectLast);
 
             ButtonManager.SelectedCellsButtons.Add(buttonDeleteFilmRecord);
+            ButtonManager.SelectedCellsButtons.Add(buttoRemoveColumn);
+            ButtonManager.SelectedCellsButtons.Add(buttoRenameColumn);
 
             ButtonManager.AnyChangeButtons.Add(buttonRevertChanges);
 
@@ -65,96 +70,160 @@ namespace WatchedFilmsTracker
 
             ButtonManager.FileIsNotInLocalMyDataDirectoryButtons.Add(buttonSaveLocally);
 
+            NewFileActionPrepareContextMenu();
+            CurrentlyOpenedFilePrepareContextMenu();
+
             //SETTINGS
-            SettingsManager.PrepareDictionary();
-            SettingsManager.LoadFromConfFile();
+            SettingsManager.LoadDefaultSettings();
+            SettingsManager.LoadSettingsFromConfigFile();
             ApplyUserSettingsToTheProgram(); // window size, position, last path, other settings
 
             //CHECK UPDATE ON STARTUP
             if (SettingsManager.CheckUpdateOnStartup)
                 ManualCheckForUpdate(CheckUpdatesButton, null);
 
-            //FILMS TABLEVIEW DISPLAY VALUES
-            filmsColumnsManager = new FilmsTableColumnManager(filmsGrid); // constructor builds columns and binds values
-
             //FILEMANAGER
-            filmsFileHandler = new FilmsTextFile();
-            filmsFileHandler.setUpFilmsDataGrid(filmsGrid);
-            filmsFileHandler.setUpMainWindow(this);
-            filmsFileHandler.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
-            localFilmsFilesService = new LocalFilmsFilesService(filmsFileHandler);
-            LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
+            //   workingTextFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
+            OpenLastOpenedFiles(SettingsManager.LastPath);
+
+            //LOCAL FILES SERVICE
+            // localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
+            // LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
             //STATISTICS DISPLAY COLUMNS
             decadalStatisticsTableManager = new DecadalStatisticsTableManager(decadalGrid);
             yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
 
+            //TABCONTROL
+            TabsWorkingTextFiles.TabControl = TabControlMainWindow;
+            TabsWorkingTextFiles.MainWindow = this;
+            TabControlMainWindow.ItemsSource = TabsWorkingTextFiles.TabItemsWorkingFiles;
+
+            TabControlMainWindow.SelectionChanged += (s, e) =>
+            {
+                UpdateDataContextForCurrentlyOpenedTabWorkingTextFile();
+                UpdateButtons();
+                UpdateStageTitle();
+                UpdateFileInformation();
+                UpdateCommonCollectionElements(null, null);
+            };
+
+            TabsWorkingTextFiles.NewFileLoaded += (sender, e) =>
+            {
+                e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;
+                e.NewWorkingTextFile.CommonCollectionTypeChanged += UpdateCommonCollectionElements;
+                e.NewWorkingTextFile.SavedComplete += UpdateStageTitle;
+            };
+
             //SNAPSHOT SERVICE
-            FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
-            FileChangesSnapshotService.FileManager = filmsFileHandler;
-            FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
+            // FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
+            // FileChangesSnapshotService.FileManager = workingTextFile;
+            //  FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
             //SEARCH MANAGER
-            searchManager = new SearchManager(filmsFileHandler, searchTextBox, filmsGrid);
-
-            //LOAD LAST FILEPATH
-            OpenFilepath(SettingsManager.LastPath);
-
-            //GRIDLIST SELECTED LISTENER
-            ProgramStateManager.IsSelectedCells = false;
-            filmsGrid.SelectedCellsChanged += (obs, args) =>
-            {
-                Debug.WriteLine("Selected cells changes, or deselected if filtered");
-                ProgramStateManager.IsSelectedCells = filmsGrid.SelectedCells.Count > 0;
-            };
+            //    searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
         }
 
         public event EventHandler FileOpened;
 
-        public void DeleteFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // RemoveFilmRecord, DeleteFilmRecord
+        /// <summary>
+        /// This method is used in RadioButton_Checked to find what ColumnInfo nested object the control belongs to.
+        /// </summary>
+        /// <typeparam name="T">Searched dependency panel</typeparam>
+        /// <param name="current">type of control</param>
+        /// <returns></returns>
+        public static T FindAncestor<T>(DependencyObject current) where T : DependencyObject
         {
-            if (filmsGrid.SelectedCells.Count > 0)
+            while (current != null)
             {
-                FilmRecord selected = filmsGrid.SelectedCells[0].Item as FilmRecord;
-                filmsFileHandler.CollectionOfFilms.DeleteRecordFromList(selected);
+                if (current is T)
+                    return (T)current;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Selects each column's RadioButton to the corresponding DataType of the ColumnInformation.
+        /// </summary>
+        public void ApplyColumnsDataTypesToRadioButtons()
+        {
+            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
+            {
+                return;
+            }
+            var manager = GetCurrentlyOpenedTabWorkingTextFile().GetDataGridManager();
+            foreach (var column in manager.ColumnsAndDataTypes)
+            {
+                column.SelectedDataType = column.DataType;
             }
         }
 
-        public void UpdateNumberOfFilms()
+        public void ButtonDeleteRecord_Click(object sender, RoutedEventArgs e) // RemoveRecord, DeleteRecord
         {
-            viewModel.TotalFilmsWatched = filmsFileHandler.StatisticsManager.GetNumberOfTotalWatchedFilms();
+            if (GetCurrentlyOpenedTabWorkingTextFile().HasSelectedCells())
+            {
+                RecordModel selected = GetCurrentlyOpenedTabWorkingTextFile().DataGrid.SelectedCells[0].Item as RecordModel;
+                GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DeleteRecordFromList(selected);
+            }
+        }
+
+        public WorkingTextFile CurrentWorkingFile()
+        {
+            return TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+        }
+
+        public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile() => TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+
+        public void UpdateDataContextForCurrentlyOpenedTabWorkingTextFile()
+        {
+            WorkingTextFile currentlyOpened = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+
+            TextBoxCommentsBefore.DataContext = currentlyOpened.Metadata;
+            TextBoxProgramComments.DataContext = currentlyOpened.Metadata;
+            TextBoxCommentsAfter.DataContext = currentlyOpened.Metadata;
+            TextBoxFilePath.DataContext = currentlyOpened;
+            LabelAverageRatingRecord.DataContext = currentlyOpened.CollectionStatistics;
+            LabelTotalRecordsNumber.DataContext = currentlyOpened.CollectionStatistics;
+            ItemsColumnsDataTypes.DataContext = currentlyOpened.CollectionOfRecords.DataGridManager;
+
+            // return currentlyOpened;
         }
 
         public void UpdateStageTitle()
         {
             string stageTitle = "";
 
-            if (ProgramStateManager.IsUnsavedChange)
+            if (GetCurrentlyOpenedTabWorkingTextFile().UnsavedChanges)
             {
                 stageTitle = "*";
             }
 
-            if (filmsFileHandler.CollectionOfFilms is null || string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath))
+            if (GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords is null || string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().Filepath))
+            {
                 stageTitle += "New File" + " - " + ProgramInformation.PROGRAM_NAME;
+            }
             else
-                stageTitle += filmsFileHandler.CollectionOfFilms.FilePath + " - " + ProgramInformation.PROGRAM_NAME;
+            {
+                stageTitle += GetCurrentlyOpenedTabWorkingTextFile().Filepath + " - " + ProgramInformation.PROGRAM_NAME;
+            }
 
             this.Title = stageTitle;
         }
 
         public async Task UpdateStatistics()
         {
-            UpdateNumberOfFilms();
-            UpdateAverageFilmRating();
+            //   UpdateNumberOfFilms();
+            //   UpdateAverageFilmRating();
 
             // Heavy tasks
-            var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
-            var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
+            //  var decadalTask = Task.Run(() => UpdateReportDecadalStatistics());
+            //   var yearlyTask = Task.Run(() => UpdateReportYearlyStatistics());
 
             try
             {
                 // Await both tasks to complete
-                await Task.WhenAll(decadalTask, yearlyTask);
+                //  await Task.WhenAll(decadalTask, yearlyTask);
             }
             catch (Exception ex)
             {
@@ -170,24 +239,75 @@ namespace WatchedFilmsTracker
             aboutWindow.ShowDialog();
         }
 
+        private void ApplyChangesClick(object sender, RoutedEventArgs e)
+        {
+            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
+            {
+                return;
+            }
+            var manager = GetCurrentlyOpenedTabWorkingTextFile().GetDataGridManager();
+            foreach (var column in manager.ColumnsAndDataTypes)
+            {
+                manager.ChangeColumnDataType(column, column.SelectedDataType);
+            }
+
+            GetCurrentlyOpenedTabWorkingTextFile().AnyChangeHappen();
+        }
+
         private void ApplyUserSettingsToTheProgram()
         {
             autosaveBox.IsChecked = SettingsManager.AutoSave;
             defaultDateBox.IsChecked = SettingsManager.DefaultDateIsToday;
-            updateStartUpBox.IsChecked = SettingsManager.CheckUpdateOnStartup;
-            scrollLastPositionBox.IsChecked = SettingsManager.ScrollLastPosition;
+            checkboxCheckForUpdatesStartup.IsChecked = SettingsManager.CheckUpdateOnStartup;
+            checkboxScrollLastPosition.IsChecked = SettingsManager.ScrollLastPosition;
             this.Left = SettingsManager.WindowLeft;
             this.Top = SettingsManager.WindowTop;
             this.Width = SettingsManager.WindowWidth;
             this.Height = SettingsManager.WindowHeight;
         }
 
-        // not in use for now
-        //private void BuildDynamicStatistics()
-        //{
-        //    UpdateReportDecadalStatistics();
-        //    UpdateReportYearlyStatistics();
-        //}
+        private void ButtonAddColumn_Click(object sender, RoutedEventArgs e)
+        {
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
+        }
+
+        private void ButtonAddRecord_Click(object sender, RoutedEventArgs e) // AddRecord, NewRecord
+        {
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
+        }
+
+        private void ButtonCurrentFileCollectionType_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            button.ContextMenu.IsOpen = true;
+        }
+
+        private void ButtonNewFile_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            button.ContextMenu.IsOpen = true;
+        }
+
+        private void ButtonOpenFileLocally_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Open file";
+            openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+
+            string programDirectory = Environment.CurrentDirectory;
+            string myDataDirectory = Path.Combine(programDirectory, "MyData");
+            if (!Directory.Exists(myDataDirectory))
+            {
+                Directory.CreateDirectory(myDataDirectory);
+            }
+
+            openFileDialog.InitialDirectory = myDataDirectory;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
+            }
+        }
 
         private void CheckBoxAutoSave(object sender, RoutedEventArgs e)
         {
@@ -196,6 +316,12 @@ namespace WatchedFilmsTracker
             checkBox.IsChecked = SettingsManager.AutoSave;
         }
 
+        // not in use for now
+        //private void BuildDynamicStatistics()
+        //{
+        //    UpdateReportDecadalStatistics();
+        //    UpdateReportYearlyStatistics();
+        //}
         private void CheckBoxDefaultDate(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
@@ -210,6 +336,10 @@ namespace WatchedFilmsTracker
             checkBox.IsChecked = SettingsManager.ScrollLastPosition;
         }
 
+        private void CheckBoxReopenFilesLastSession(object sender, RoutedEventArgs e)
+        {
+        }
+
         private void CheckBoxUpdateStartup(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)(sender);
@@ -218,26 +348,61 @@ namespace WatchedFilmsTracker
 
         private void ClearAll(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.CollectionOfFilms.DeleteAllRecords();
+            GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DeleteAllRecords();
         }
 
-        private void LoadLocally(object sender, RoutedEventArgs e)
+        private void CurrentlyOpenedFilePrepareContextMenu()
         {
-            filmsFileHandler.LoadLocally();
+            ContextMenu contextMenu = new ContextMenu();
+
+            foreach (CommonCollectionType commonCollection in CommonCollections.GetAllCollectionsAlphabetically())
+            {
+                MenuItem menuItem = new MenuItem
+                {
+                    Header = commonCollection.Name,
+                    Icon = commonCollection.GetIconImage(),
+                };
+
+                menuItem.Click += (sender, e) =>
+                {
+                    GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType = commonCollection;
+                };
+                contextMenu.Items.Add(menuItem);
+            }
+
+            ButtonCurrentFileCollectionType.ContextMenu = contextMenu;
+        }
+
+        private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            // Call the ShutDown method when the window is closing
-            bool canClose = filmsFileHandler.CloseFileAndAskToSave();
+            Environment.Exit(0); // remove after fixing, its just to ensure it always closes
 
-            // Cancel the closing event if necessary
+            bool canClose = GetCurrentlyOpenedTabWorkingTextFile().TryToCloseFile();
+            //todo replace with: check if any of
 
             e.Cancel = !canClose;
             SettingsManager.WindowLeft = Left;
             SettingsManager.WindowTop = Top;
             SettingsManager.WindowWidth = Width;
             SettingsManager.WindowHeight = Height;
+
+            SettingsManager.SaveToConfFile();
+        }
+
+        private void MakeAllColumnsTextDEBUGClick(object sender, RoutedEventArgs e)
+        {
+            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
+            {
+                return;
+            }
+
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().GetDataGridManager().ChangeDataTypeAllColumns(CellDataType.DataType.String);
+
+            ApplyColumnsDataTypesToRadioButtons();
         }
 
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
@@ -249,90 +414,129 @@ namespace WatchedFilmsTracker
             await UpdateVersionInformationAsync();
         }
 
-        private void NewFile(object sender, RoutedEventArgs e)
+        private void NewFileActionPrepareContextMenu()
         {
-            filmsFileHandler.NewFile();
-        }
+            ContextMenu contextMenu = new ContextMenu();
 
-        private void NewFilmRecord_ButtonClick(object sender, RoutedEventArgs e) // AddFilmRecord, NewFilmRecord
-        {
-            filmsFileHandler.CollectionOfFilms.AddEmptyRecordToList();
+            foreach (CommonCollectionType commonCollection in CommonCollections.GetAllCollectionsAlphabetically())
+            {
+                MenuItem menuItem = new MenuItem
+                {
+                    Header = commonCollection.Name,
+                    Icon = commonCollection.GetIconImage(),
+                };
+
+                menuItem.Click += (sender, e) =>
+                {
+                    TabsWorkingTextFiles.CreateEmptyWorkingFile(commonCollection);
+                };
+                contextMenu.Items.Add(menuItem);
+            }
+
+            ButtonNewFile.ContextMenu = contextMenu;
         }
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(filmsFileHandler.CollectionOfFilms.FilePath))
+            if (File.Exists(TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath))
             {
-                Process.Start("explorer.exe", "/select, " + filmsFileHandler.CollectionOfFilms.FilePath);
+                Process.Start("explorer.exe", "/select, " + TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath);
             }
             else
             {
-                Debug.WriteLine($"{filmsFileHandler.CollectionOfFilms.FilePath} cannot be found");
+                Debug.WriteLine($"{TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath} cannot be found");
             }
         }
 
-        private void OpenFileChooser(object sender, RoutedEventArgs e)
+        private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (filmsFileHandler.CloseFileAndAskToSave())
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Open file";
+            openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+
+            openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            // todo instead of current directory, open the same path of most recent opened file
+
+            if (openFileDialog.ShowDialog() == true)
             {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Title = "Open file";
-                openFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
-
-                if (string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath) || !(File.Exists(filmsFileHandler.CollectionOfFilms.FilePath)))
-                {
-                    openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
-                }
-                else
-                {
-                    string parentDirectory = Directory.GetParent(filmsFileHandler.CollectionOfFilms.FilePath)?.FullName;
-                    if (!string.IsNullOrEmpty(parentDirectory))
-                    {
-                        openFileDialog.InitialDirectory = parentDirectory;
-                    }
-                }
-
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    OpenFilepath(openFileDialog.FileName);
-                }
+                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
 
-        private void OpenFilepath(string? newFilePath)
+        private void OpenLastOpenedFiles(string? newFilePath)
         {
-            filmsFileHandler.OpenFilepathButSaveChangesFirst(newFilePath);
+            //   workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
         }
 
-        private void OpenLocalFolder(object sender, RoutedEventArgs e)
+        private void OpenLocalFolderButton_Click(object sender, RoutedEventArgs e)
         {
             LocalFilmsFilesService.OpenMyDataDirectoryFileExplorer();
         }
 
-        private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Checks if DataContext of RadioButton is of CellDataType.DataType.
+        /// Finds ColumnInformation associated with RadioButton.
+        /// Sets the columnInfo.SelectedDataType to columnInfo.SelectedDataType
+        /// which is RadioButton DataContext value.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
-            filmsColumnsManager.ResetToDefault();
+            var clickedRadioButton = sender as RadioButton;
+            if (clickedRadioButton == null) return;
+
+            // Get the selected type from the RadioButton content
+            if (clickedRadioButton.DataContext is CellDataType.DataType selectedType)
+            {
+                // Navigate up the visual tree to find the parent ColumnInformation
+                var columnInfo = FindAncestor<StackPanel>(clickedRadioButton)?.DataContext as ColumnInformation;
+                if (columnInfo != null)
+                {
+                    columnInfo.SelectedDataType = selectedType;
+                }
+            }
         }
 
-        private void RevertChanges(object sender, RoutedEventArgs e)
+        private void RemoveColumnButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(filmsFileHandler.CollectionOfFilms.FilePath))
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.IdentifyColumnForDeletion();
+        }
+
+        private void RenameColumnButton_Click(object sender, RoutedEventArgs e)
+        {
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.RenameColumn();
+        }
+
+        private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
+        {
+            GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.DataGridManager.ResetToDefault();
+        }
+
+        private void RevertChangesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().Filepath))
             {
-                filmsFileHandler.CollectionOfFilms.ListOfFilms.Clear();
+                GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.ObservableCollectionOfRecords.Clear();
             }
             else
-                OpenFilepath(filmsFileHandler.CollectionOfFilms.FilePath);
+                OpenLastOpenedFiles(GetCurrentlyOpenedTabWorkingTextFile().Filepath);
             searchManager.SearchFilms();
         }
 
-        private void Save(object sender, RoutedEventArgs e)
+        private void SaveAllButton_Click(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.Save();
+            // iterate all tabs and save all of them
         }
 
         private void SaveAs(object sender, RoutedEventArgs e)
         {
-            filmsFileHandler.SaveAs();
+            GetCurrentlyOpenedTabWorkingTextFile().SaveAs();
+        }
+
+        private void SaveButtonAction(object sender, RoutedEventArgs e)
+        {
+            GetCurrentlyOpenedTabWorkingTextFile().Save();
         }
 
         private void SaveLocally(object sender, RoutedEventArgs e)
@@ -393,59 +597,90 @@ namespace WatchedFilmsTracker
         private void SelectLastButton(object sender, RoutedEventArgs e)
 
         {
-            filmsFileHandler.ScrollToBottomOfList();
+            GetCurrentlyOpenedTabWorkingTextFile().ScrollToBottomOfList();
+        }
+
+        private void ShowColumnTypesClick(object sender, RoutedEventArgs e)
+        {
+            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridManager.ColumnsAndDataTypes;
+            foreach (var item in info)
+            {
+                Debug.WriteLine(item.ToString());
+            }
         }
 
         private void UpdateAverageFilmRating()
         {
-            if (filmsFileHandler.CollectionOfFilms.ListOfFilms.Count == 0)
-            {
-                averageRatingLabel.Content = "No data";
-            }
-            else
-            {
-                double averageRating = filmsFileHandler.StatisticsManager.GetAverageFilmRating();
-                averageRatingLabel.Content = StatisticsManager.FormattedRating(averageRating);
-            }
+            //if (filmsFileHandler.CollectionOfFilms.ListOfFilms.Count == 0)
+            //{
+            //    averageRatingLabel.Content = "No data";
+            //}
+            //else
+            //{
+            //    double averageRating = filmsFileHandler.StatisticsManager.GetAverageFilmRating();
+            //    averageRatingLabel.Content = StatisticsManager.FormattedRating(averageRating);
+            //}
         }
 
-        private async Task UpdateReportDecadalStatistics()
+        private void UpdateButtons()
         {
-            cancellationTokenSourceForDecadalStatistics?.Cancel();
-            cancellationTokenSourceForDecadalStatistics = new CancellationTokenSource();
-
-            try
-            {
-                ObservableCollection<DecadalStatistic> decadesOfFilms = await filmsFileHandler.StatisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
-
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    decadalGrid.ItemsSource = decadesOfFilms;
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
+            ButtonStateManager.UpdateAllButton(GetCurrentlyOpenedTabWorkingTextFile());
         }
 
-        private async Task UpdateReportYearlyStatistics()
+        private void UpdateCommonCollectionElements(object? sender, WorkingTextFile.CommonCollectionTypeChangedEventArgs e)
         {
-            cancellationTokenSourceForYearlyStatistics?.Cancel();
-            cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
-            try
-            {
-                ObservableCollection<YearlyStatistic> yearsOfFilms = await filmsFileHandler.StatisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    yearlyGrid.ItemsSource = yearsOfFilms;
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
+            TextBlockCurrentFileCollectionType.Text = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.Name;
+            ImageCurrentFileCollectionType.Source = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.GetIconImageSource();
         }
+
+        private void UpdateFileInformation()
+        {
+            TextBoxFilePath.Text = GetCurrentlyOpenedTabWorkingTextFile().Filepath;
+            LabelCurrentDelimiter.Content = "[tab]";
+        }
+
+        private void UpdateStageTitle(object? sender, EventArgs e)
+        {
+            UpdateStageTitle();
+        }
+
+        //private async Task UpdateReportDecadalStatistics()
+        //{
+        //    cancellationTokenSourceForDecadalStatistics?.Cancel();
+        //    cancellationTokenSourceForDecadalStatistics = new CancellationTokenSource();
+
+        //    try
+        //    {
+        //        ObservableCollection<DecadalStatistic> decadesOfFilms = await filmsFileHandler.StatisticsManager.GetDecadalReport(cancellationTokenSourceForDecadalStatistics.Token).ConfigureAwait(false);
+
+        //        await Application.Current.Dispatcher.InvokeAsync(() =>
+        //        {
+        //            decadalGrid.ItemsSource = decadesOfFilms;
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.ToString());
+        //    }
+        //}
+
+        //private async Task UpdateReportYearlyStatistics()
+        //{
+        //    cancellationTokenSourceForYearlyStatistics?.Cancel();
+        //    cancellationTokenSourceForYearlyStatistics = new CancellationTokenSource();
+        //    try
+        //    {
+        //        ObservableCollection<YearlyStatistic> yearsOfFilms = await filmsFileHandler.StatisticsManager.GetYearlyReport(cancellationTokenSourceForYearlyStatistics.Token).ConfigureAwait(false);
+        //        await Application.Current.Dispatcher.InvokeAsync(() =>
+        //        {
+        //            yearlyGrid.ItemsSource = yearsOfFilms;
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine(ex.ToString());
+        //    }
+        //}
 
         private async Task UpdateVersionInformationAsync()
         {
@@ -472,14 +707,14 @@ namespace WatchedFilmsTracker
                 PanelVersion.Background = updateBrush;
 
                 // Set hyperlink to open release page
-                string uri = "https://github.com/OskarKamil/WatchedFilmsWPF/releases/tag/" + CheckForUpdateService.NewVersionString;
+                string uri = "https://github.com/OskarKamil/WatchedFilmsWPF/releases/tag/" + CheckForUpdateService.NewVersion;
                 TextBlockNewVersion.Visibility = System.Windows.Visibility.Visible;
                 Hyperlink releasesPage = new Hyperlink() { NavigateUri = new Uri(uri) };
                 releasesPage.RequestNavigate += (sender, e) =>
                 {
                     Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
                 };
-                releasesPage.Inlines.Add($"{CheckForUpdateService.NewVersionString} is available. Click here to open download page.");
+                releasesPage.Inlines.Add($"{CheckForUpdateService.NewVersion} is available. Click here to open download page.");
 
                 TextBlockNewVersion.Inlines.Add(releasesPage);
 
@@ -508,10 +743,8 @@ namespace WatchedFilmsTracker
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            // Check if Control+D is pressed
             if (Keyboard.IsKeyDown(Key.D) && Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                // Set the window size to 1200x600
                 Width = 1200;
                 Height = 600;
             }

@@ -2,25 +2,24 @@
 using System.Reflection;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
-using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
     internal class SearchManager
     {
         private string defaultSearchText;
-        private FilmsTextFile fileManager;
         private DataGrid filmsGrid;
         private TextBox searchTextBox;
+        private WorkingTextFile WorkingTextFile;
 
-        public SearchManager(FilmsTextFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
+        public SearchManager(WorkingTextFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
         {
-            this.fileManager = fileManager;
+            this.WorkingTextFile = fileManager;
             this.searchTextBox = searchTextBox;
             this.filmsGrid = filmsGrid;
             defaultSearchText = searchTextBox.Text;
 
-            this.fileManager.AnyChangeHappenedEvent += FileManager_AnyChangeHappenedEvent;
+            this.WorkingTextFile.CollectionHasChanged += FileManager_AnyChangeHappenedEvent;
         }
 
         public void SearchFilms()
@@ -29,13 +28,13 @@ namespace WatchedFilmsTracker.Source.Managers
 
             if (string.IsNullOrEmpty(searchPhrase) || searchTextBox.Text == defaultSearchText)
             {
-                filmsGrid.ItemsSource = fileManager.FilmsObservableList;
+                filmsGrid.ItemsSource = WorkingTextFile.GetObservableCollectionOfRecords();
                 return;
             }
 
-            var filteredList = new ObservableCollection<FilmRecord>();
+            var filteredList = new ObservableCollection<RecordModel>();
 
-            foreach (var filmRecord in fileManager.FilmsObservableList)
+            foreach (var filmRecord in WorkingTextFile.GetObservableCollectionOfRecords())
             {
                 var properties = filmRecord.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 bool marchFound = properties.Any(property =>
