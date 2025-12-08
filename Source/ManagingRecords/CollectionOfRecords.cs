@@ -20,18 +20,23 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private string fileColumnHeaders;
         private WorkingTextFile workingTextFile;
 
-        public CollectionOfRecords(WorkingTextFile filmsTextFile)
+        public CollectionOfRecords(WorkingTextFile workingTextFile)
         {
-            this.workingTextFile = filmsTextFile;
+            this.workingTextFile = workingTextFile;
 
             ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
-            DataGridManager = new DataGridManager(filmsTextFile.DataGrid, ObservableCollectionOfRecords);
+            DataGridManager = new DataGridManager(workingTextFile.DataGrid, ObservableCollectionOfRecords);
         }
 
         public event EventHandler<EventArgs> AnyRecordHasChanged;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Creates an empty record and adds it to the list of records.
+        /// Sets all cells of the new record as Number type. TO BE CHANGED LATER
+        ///     TODO: When created, check column type and make cell type the same as column type.
+        /// </summary>
         public void AddEmptyRecordToList()
         {
             RecordModel newRecord = new RecordModel(new List<Cell>());
@@ -43,7 +48,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 }
             }
 
-            // fill in # id column
+            // Adding ID to the new record if ID column exists
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
             if (indexOfColumnID != -1)
             {

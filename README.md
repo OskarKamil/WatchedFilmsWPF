@@ -1,4 +1,7 @@
-# WatchedFilmsWPF
+# WatchedFilmsTracker
+| Name | Version | Status | Started | Language | Framework | Platforms | Type |
+|-----|--------|--------|---------|----------|-----------|-----------|------|
+| WatchedFilmsTracker | v0.14 (stable), v0.15 (beta) | 🟢 Maintained | 2023 | C# | WPF | Windows | Desktop GUI |
 
 ## About
 

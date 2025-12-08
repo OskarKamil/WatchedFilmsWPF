@@ -32,6 +32,7 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
                 }
             }
         }
+
         public string Value
         {
             get => _value;
@@ -72,6 +73,7 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
 
         private void Validate()
         {
+            //todo: implement validation logic based on DataType and set IsValid accordingly
             // IsValid = FilmRecordPropertyValidator.Validate(Column.Header, Value);
         }
     }

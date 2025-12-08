@@ -373,6 +373,52 @@ namespace WatchedFilmsTracker
             ButtonCurrentFileCollectionType.ContextMenu = contextMenu;
         }
 
+        private void DEBUG_MakeAllColumnsText(object sender, RoutedEventArgs e)
+        {
+            var workingFile = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+
+            if (workingFile == null)
+                return;
+
+            workingFile.GetDataGridManager().ChangeDataTypeAllColumns(CellDataType.DataType.String);
+
+            ApplyColumnsDataTypesToRadioButtons();
+            Debug.WriteLine("All columns changed to text");
+        }
+
+        private void DEBUG_PrintCellsDataTypes(object sender, RoutedEventArgs e)
+        {
+            var workingFile = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+
+            if (workingFile == null)
+                return;
+
+            var collection = workingFile.CollectionOfRecords.ObservableCollectionOfRecords;
+
+            Debug.WriteLine("Values and types of each cell:");
+            foreach (var record in collection)
+            {
+                foreach (var cell in record.Cells)
+                {
+                    Debug.WriteLine($"Cell value: {cell.Value}, Cell data type: {cell.DataType}");
+                }
+            }
+        }
+
+        private void DEBUG_PrintColumnTypes(object sender, RoutedEventArgs e)
+        {
+            var workingFile = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+
+            if (workingFile == null)
+                return;
+
+            Debug.WriteLine("Columns and their data types:");
+            foreach (var column in workingFile.CollectionOfRecords.DataGridManager.ColumnsAndDataTypes)
+            {
+                Debug.WriteLine(column);
+            }
+        }
+
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
         }
@@ -391,18 +437,6 @@ namespace WatchedFilmsTracker
             SettingsManager.WindowHeight = Height;
 
             SettingsManager.SaveToConfFile();
-        }
-
-        private void MakeAllColumnsTextDEBUGClick(object sender, RoutedEventArgs e)
-        {
-            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
-            {
-                return;
-            }
-
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().GetDataGridManager().ChangeDataTypeAllColumns(CellDataType.DataType.String);
-
-            ApplyColumnsDataTypesToRadioButtons();
         }
 
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
@@ -598,15 +632,6 @@ namespace WatchedFilmsTracker
 
         {
             GetCurrentlyOpenedTabWorkingTextFile().ScrollToBottomOfList();
-        }
-
-        private void ShowColumnTypesClick(object sender, RoutedEventArgs e)
-        {
-            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridManager.ColumnsAndDataTypes;
-            foreach (var item in info)
-            {
-                Debug.WriteLine(item.ToString());
-            }
         }
 
         private void UpdateAverageFilmRating()
