@@ -20,12 +20,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         private string fileColumnHeaders;
         private WorkingTextFile workingTextFile;
 
-        public CollectionOfRecords(WorkingTextFile filmsTextFile)
+        public CollectionOfRecords(WorkingTextFile workingTextFile)
         {
-            this.workingTextFile = filmsTextFile;
+            this.workingTextFile = workingTextFile;
 
             ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
-            DataGridManager = new DataGridManager(filmsTextFile.DataGrid, ObservableCollectionOfRecords);
+            DataGridManager = new DataGridManager(workingTextFile.DataGrid, ObservableCollectionOfRecords);
         }
 
         public event EventHandler<EventArgs> AnyRecordHasChanged;

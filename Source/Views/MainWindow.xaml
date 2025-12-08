@@ -257,11 +257,15 @@
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
-                                <Button Click="ShowColumnTypesClick">DEBUG print columns and data types</Button>
-                                <Button Click="MakeAllColumnsTextDEBUGClick">DEBUG make all columns text</Button>
+                                <Button Click="DEBUG_PrintColumnTypes"
+                                        Background="#FF37DDDD">DEBUG print columns and data types</Button>
+                                <Button Click="DEBUG_MakeAllColumnsText"
+                                        Background="#FF37DDDD">DEBUG make all columns text</Button>
+                                <Button Click="DEBUG_PrintCellsDataTypes"
+                                        Background="#FF37DDDD">DEBUG print cells data types</Button>
                                 <Button Click="ApplyChangesClick">Apply changes</Button>
-                                <Button>NOT WORKING Apply z-index of columns</Button>
-                                <Button>NOT WORKING Apply order of columns</Button>
+                                <Button Background="#FFDD37DD">NOT WORKING Apply z-index of columns</Button>
+                                <Button Background="#FFDD37DD">NOT WORKING Apply order of columns</Button>
                             </StackPanel>
                         </GroupBox>
                     </Expander>

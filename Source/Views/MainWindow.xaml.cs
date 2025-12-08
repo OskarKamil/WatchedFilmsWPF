@@ -373,6 +373,37 @@ namespace WatchedFilmsTracker
             ButtonCurrentFileCollectionType.ContextMenu = contextMenu;
         }
 
+        private void DEBUG_MakeAllColumnsText(object sender, RoutedEventArgs e)
+        {
+            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
+            {
+                return;
+            }
+
+            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().GetDataGridManager().ChangeDataTypeAllColumns(CellDataType.DataType.String);
+
+            ApplyColumnsDataTypesToRadioButtons();
+        }
+
+        private void DEBUG_PrintCellsDataTypes(object sender, RoutedEventArgs e)
+        {
+            var collection = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords;
+            // each column data type
+            // for each row
+            // for each cell get datatype
+            // maybe make a check if it is correct
+            // check each data type od data type of the column
+        }
+
+        private void DEBUG_PrintColumnTypes(object sender, RoutedEventArgs e)
+        {
+            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.DataGridManager.ColumnsAndDataTypes;
+            foreach (var item in info)
+            {
+                Debug.WriteLine(item.ToString());
+            }
+        }
+
         private void filmsGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
         }
@@ -391,18 +422,6 @@ namespace WatchedFilmsTracker
             SettingsManager.WindowHeight = Height;
 
             SettingsManager.SaveToConfFile();
-        }
-
-        private void MakeAllColumnsTextDEBUGClick(object sender, RoutedEventArgs e)
-        {
-            if (GetCurrentlyOpenedTabWorkingTextFile() == null)
-            {
-                return;
-            }
-
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().GetDataGridManager().ChangeDataTypeAllColumns(CellDataType.DataType.String);
-
-            ApplyColumnsDataTypesToRadioButtons();
         }
 
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
@@ -598,15 +617,6 @@ namespace WatchedFilmsTracker
 
         {
             GetCurrentlyOpenedTabWorkingTextFile().ScrollToBottomOfList();
-        }
-
-        private void ShowColumnTypesClick(object sender, RoutedEventArgs e)
-        {
-            var info = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionStatistics.DataGridManager.ColumnsAndDataTypes;
-            foreach (var item in info)
-            {
-                Debug.WriteLine(item.ToString());
-            }
         }
 
         private void UpdateAverageFilmRating()
