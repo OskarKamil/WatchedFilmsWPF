@@ -16,7 +16,8 @@ Watched Films Tracker is a comprehensive application designed to help film enthu
 
 ## Screenshots
 
-![Main page](External/screenshots of versions/0.014 differentColour.png)
+![Main page](External/screenshots/0.14-windows-theme-colour.png)
+
 *Screenshot 1: Main interface displaying the list of films*
 
 ## Requirements
