@@ -16,7 +16,7 @@ Watched Films Tracker is a comprehensive application designed to help film enthu
 
 ## Screenshots
 
-![Main page](https://github.com/OskarKamil/WatchedFilmsWPF/blob/main/External/screenshots%20of%20versions/0.014%20differentColour.png?raw=true)
+![Main page](External/screenshots of versions/0.014 differentColour.png)
 *Screenshot 1: Main interface displaying the list of films*
 
 ## Requirements
