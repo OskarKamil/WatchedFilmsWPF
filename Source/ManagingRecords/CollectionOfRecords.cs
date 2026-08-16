@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -46,10 +45,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGridManager = new DataGridManager(workingTextFile.DataGrid, ObservableCollectionOfRecords);
         }
 
-        public event EventHandler<EventArgs> AnyRecordHasChanged;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
         /// <summary>
         /// Creates an empty record and adds it to the list of records.
         /// Sets all cells of the new record as Number type. TO BE CHANGED LATER
@@ -89,11 +84,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     newRecord.Cells[columnID].Value = formattedString;
             }
 
-            newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
-
             StartEditingRecord(newRecord);
-
-            workingTextFile.AnyChangeHappen();
         }
 
         public void AddRecordFromText(string text, string delimiter)
@@ -111,8 +102,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             //    newRecord.Cells[indexOfColumnID].NumberValue = (ObservableCollectionOfRecords.Count + 1);
 
             ObservableCollectionOfRecords.Add(newRecord);
-
-            newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
         }
 
         public void AddRecordFromStringList(List<string> list, string delimiter)
@@ -129,8 +118,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             //    newRecord.Cells[indexOfColumnID].NumberValue = (ObservableCollectionOfRecords.Count + 1);
 
             ObservableCollectionOfRecords.Add(newRecord);
-
-            newRecord.PropertyChanged += HandleRecordCellTextHasChanged;
         }
 
         public DataGridTextColumn CreateColumnWithIds()
@@ -191,6 +178,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             column.DataGridTextColumn.Binding = new Binding($"Cells[{index}].Value");
 
             workingTextFile.UnsavedChanges = true;
+            workingTextFile.AnyChangeHappen();
+
             ShiftBindingAfterInsertion(0);
             return column;
         }
@@ -252,7 +241,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 workingTextFile.DataGrid.SelectedIndex = selectedIndex - 0;
             }
-            workingTextFile.AnyChangeHappen();
         }
 
         public void IdentifyColumnForDeletion()
@@ -327,18 +315,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 Debug.WriteLine("no selected cells");
                 return;
             }
-        }
-
-        protected virtual void HandleRecordCellTextHasChanged(object sender, EventArgs e)
-        {
-            Debug.WriteLine("Record cell has changed, INVOKED FROM COLLECTION OF RECORDS");
-            OnAnyRecordHasChanged(this, e);
-            return;
-        }
-
-        protected virtual void OnAnyRecordHasChanged(object sender, EventArgs e)
-        {
-            AnyRecordHasChanged?.Invoke(this, e);
         }
 
         private void AdjustColumnsRepresentation(object sender, EventArgs e)

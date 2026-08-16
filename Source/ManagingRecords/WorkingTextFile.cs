@@ -70,6 +70,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 if (_unsavedChanges != value)
                 {
+                    String filename = Path.GetFileName(Filepath);
+                    Debug.WriteLine("Unsaved changes set to: " + value + " for file: " + filename);
                     _unsavedChanges = value;
                     ButtonStateManager.UpdateUnsavedChanges(this);
                 }
@@ -123,10 +125,22 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public event EventHandler SavedComplete;
 
+        private void Record_CellValueChanged(object? sender, CellValueChangedEventArgs e)
+        {
+            AnyChangeHappen();
+        }
+
         public void AfterFileHasBeenLoaded()
         {
             UnsavedChanges = false;
-            GetObservableCollectionOfRecords().CollectionChanged += ListHasChanged;
+            ObservableCollection<RecordModel> collection = GetObservableCollectionOfRecords();
+            collection.CollectionChanged += ListHasChanged;
+
+            // Subscribe to cell changes for any records that already exist
+            foreach (RecordModel record in collection)
+            {
+                record.CellValueChanged += Record_CellValueChanged;
+            }
 
             DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
@@ -139,11 +153,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
-
-            //      AddContextMenuForTheItem(VisualFilmsTable);
-            //        e.Row.ContextMenu = contextMenu;
-            //    };
-            //}
 
             TabsWorkingTextFiles.MainWindow.UpdateStatistics();
 
@@ -522,10 +531,18 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        /// <summary>
+        /// Gets invoked when a collection of records changes. Mainly when a new record is added
+        /// or when a record gets deleted.
+        ///
+        /// Doesn't include when a cell has been edited.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            // Debug.WriteLine("list changed listener");
             ButtonStateManager.UpdateAtLeastOneRecord(this);
+
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
                 // New items added to the list
@@ -533,10 +550,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 {
                     if (newItem is RecordModel newRecord)
                     {
-                        // Subscribe to PropertyChanged event of the new FilmRecord instance
-                        //   newRecord.PropertyChanged += FilmRecord_PropertyChanged;
+                        // Subscribe to the record's bubbled-up cell change event
+                        newRecord.CellValueChanged += Record_CellValueChanged;
                     }
                 }
+
+                AnyChangeHappen();
             }
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
@@ -545,12 +564,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 {
                     if (oldItem is RecordModel oldRecord)
                     {
-                        // Unsubscribe from PropertyChanged event of the removed FilmRecord instance
-                        // oldRecord.PropertyChanged -= FilmRecord_PropertyChanged;
+                        // Unsubscribe to avoid leaks / duplicate handlers
+                        oldRecord.CellValueChanged -= Record_CellValueChanged;
                     }
                 }
+
+                AnyChangeHappen();
             }
-            AnyChangeHappen();
         }
 
         private void RaiseOnClosingFile()

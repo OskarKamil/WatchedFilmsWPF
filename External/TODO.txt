@@ -1,16 +1,7 @@
 **Immediate (This update):**
-- Editing a cell doesn't inform the file of unsaved changes and save button is not active.
-	- When a cell is edited, set unsavedchange to true and enable save button.
+- The button `Save all` doesn't work.
+	- It should save all opened files that has been changed.
 
-- Simplify how reading a file works.
-	- The program creates columns, adds data, removes columns, adds columns again.
-
-- Try again if MyFilms.csv works.
-	- If works, go to populating collection.txt file and update documentation.
-
-- When creating new cell, check status of preferred data types and make the cell the preferred data type.
-- Check if deleting column will also change how columns sort.
-- When deleting a column from a read file causes an error.
 - Predefined statistics. Films are: group by decade 10*10 +"s", count of decade films, average rating 0.## + "/4.00".
 - Prefefined statistics. Games are: group by Platform, etc.
 - When saving a file, save [films] in first or any column header. Add version number.
@@ -110,9 +101,13 @@
 - Create my own ModernButton class.
 - Implement delete rows, columns function.
 	- When user hovers over a button, highlight the to be deleted columns/rows.
-
 - Try to adapt xUnits into my project to enforce business rules.
 	- Ask ChatGPT what kinds of tests I can do.
+- Simplify how reading a file works.
+	- The program creates columns, adds data, removes columns, adds columns again.
+
+- Try again if MyFilms.csv works.
+	- If works, go to populating collection.txt file and update documentation.
 
 **Future Plans (FUTURE):**
 - Decide what settings are embedded in exe, which are in settings and which are in config file.
