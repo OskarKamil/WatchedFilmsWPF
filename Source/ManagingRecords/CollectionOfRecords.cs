@@ -5,18 +5,36 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingDatagrid;
 using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.ManagingRecords.CellDataType;
-using WatchedFilmsTracker.Source.ManagingDatagrid;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
+    /// <summary>
+    /// Represents a collection of record models bound to a DataGrid.
+    /// This class manages creation, insertion and manipulation of records
+    /// and coordinates updates with the associated <see cref="WorkingTextFile"/> and <see cref="DataGridManager"/>.
+    /// </summary>
     public class CollectionOfRecords
     {
+        /// <summary>
+        /// The observable collection of records used as the ItemsSource for the DataGrid.
+        /// </summary>
         public ObservableCollection<RecordModel> ObservableCollectionOfRecords { get; set; }
+
+        /// <summary>
+        /// A cached list of DataGridTextColumn instances. Used for operations that need column metadata.
+        /// </summary>
         public List<DataGridTextColumn> Columns;
+
+        /// <summary>
+        /// Manager responsible for DataGrid operations (adding/removing/renaming columns, etc.).
+        /// Internal to allow coordination within the assembly while hiding it from external consumers.
+        /// </summary>
         internal DataGridManager DataGridManager { get; set; }
+
         private string fileColumnHeaders;
         private WorkingTextFile workingTextFile;
 
