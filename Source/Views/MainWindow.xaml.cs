@@ -53,6 +53,7 @@ namespace WatchedFilmsTracker
             ButtonManager.AlwaysActiveButtons.Add(buttonOpenLocally);
 
             ButtonManager.UnsavedChangeButtons.Add(buttonSave);
+            ButtonManager.UnsavedChangeButtons.Add(buttonRevertChanges);
 
             ButtonManager.OpenedFileButtons.Add(buttonAddRecord);
             ButtonManager.OpenedFileButtons.Add(buttonClearAll);
@@ -63,8 +64,6 @@ namespace WatchedFilmsTracker
             ButtonManager.SelectedCellsButtons.Add(buttonDeleteFilmRecord);
             ButtonManager.SelectedCellsButtons.Add(buttoRemoveColumn);
             ButtonManager.SelectedCellsButtons.Add(buttoRenameColumn);
-
-            ButtonManager.AnyChangeButtons.Add(buttonRevertChanges);
 
             ButtonManager.FileExistsOnDiskButtons.Add(buttonOpenContainingFolder);
 
@@ -110,9 +109,9 @@ namespace WatchedFilmsTracker
 
             TabsWorkingTextFiles.NewFileLoaded += (sender, e) =>
             {
-                e.NewWorkingTextFile.CollectionHasChanged += UpdateStageTitle;
+                e.NewWorkingTextFile.ContentChanged += WorkingTextFile_ContentChanged;
+                e.NewWorkingTextFile.UnsavedChangesChanged += WorkingTextFile_UnsavedChangesChanged;
                 e.NewWorkingTextFile.CommonCollectionTypeChanged += UpdateCommonCollectionElements;
-                e.NewWorkingTextFile.SavedComplete += UpdateStageTitle;
             };
 
             //SNAPSHOT SERVICE
@@ -194,7 +193,7 @@ namespace WatchedFilmsTracker
         {
             string stageTitle = "";
 
-            if (GetCurrentlyOpenedTabWorkingTextFile().UnsavedChanges)
+            if (GetCurrentlyOpenedTabWorkingTextFile().HasUnsavedChanges)
             {
                 stageTitle = "*";
             }
@@ -250,8 +249,6 @@ namespace WatchedFilmsTracker
             {
                 manager.ChangeColumnDataType(column, column.SelectedDataType);
             }
-
-            GetCurrentlyOpenedTabWorkingTextFile().AnyChangeHappen();
         }
 
         private void ApplyUserSettingsToTheProgram()
@@ -549,13 +546,9 @@ namespace WatchedFilmsTracker
 
         private void RevertChangesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(GetCurrentlyOpenedTabWorkingTextFile().Filepath))
-            {
-                GetCurrentlyOpenedTabWorkingTextFile().CollectionOfRecords.ObservableCollectionOfRecords.Clear();
-            }
-            else
-                OpenLastOpenedFiles(GetCurrentlyOpenedTabWorkingTextFile().Filepath);
-            searchManager.SearchFilms();
+            WorkingTextFile workingTextFile = GetCurrentlyOpenedTabWorkingTextFile();
+            if (workingTextFile.RevertChanges())
+                UpdateDataContextForCurrentlyOpenedTabWorkingTextFile();
         }
 
         private void SaveAllButton_Click(object sender, RoutedEventArgs e)
@@ -664,8 +657,18 @@ namespace WatchedFilmsTracker
             LabelCurrentDelimiter.Content = "[tab]";
         }
 
-        private void UpdateStageTitle(object? sender, EventArgs e)
+        private void WorkingTextFile_ContentChanged(object? sender, EventArgs e)
         {
+            if (ReferenceEquals(sender, GetCurrentlyOpenedTabWorkingTextFile()))
+                ButtonStateManager.UpdateAtLeastOneRecord(GetCurrentlyOpenedTabWorkingTextFile());
+        }
+
+        private void WorkingTextFile_UnsavedChangesChanged(object? sender, EventArgs e)
+        {
+            if (!ReferenceEquals(sender, GetCurrentlyOpenedTabWorkingTextFile()))
+                return;
+
+            ButtonStateManager.UpdateUnsavedChanges(GetCurrentlyOpenedTabWorkingTextFile());
             UpdateStageTitle();
         }
 

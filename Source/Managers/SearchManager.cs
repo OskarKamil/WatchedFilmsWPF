@@ -19,7 +19,7 @@ namespace WatchedFilmsTracker.Source.Managers
             this.filmsGrid = filmsGrid;
             defaultSearchText = searchTextBox.Text;
 
-            this.WorkingTextFile.CollectionHasChanged += FileManager_AnyChangeHappenedEvent;
+            this.WorkingTextFile.ContentChanged += WorkingTextFile_ContentChanged;
         }
 
         public void SearchFilms()
@@ -53,7 +53,7 @@ namespace WatchedFilmsTracker.Source.Managers
             filmsGrid.ItemsSource = filteredList;
         }
 
-        private void FileManager_AnyChangeHappenedEvent(object sender, EventArgs e)
+        private void WorkingTextFile_ContentChanged(object? sender, EventArgs e)
         {
             SearchFilms();
         }

@@ -1,4 +1,9 @@
 **Immediate (This update):**
+Quick note
+	Revisit events and event handlers in .net and WPF.
+		Check chatGPT chat
+	Check latest changes made with Codex
+
 - The button `Save all` doesn't work.
 	- It should save all opened files that has been changed.
 

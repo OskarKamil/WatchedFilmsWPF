@@ -5,7 +5,6 @@ namespace WatchedFilmsTracker.Source.Buttons
     public static class ButtonManager
     {
         public static List<Button> AlwaysActiveButtons { get; } = new List<Button>();
-        public static List<Button> AnyChangeButtons { get; } = new List<Button>();
         public static List<Button> AtLeastOneRecordButtons { get; } = new List<Button>();
         public static List<Button> FileExistsOnDiskButtons { get; } = new List<Button>();
         public static List<Button> FileIsNotInLocalMyDataDirectoryButtons { get; } = new List<Button>();

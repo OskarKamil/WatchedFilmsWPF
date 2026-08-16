@@ -27,6 +27,11 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
+        /// Raised when column structure, name or data type changes.
+        /// </summary>
+        public event EventHandler? Changed;
+
+        /// <summary>
         /// Adds a new text column to the managed <see cref="DataGrid"/> with the given header.
         /// The column's data type is set to the default type (<see cref="DataType.String"/>).
         /// </summary>
@@ -37,6 +42,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Add(newColumn);
             ColumnsAndDataTypes.Add(new ColumnInformation(newColumn, DataType.String, this));
+            OnChanged();
             return newColumn;
         }
 
@@ -68,6 +74,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             DataGrid.Columns.Insert(index, newColumn);
             var newColumnInformation = new ColumnInformation(newColumn, DataType.String, this);
             ColumnsAndDataTypes.Insert(index, newColumnInformation);
+            OnChanged();
             return newColumnInformation;
         }
 
@@ -85,10 +92,11 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
         public void ChangeColumnDataType(ColumnInformation column, DataType dataType)
         {
-            column.DataType = dataType;
-
             int columnIndex = ColumnsAndDataTypes.IndexOf(column);
-            if (columnIndex == -1) return;
+            if (columnIndex == -1 || column.DataType == dataType)
+                return;
+
+            column.DataType = dataType;
 
             foreach (var record in Records)
             {
@@ -97,6 +105,8 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
                     record.Cells[columnIndex].DataType = dataType;
                 }
             }
+
+            OnChanged();
         }
 
         public void ChangeDataTypeAllColumns(DataType newType)
@@ -109,7 +119,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
         public void ChangeDataTypeOfColumn(int columnIndex, DataType dataType)
         {
-            ColumnsAndDataTypes[columnIndex].DataType = dataType;
+            ChangeColumnDataType(ColumnsAndDataTypes[columnIndex], dataType);
         }
 
         public void ChangeDataTypeOfColumn(ColumnInformation columnInformation, DataType dataType)
@@ -117,7 +127,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             int index = ColumnsAndDataTypes.IndexOf(columnInformation);
             if (index != -1)
             {
-                ColumnsAndDataTypes[index].DataType = dataType;
+                ChangeColumnDataType(ColumnsAndDataTypes[index], dataType);
             }
         }
 
@@ -166,14 +176,20 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
             {
                 DataGrid.Columns.RemoveAt(columnIndex);
                 ColumnsAndDataTypes.RemoveAt(columnIndex);
+                OnChanged();
             }
         }
 
         public void RenameColumnAt(int columnIndex, string header)
         {
+            string oldHeader = DataGrid.Columns[columnIndex].Header?.ToString() ?? string.Empty;
+            if (string.Equals(oldHeader, header, StringComparison.Ordinal))
+                return;
+
             DataGrid.Columns[columnIndex].Header = header;
             ColumnsAndDataTypes[columnIndex].DataGridTextColumn.Header = header;
             ColumnsAndDataTypes[columnIndex].OnPropertyChanged(nameof(ColumnInformation.DisplayText));
+            OnChanged();
         }
 
         public void ResetToDefault()
@@ -186,6 +202,8 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void OnChanged() => Changed?.Invoke(this, EventArgs.Empty);
 
         //private void SwapColumns(int index1, int index2)
         //{

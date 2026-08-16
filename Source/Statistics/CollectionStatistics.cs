@@ -65,10 +65,10 @@ namespace WatchedFilmsTracker.Source.Statistics
         {
             CollectionOfRecords = recordList;
             ObservableRecords = recordList.ObservableCollectionOfRecords;
-            ObservableRecords.CollectionChanged += Collection_RecordHasChanged;
+            recordList.Changed += Collection_RecordHasChanged;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public static string GetFormattedRating(double rating)
         {

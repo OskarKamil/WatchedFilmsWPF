@@ -48,7 +48,7 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
         }
 
         private bool _isValid;
-        private string _value;
+        private string _value = string.Empty;
 
         public Cell(string value)
         {
@@ -64,7 +64,7 @@ namespace WatchedFilmsTracker.Source.ManagingRecords
             Validate();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {

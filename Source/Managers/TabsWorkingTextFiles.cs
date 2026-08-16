@@ -58,8 +58,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
             workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
-            workingTextFile.CollectionHasChanged += UpdateTabText;
-            workingTextFile.SavedComplete += UpdateTabText;
+            workingTextFile.UnsavedChangesChanged += UpdateTabText;
 
             workingTextFile.FileClosing += (sender, e) =>
             {
@@ -81,8 +80,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
             workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
-            workingTextFile.CollectionHasChanged += UpdateTabText;
-            workingTextFile.SavedComplete += UpdateTabText;
+            workingTextFile.UnsavedChangesChanged += UpdateTabText;
 
             workingTextFile.FileClosing += (sender, e) =>
             {
@@ -205,7 +203,7 @@ namespace WatchedFilmsTracker.Source.Managers
                 {
                     string currentTabText = textBlock.Text;
 
-                    if (workingTextFile.UnsavedChanges)
+                    if (workingTextFile.HasUnsavedChanges)
                     {
                         if (!currentTabText.StartsWith("* "))
                         {

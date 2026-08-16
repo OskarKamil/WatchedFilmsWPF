@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -21,29 +22,39 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         /// <summary>
         /// The observable collection of records used as the ItemsSource for the DataGrid.
         /// </summary>
-        public ObservableCollection<RecordModel> ObservableCollectionOfRecords { get; set; }
+        public ObservableCollection<RecordModel> ObservableCollectionOfRecords { get; }
 
         /// <summary>
         /// A cached list of DataGridTextColumn instances. Used for operations that need column metadata.
         /// </summary>
-        public List<DataGridTextColumn> Columns;
+        public List<DataGridTextColumn> Columns = new();
 
         /// <summary>
         /// Manager responsible for DataGrid operations (adding/removing/renaming columns, etc.).
         /// Internal to allow coordination within the assembly while hiding it from external consumers.
         /// </summary>
-        internal DataGridManager DataGridManager { get; set; }
+        internal DataGridManager DataGridManager { get; }
 
-        private string fileColumnHeaders;
         private WorkingTextFile workingTextFile;
+        private readonly HashSet<RecordModel> subscribedRecords = new();
+        private int changeDeferralDepth;
+        private bool hasDeferredChange;
 
         public CollectionOfRecords(WorkingTextFile workingTextFile)
         {
             this.workingTextFile = workingTextFile;
 
             ObservableCollectionOfRecords = new ObservableCollection<RecordModel>();
+            ObservableCollectionOfRecords.CollectionChanged += Records_CollectionChanged;
             DataGridManager = new DataGridManager(workingTextFile.DataGrid, ObservableCollectionOfRecords);
+            DataGridManager.Changed += DataGridManager_Changed;
         }
+
+        /// <summary>
+        /// Raised when a record is added, removed or reordered, when a cell value changes,
+        /// or when the persisted column structure changes.
+        /// </summary>
+        public event EventHandler? Changed;
 
         /// <summary>
         /// Creates an empty record and adds it to the list of records.
@@ -67,6 +78,14 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 newRecord.Cells[indexOfColumnID].Value = (ObservableCollectionOfRecords.Count + 1).ToString();
             }
 
+            if (SettingsManager.DefaultDateIsToday)
+            {
+                string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
+                int columnID = DataGridManager.GetIdOfColumnByHeader("Watch date");
+                if (columnID != -1)
+                    newRecord.Cells[columnID].Value = formattedString;
+            }
+
             ObservableCollectionOfRecords.Add(newRecord);
             workingTextFile.DataGrid.SelectedCells.Clear();
 
@@ -74,14 +93,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 workingTextFile.DataGrid.SelectedItem = newRecord;
                 workingTextFile.DataGrid.ScrollIntoView(workingTextFile.DataGrid.SelectedItem);
-            }
-
-            if (SettingsManager.DefaultDateIsToday)
-            {
-                string formattedString = DateTime.Now.ToString("dd/MM/yyyy");
-                int columnID = DataGridManager.GetIdOfColumnByHeader("Watch date");
-                if (columnID != -1)
-                    newRecord.Cells[columnID].Value = formattedString;
             }
 
             StartEditingRecord(newRecord);
@@ -122,23 +133,30 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public DataGridTextColumn CreateColumnWithIds()
         {
-            var newColumnInformation = CreateNewColumnAtIndex(0, "#");
-            var newColumn = newColumnInformation.DataGridTextColumn;
-            newColumn.DisplayIndex = 0;
-            newColumn.IsReadOnly = true;
-            newColumn.CanUserReorder = false;
-
-            newColumn.Binding = new Binding($"Cells[{0}].Value");
-            newColumn.SortMemberPath = ($"Cells[{0}].ComparableValue");
-
-            for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
+            BeginChangeDeferral();
+            try
             {
-                ObservableCollectionOfRecords[i].Cells[0].Value = (i + 1).ToString();
-                ObservableCollectionOfRecords[i].Cells[0].DataType = DataType.Number;
+                var newColumnInformation = CreateNewColumnAtIndex(0, "#");
+                var newColumn = newColumnInformation.DataGridTextColumn;
+                newColumn.DisplayIndex = 0;
+                newColumn.IsReadOnly = true;
+                newColumn.CanUserReorder = false;
+
+                newColumn.Binding = new Binding($"Cells[{0}].Value");
+                newColumn.SortMemberPath = ($"Cells[{0}].ComparableValue");
+
+                for (int i = 0; i < ObservableCollectionOfRecords.Count; i++)
+                {
+                    ObservableCollectionOfRecords[i].Cells[0].Value = (i + 1).ToString();
+                    ObservableCollectionOfRecords[i].Cells[0].DataType = DataType.Number;
+                }
+                newColumnInformation.DataType = DataType.Number;
+                return newColumn;
             }
-            newColumnInformation.DataType = DataType.Number;
-            workingTextFile.UnsavedChanges = false;
-            return newColumn;
+            finally
+            {
+                EndChangeDeferral();
+            }
         }
 
         public void CreateDefaultColumnsForCommonCollectionType()
@@ -151,64 +169,80 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public DataGridTextColumn CreateNewColumn(string columnHeader)
         {
-            // todo datagrid manager should have columnsdatatypes, and each time column is inserted in the middle, it will update cells
-            var column = DataGridManager.AddColumn(columnHeader);
-            foreach (var RecordModel in ObservableCollectionOfRecords)
+            BeginChangeDeferral();
+            try
             {
-                RecordModel.AddNewCell(DataType.String);
+                // todo datagrid manager should have columnsdatatypes, and each time column is inserted in the middle, it will update cells
+                var column = DataGridManager.AddColumn(columnHeader);
+                foreach (var RecordModel in ObservableCollectionOfRecords)
+                {
+                    RecordModel.AddNewCell(DataType.String);
+                }
+
+                int indexOfNewCell = DataGridManager.DataGrid.Columns.Count - 1;
+
+                column.Binding = new Binding($"Cells[{indexOfNewCell}].Value");
+
+                return column;
             }
-
-            int indexOfNewCell = DataGridManager.DataGrid.Columns.Count - 1;
-
-            column.Binding = new Binding($"Cells[{indexOfNewCell}].Value");
-
-            workingTextFile.UnsavedChanges = true;
-            workingTextFile.AnyChangeHappen();
-
-            return column;
+            finally
+            {
+                EndChangeDeferral();
+            }
         }
 
         public ColumnInformation CreateNewColumnAtIndex(int index, string columnHeader)
         {
-            ColumnInformation column = DataGridManager.AddColumnAtIndex(index, columnHeader);
-            foreach (var RecordModel in ObservableCollectionOfRecords)
+            BeginChangeDeferral();
+            try
             {
-                RecordModel.InsertNewCellAt(index);
+                ColumnInformation column = DataGridManager.AddColumnAtIndex(index, columnHeader);
+                foreach (var RecordModel in ObservableCollectionOfRecords)
+                {
+                    RecordModel.InsertNewCellAt(index);
+                }
+                column.DataGridTextColumn.Binding = new Binding($"Cells[{index}].Value");
+
+                ShiftBindingAfterInsertion(0);
+                return column;
             }
-            column.DataGridTextColumn.Binding = new Binding($"Cells[{index}].Value");
-
-            workingTextFile.UnsavedChanges = true;
-            workingTextFile.AnyChangeHappen();
-
-            ShiftBindingAfterInsertion(0);
-            return column;
+            finally
+            {
+                EndChangeDeferral();
+            }
         }
 
         public void DeleteAllRecords()
         {
-            workingTextFile.CollectionOfRecords.ObservableCollectionOfRecords.Clear();
-            workingTextFile.AnyChangeHappen();
+            if (ObservableCollectionOfRecords.Count > 0)
+                ObservableCollectionOfRecords.Clear();
         }
 
         public void DeleteColumnAt(int columndID)
         {
-            foreach (RecordModel recordModel in ObservableCollectionOfRecords)
+            BeginChangeDeferral();
+            try
             {
-                recordModel.Cells.RemoveAt(columndID);
-            }
-
-            DataGridManager.RemoveColumnAt(columndID);
-            for (int i = columndID; i < DataGridManager.DataGrid.Columns.Count; i++)
-            {
-                // Cast the column to DataGridBoundColumn or DataGridTextColumn
-                if (DataGridManager.DataGrid.Columns[i] is DataGridBoundColumn boundColumn)
+                foreach (RecordModel recordModel in ObservableCollectionOfRecords)
                 {
-                    // Update the binding to refer to the correct cell index after a column is removed
-                    boundColumn.Binding = new Binding($"Cells[{i}].Value");
+                    recordModel.Cells.RemoveAt(columndID);
+                }
+
+                DataGridManager.RemoveColumnAt(columndID);
+                for (int i = columndID; i < DataGridManager.DataGrid.Columns.Count; i++)
+                {
+                    // Cast the column to DataGridBoundColumn or DataGridTextColumn
+                    if (DataGridManager.DataGrid.Columns[i] is DataGridBoundColumn boundColumn)
+                    {
+                        // Update the binding to refer to the correct cell index after a column is removed
+                        boundColumn.Binding = new Binding($"Cells[{i}].Value");
+                    }
                 }
             }
-            workingTextFile.UnsavedChanges = true;
-            workingTextFile.AnyChangeHappen();
+            finally
+            {
+                EndChangeDeferral();
+            }
         }
 
         public void DeleteRecordFromList(RecordModel selected)
@@ -219,16 +253,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             if (ObservableCollectionOfRecords.Count == 0 || selectedIndex < 0) return;
 
-            int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
-            if (indexOfColumnID != -1)
+            BeginChangeDeferral();
+            try
             {
-                int selectedIdColumnValue = int.Parse(selected.Cells[indexOfColumnID].Value);
-                ObservableCollectionOfRecords.Remove(selected);
-                RefreshFurtherIDs(selectedIdColumnValue);
+                int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
+                if (indexOfColumnID != -1)
+                {
+                    int selectedIdColumnValue = int.Parse(selected.Cells[indexOfColumnID].Value);
+                    ObservableCollectionOfRecords.Remove(selected);
+                    RefreshFurtherIDs(selectedIdColumnValue);
+                }
+                else
+                {
+                    ObservableCollectionOfRecords.Remove(selected);
+                }
             }
-            else
+            finally
             {
-                ObservableCollectionOfRecords.Remove(selected);
+                EndChangeDeferral();
             }
 
             // selecting the next record
@@ -270,6 +312,26 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
+        internal void ReplaceContents(List<DataGridTextColumn> columns, List<List<string>> records)
+        {
+            BeginChangeDeferral();
+            try
+            {
+                ObservableCollectionOfRecords.Clear();
+                DataGridManager.DataGrid.Columns.Clear();
+                DataGridManager.ColumnsAndDataTypes.Clear();
+
+                Columns = columns;
+                DataGridManager.BuildColumnsFromList(Columns);
+                PopulateListWithData(records, "\t");
+                CreateColumnWithIds();
+            }
+            finally
+            {
+                EndChangeDeferral();
+            }
+        }
+
         public void RefreshFurtherIDs(int idOfSelected)
         {
             int indexOfColumnID = DataGridManager.GetIdOfColumnByHeader("#");
@@ -306,8 +368,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (RenameColumnDialog.Result == Views.RenameColumnDialog.CustomDialogResult.Confirm)
                 {
                     DataGridManager.RenameColumnAt(columnID, RenameColumnDialog.NewColumnName);
-
-                    workingTextFile.UnsavedChanges = true;
                 }
             }
             else
@@ -321,6 +381,65 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         {
             //throw new NotImplementedException();
             return;
+        }
+
+        private void OnChanged()
+        {
+            if (changeDeferralDepth > 0)
+            {
+                hasDeferredChange = true;
+                return;
+            }
+
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void BeginChangeDeferral()
+        {
+            changeDeferralDepth++;
+        }
+
+        private void EndChangeDeferral()
+        {
+            changeDeferralDepth--;
+            if (changeDeferralDepth == 0 && hasDeferredChange)
+            {
+                hasDeferredChange = false;
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void Record_CellValueChanged(object? sender, EventArgs e)
+        {
+            OnChanged();
+        }
+
+        private void DataGridManager_Changed(object? sender, EventArgs e)
+        {
+            OnChanged();
+        }
+
+        private void Records_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            SynchronizeRecordSubscriptions();
+            OnChanged();
+        }
+
+        private void SynchronizeRecordSubscriptions()
+        {
+            HashSet<RecordModel> currentRecords = ObservableCollectionOfRecords.ToHashSet();
+
+            foreach (RecordModel removedRecord in subscribedRecords.Except(currentRecords).ToList())
+            {
+                removedRecord.CellValueChanged -= Record_CellValueChanged;
+                subscribedRecords.Remove(removedRecord);
+            }
+
+            foreach (RecordModel addedRecord in currentRecords.Except(subscribedRecords))
+            {
+                addedRecord.CellValueChanged += Record_CellValueChanged;
+                subscribedRecords.Add(addedRecord);
+            }
         }
 
         private void ShiftBindingAfterDeletion(int index)

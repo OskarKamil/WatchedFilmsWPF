@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -36,8 +35,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     /// </summary>
     public class WorkingTextFile
     {
-        public bool AnyChange { get; set; }
-
         public CollectionOfRecords CollectionOfRecords { get; set; }
 
         public CollectionStatistics CollectionStatistics { get; set; }
@@ -63,17 +60,20 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public Metadata Metadata { get; set; }
 
-        public bool UnsavedChanges
+        /// <summary>
+        /// Indicates whether the content has changed since the last load, save or revert.
+        /// </summary>
+        public bool HasUnsavedChanges
         {
-            get => _unsavedChanges;
-            set
+            get => _hasUnsavedChanges;
+            private set
             {
-                if (_unsavedChanges != value)
+                if (_hasUnsavedChanges != value)
                 {
-                    String filename = Path.GetFileName(Filepath);
+                    string filename = Path.GetFileName(Filepath);
                     Debug.WriteLine("Unsaved changes set to: " + value + " for file: " + filename);
-                    _unsavedChanges = value;
-                    ButtonStateManager.UpdateUnsavedChanges(this);
+                    _hasUnsavedChanges = value;
+                    UnsavedChangesChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -84,14 +84,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         private FilmRecordPropertyValidator _filmRecordPropertyValidator;
 
-        private bool _unsavedChanges;
+        private bool _hasUnsavedChanges;
+
+        private CollectionOfRecords? _subscribedCollectionOfRecords;
 
         public WorkingTextFile(CommonCollectionType commonCollection)
         {
             CommonCollectionType = commonCollection;
             DataGrid = CreateGridInTheUI();
             CollectionOfRecords = new CollectionOfRecords(this);
-            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid, CollectionOfRecords.ObservableCollectionOfRecords);
 
             CollectionOfRecords.CreateColumnWithIds();
 
@@ -106,7 +107,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid = CreateGridInTheUI();
             Filepath = filepath;
             CollectionOfRecords = new CollectionOfRecords(this);
-            CollectionOfRecords.DataGridManager = new DataGridManager(DataGrid, CollectionOfRecords.ObservableCollectionOfRecords);
 
             ReadTextFile();
 
@@ -117,30 +117,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             AfterFileHasBeenLoaded();
         }
 
-        public event EventHandler CollectionHasChanged;
+        /// <summary>
+        /// Raised for every content mutation, including subsequent mutations while the file is already dirty.
+        /// </summary>
+        public event EventHandler? ContentChanged;
 
-        public event EventHandler<CommonCollectionTypeChangedEventArgs> CommonCollectionTypeChanged;
+        public event EventHandler<CommonCollectionTypeChangedEventArgs>? CommonCollectionTypeChanged;
 
-        public event EventHandler FileClosing;
+        public event EventHandler? FileClosing;
 
-        public event EventHandler SavedComplete;
-
-        private void Record_CellValueChanged(object? sender, CellValueChangedEventArgs e)
-        {
-            AnyChangeHappen();
-        }
+        /// <summary>
+        /// Raised only when <see cref="HasUnsavedChanges"/> changes between dirty and clean.
+        /// </summary>
+        public event EventHandler? UnsavedChangesChanged;
 
         public void AfterFileHasBeenLoaded()
         {
-            UnsavedChanges = false;
-            ObservableCollection<RecordModel> collection = GetObservableCollectionOfRecords();
-            collection.CollectionChanged += ListHasChanged;
-
-            // Subscribe to cell changes for any records that already exist
-            foreach (RecordModel record in collection)
-            {
-                record.CellValueChanged += Record_CellValueChanged;
-            }
+            SubscribeToCollectionChanges();
+            HasUnsavedChanges = false;
 
             DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
@@ -154,20 +148,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
-            TabsWorkingTextFiles.MainWindow.UpdateStatistics();
-
             DataGrid.SelectedCellsChanged += (obs, args) =>
             {
                 ButtonStateManager.UpdateSelectedCells(this);
             };
         }
 
-        public void AnyChangeHappen()
+        private void MarkAsModified()
         {
-            AnyChange = true;
-            UnsavedChanges = true;
-            CollectionHasChanged?.Invoke(this, EventArgs.Empty);
-            TabsWorkingTextFiles.MainWindow.UpdateStatistics();
+            HasUnsavedChanges = true;
+            ContentChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public DataGrid CreateGridInTheUI()
@@ -288,11 +278,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return DataGrid.SelectedCells.Count > 0;
         }
 
-        public bool HasUnsavedChanges()
-        {
-            return UnsavedChanges;
-        }
-
         //        // Create context menu
         //        ContextMenu contextMenu = new ContextMenu();
         public void NewFile(CollectionType collectionType)
@@ -305,11 +290,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         //    {
         //        FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
         //        if (filmRecord == null) return;
-        public void OnSaveCompleted(CollectionOfRecords filmsFile)
-        {
-            SavedComplete?.Invoke(this, EventArgs.Empty);
-        }
-
         public void OpenFilepath(string? newFilePath)
         {
             if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
@@ -373,9 +353,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
 
             WriteTextFile();
-            UnsavedChanges = false;
-
-            OnSaveCompleted(CollectionOfRecords);
+            HasUnsavedChanges = false;
 
             return true;
         }
@@ -402,10 +380,38 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             {
                 WriteTextFile(saveFileDialog.FileName);
                 // OpenFilepath(saveFileDialog.FileName);
-                UnsavedChanges = false;
+                HasUnsavedChanges = false;
                 return true;
             }
             return false;
+        }
+
+        public bool RevertChanges()
+        {
+            if (!HasUnsavedChanges)
+                return true;
+
+            if (string.IsNullOrEmpty(Filepath))
+            {
+                List<DataGridTextColumn> defaultColumns = CommonCollectionType.DefaultColumnHeaders
+                    .Select(header => new DataGridTextColumn { Header = header })
+                    .ToList();
+
+                CollectionOfRecords.ReplaceContents(defaultColumns, new List<List<string>>());
+            }
+            else
+            {
+                if (!File.Exists(Filepath))
+                    return false;
+
+                CSVreader reader = new CSVreader(Filepath);
+                reader.ReadFile();
+                Metadata = reader.Metadata;
+                CollectionOfRecords.ReplaceContents(reader.GetColumns(), reader.GetListOfRecords());
+            }
+
+            HasUnsavedChanges = false;
+            return true;
         }
 
         public void SaveFileAtLocation(string filepath)
@@ -442,7 +448,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         /// </returns>
         public bool TryToCloseFile()
         {
-            if (UnsavedChanges)
+            if (HasUnsavedChanges)
             {
                 // New file not on disk or autosave off
                 // Ask to save because file not on disk, could be a draft so ask
@@ -483,7 +489,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 }
             }
             RaiseOnClosingFile();
-            return UnsavedChanges;
+            return true;
         }
 
         public void WriteTextFile()
@@ -531,46 +537,18 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
-        /// <summary>
-        /// Gets invoked when a collection of records changes. Mainly when a new record is added
-        /// or when a record gets deleted.
-        ///
-        /// Doesn't include when a cell has been edited.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ListHasChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void CollectionOfRecords_Changed(object? sender, EventArgs e)
         {
-            ButtonStateManager.UpdateAtLeastOneRecord(this);
+            MarkAsModified();
+        }
 
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                // New items added to the list
-                foreach (var newItem in e.NewItems)
-                {
-                    if (newItem is RecordModel newRecord)
-                    {
-                        // Subscribe to the record's bubbled-up cell change event
-                        newRecord.CellValueChanged += Record_CellValueChanged;
-                    }
-                }
+        private void SubscribeToCollectionChanges()
+        {
+            if (_subscribedCollectionOfRecords != null)
+                _subscribedCollectionOfRecords.Changed -= CollectionOfRecords_Changed;
 
-                AnyChangeHappen();
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                // Items removed from the list
-                foreach (var oldItem in e.OldItems)
-                {
-                    if (oldItem is RecordModel oldRecord)
-                    {
-                        // Unsubscribe to avoid leaks / duplicate handlers
-                        oldRecord.CellValueChanged -= Record_CellValueChanged;
-                    }
-                }
-
-                AnyChangeHappen();
-            }
+            _subscribedCollectionOfRecords = CollectionOfRecords;
+            _subscribedCollectionOfRecords.Changed += CollectionOfRecords_Changed;
         }
 
         private void RaiseOnClosingFile()

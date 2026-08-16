@@ -9,7 +9,6 @@ namespace WatchedFilmsTracker.Source.Buttons
             UpdateUnsavedChanges(workingTextFile);
             UpdateSelectedCells(workingTextFile);
             UpdateAtLeastOneRecord(workingTextFile);
-            UpdateAnyChange(workingTextFile);
             UpdateFileExistsOnDiskButtons(workingTextFile);
             UpdateFileIsNotInLocalMyDataDirectoryButtons(workingTextFile);
             UpdateCollectionType(workingTextFile);
@@ -18,14 +17,6 @@ namespace WatchedFilmsTracker.Source.Buttons
         public static void UpdateCollectionType(WorkingTextFile workingTextFile)
         {
            // throw new NotImplementedException();
-        }
-
-        public static void UpdateAnyChange(WorkingTextFile workingTextFile)
-        {
-            if (workingTextFile.AnyChange)
-                ButtonManager.EnableButtons(ButtonManager.AnyChangeButtons);
-            else
-                ButtonManager.DisableButtons(ButtonManager.AnyChangeButtons);
         }
 
         public static void UpdateFileExistsOnDiskButtons(WorkingTextFile workingTextFile)
@@ -45,7 +36,7 @@ namespace WatchedFilmsTracker.Source.Buttons
         }
         public static void UpdateUnsavedChanges(WorkingTextFile workingTextFile)
         {
-            if (workingTextFile.HasUnsavedChanges())
+            if (workingTextFile.HasUnsavedChanges)
                 ButtonManager.EnableButtons(ButtonManager.UnsavedChangeButtons);
             else
                 ButtonManager.DisableButtons(ButtonManager.UnsavedChangeButtons);
