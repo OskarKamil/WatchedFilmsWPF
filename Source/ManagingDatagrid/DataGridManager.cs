@@ -26,11 +26,17 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        /// <summary>
+        /// Adds a new text column to the managed <see cref="DataGrid"/> with the given header.
+        /// The column's data type is set to the default type (<see cref="DataType.String"/>).
+        /// </summary>
+        /// <param name="header">The displayed header for the new column.</param>
+        /// <returns>The created <see cref="DataGridTextColumn"/> instance.</returns>
         public DataGridTextColumn AddColumn(string header)
         {
             var newColumn = new DataGridTextColumn { Header = header };
             DataGrid.Columns.Add(newColumn);
-            ColumnsAndDataTypes.Add(new ColumnInformation(newColumn, DataType.String, this)); // "this" passed explicitly
+            ColumnsAndDataTypes.Add(new ColumnInformation(newColumn, DataType.String, this));
             return newColumn;
         }
 
@@ -48,6 +54,14 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         //        }
         //    }
         //}
+
+        /// <summary>
+        /// Inserts a new text column at the specified index in the managed <see cref="DataGrid"/>.
+        /// The inserted column's data type is set to the default type (<see cref="DataType.String"/>).
+        /// </summary>
+        /// <param name="index">Zero-based index at which to insert the new column.</param>
+        /// <param name="header">The displayed header for the new column.</param>
+        /// <returns>A <see cref="ColumnInformation"/> describing the newly created column and its data type.</returns>
         public ColumnInformation AddColumnAtIndex(int index, string header)
         {
             var newColumn = new DataGridTextColumn { Header = header };

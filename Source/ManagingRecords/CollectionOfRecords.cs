@@ -61,9 +61,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             for (int i = 0; i < DataGridManager.DataGrid.Columns.Count; i++)
             {
-                {
-                    newRecord.AddNewCell();
-                }
+                DataType newCellDataType = DataGridManager.ColumnsAndDataTypes[i].DataType;
+                newRecord.AddNewCell(newCellDataType);
             }
 
             // Adding ID to the new record if ID column exists
@@ -169,7 +168,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             var column = DataGridManager.AddColumn(columnHeader);
             foreach (var RecordModel in ObservableCollectionOfRecords)
             {
-                RecordModel.AddNewCell();
+                RecordModel.AddNewCell(DataType.String);
             }
 
             int indexOfNewCell = DataGridManager.DataGrid.Columns.Count - 1;
