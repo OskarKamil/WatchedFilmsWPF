@@ -9,7 +9,7 @@ When dev is ready for release:
 Code formatting:
 	Use CodeMaid 2026
 	In Extensions -> Enable Automatic Cleanup on Save.
-	This will run Ctrl + M, Space.
-		Will clean up and format the document.
-	Periodically run Ctrl + M, Z.
+	This will run `Ctrl + M, Space` on save.
+		It will clean up and format the document.
+	Periodically run `Ctrl + M, Z`.
 		This will sort methods and other members based on visibility and data type.
