@@ -1,11 +1,38 @@
 **Immediate (This update):**
 Quick note
-	Revisit events and event handlers in .net and WPF.
-		Check chatGPT chat
-	Check latest changes made with Codex
-
 - The button `Save all` doesn't work.
 	- It should save all opened files that has been changed.
+
+Make statistics more flexible. Use an SQL or other generic language.
+Statistics should be configurable by user. For example, user wants to group, sort, count or average by any column. This way user can create any statistics they want, and they can use common SQL or similar simple language.
+Example 1 - Decade statistics:
+SELECT
+    CONCAT((ReleaseYear / 10) * 10, 's') AS Decade,
+    COUNT(*) AS FilmsWatched,
+    ROUND(AVG(CAST(Rating AS decimal(10, 2))), 2) AS AverageRating
+FROM Films
+GROUP BY (ReleaseYear / 10) * 10
+ORDER BY (ReleaseYear / 10) * 10;
+Example 2 - Yearly statistics:
+SELECT
+    YEAR(WatchDate) AS WatchYear,
+    COUNT(*) AS FilmsWatched,
+    ROUND(AVG(CAST(Rating AS decimal(10, 2))), 2) AS AverageRating
+FROM Films
+GROUP BY YEAR(WatchDate)
+ORDER BY WatchYear;
+	- BIG DECISION. WHERE METADATA OF THE FILE IS STORED. IN THE FILE OR IN SEPARATE FILE? OR IN JSON FILE? OR IN SETTINGS FILE? OR IN PROGRAM EMBEDDED?
+	- SHOULD IT BE TXT FILE, OR CSV FILE, OR JSON FILE, OR XML FILE, OR SOMETHING ELSE? OR MY OWN FILE FORMAT? SHOULD I SUPPORT ALL JSON/XML/CSV/TXT FILES AND BE ABLE TO READ AND WRITE THEM? OR JUST ONE FILE FORMAT?
+	- WHERE SHOULD INFORMATION ABOUT STATISTICS BE STORED? IN THE FILE OR IN SEPARATE FILE? OR IN JSON FILE? OR IN SETTINGS FILE? OR IN PROGRAM EMBEDDED?
+	- THE SAME QUESTION ABOUT THE COLLECTION TYPE LIKE FILMS, BOOKS, GAMES. WHERE STORED?
+	- Create a way to generate statistics tables based on query language.
+	- Decide how to store statistics. In .txt file or create my own extension for the text files. Or store them in a separate file?
+	- Create predefined statistics? For example above 2 examples are pretty basic and they can be predefined and added with one button click.
+	- Add predefined statistics for games. For example, group by platform, count of games, average rating etc.
+		- For that it's good to game good classes and interface organization. Create statistics package or folder. Or common collection types? For example type Films will have some default statistics, as well as icon and other descriptions. Games the same, their own icon, statistics etc. Maybe create a common interface for statistics and common collection types. For example, Films and Games will implement this interface. And the program will be able to use them in a generic way.
+
+Make icons for common collection types actually work.
+Each text file will have a common collection type. For example, Films, Games, Books, or just Other, or anything else. Each type will have its own icon and statistics. The program will be able to use them in a generic way. When a program opens a file, a program will need to know what type of collection it is. For example, if it's a film collection, it will display film icon. That information about what type of collection it is must be stored somewhere.
 
 - Predefined statistics. Films are: group by decade 10*10 +"s", count of decade films, average rating 0.## + "/4.00".
 - Prefefined statistics. Games are: group by Platform, etc.
