@@ -9,49 +9,46 @@ using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
-    internal class TabsWorkingTextFiles
+    internal class OpenedFilesManager
     {
-        public static MainWindow MainWindow { get; set; }
+        public static event EventHandler<NewFileLoadedEventArgs>? NewFileLoaded;
 
-        public static TabControl TabControl { get; set; }
+        public static ObservableCollection<CollectionFile> OpenedFiles { get; set; } = new ObservableCollection<CollectionFile>();
+        public static TabControl? TabControl { get; set; }
 
-        public static ObservableCollection<TabItem> TabItemsWorkingFiles { get; set; } = new ObservableCollection<TabItem>();
+        public static ObservableCollection<TabItem> TabsOfOpenedFiles { get; set; } = new ObservableCollection<TabItem>();
 
-        public static ObservableCollection<WorkingTextFile> WorkingTextFiles { get; set; } = new ObservableCollection<WorkingTextFile>();
-
-        public static event EventHandler<NewFileLoadedEventArgs> NewFileLoaded;
-
-        public static void CloseTab(WorkingTextFile workingTextFile)
+        public static void CloseTab(CollectionFile workingTextFile)
         {
-            int index = WorkingTextFiles.IndexOf(workingTextFile);
+            int index = OpenedFiles.IndexOf(workingTextFile);
             if (index >= 0)
             {
-                if (TabItemsWorkingFiles.Count == 1)
+                if (TabsOfOpenedFiles.Count == 1)
                 {
                     CreateEmptyWorkingFile(CommonCollections.GetCommonCollectionByName(CommonCollections.CollectionType.Films));
-                    TabItemsWorkingFiles[1].IsSelected = true;
+                    TabsOfOpenedFiles[1].IsSelected = true;
                 }
-                else if (TabItemsWorkingFiles.Count - 1 > index)
+                else if (TabsOfOpenedFiles.Count - 1 > index)
                 {
-                    TabItemsWorkingFiles[index + 1].IsSelected = true;
+                    TabsOfOpenedFiles[index + 1].IsSelected = true;
                 }
-                else if (TabItemsWorkingFiles.Count - 1 == index)
+                else if (TabsOfOpenedFiles.Count - 1 == index)
                 {
-                    TabItemsWorkingFiles[index - 1].IsSelected = true;
+                    TabsOfOpenedFiles[index - 1].IsSelected = true;
                 }
-                WorkingTextFiles.RemoveAt(index);
-                TabItemsWorkingFiles.RemoveAt(index);
+                OpenedFiles.RemoveAt(index);
+                TabsOfOpenedFiles.RemoveAt(index);
             }
         }
 
         public static void CreateEmptyWorkingFile(CommonCollectionType commonCollection)
         {
-            WorkingTextFile workingTextFile = new WorkingTextFile(commonCollection);
-            WorkingTextFiles.Add(workingTextFile);
+            CollectionFile workingTextFile = new CollectionFile(commonCollection);
+            OpenedFiles.Add(workingTextFile);
 
             var newTab = CreateNewTab(workingTextFile);
 
-            TabItemsWorkingFiles.Add(newTab);
+            TabsOfOpenedFiles.Add(newTab);
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
@@ -62,18 +59,18 @@ namespace WatchedFilmsTracker.Source.Managers
 
             workingTextFile.FileClosing += (sender, e) =>
             {
-                CloseTab((WorkingTextFile)sender);
+                CloseTab((CollectionFile)sender);
             };
         }
 
         public static void CreateNewWorkingFile(string filePath)
         {
-            WorkingTextFile workingTextFile = new WorkingTextFile(filePath);
-            WorkingTextFiles.Add(workingTextFile);
+            CollectionFile workingTextFile = new CollectionFile(filePath);
+            OpenedFiles.Add(workingTextFile);
 
             var newTab = CreateNewTab(workingTextFile);
 
-            TabItemsWorkingFiles.Add(newTab);
+            TabsOfOpenedFiles.Add(newTab);
 
             newTab.Content = workingTextFile.Grid;
             newTab.IsSelected = true;
@@ -84,7 +81,7 @@ namespace WatchedFilmsTracker.Source.Managers
 
             workingTextFile.FileClosing += (sender, e) =>
             {
-                CloseTab((WorkingTextFile)sender);
+                CloseTab((CollectionFile)sender);
             };
         }
 
@@ -93,17 +90,17 @@ namespace WatchedFilmsTracker.Source.Managers
             return (TabItem)TabControl.SelectedItem;
         }
 
-        public static WorkingTextFile CurrentlyOpenedWorkingFile()
+        public static CollectionFile CurrentlyOpenedWorkingFile()
         {
             var selectedTab = (TabItem)TabControl.SelectedItem;
-            int indexOfTab = TabItemsWorkingFiles.IndexOf(selectedTab);
+            int indexOfTab = TabsOfOpenedFiles.IndexOf(selectedTab);
             if (indexOfTab == -1)
                 return null;
-            // Debug.WriteLine($"index of tab is {indexOfTab}, and number of tabs is: {TabItemsWorkingFiles.Count}, or {TabControl.Items.Count} or {WorkingTextFiles.Count}");
-            return WorkingTextFiles[indexOfTab];
+            // Debug.WriteLine($"index of tab is {indexOfTab}, and number of tabs is: {TabsOfOpenedFiles.Count}, or {TabControl.Items.Count} or {OpenedFiles.Count}");
+            return OpenedFiles[indexOfTab];
         }
 
-        private static TabItem CreateNewTab(WorkingTextFile workingTextFile)
+        private static TabItem CreateNewTab(CollectionFile workingTextFile)
         {
             TabItem tabItem = new TabItem();
             StackPanel stackPanel = new StackPanel
@@ -184,7 +181,7 @@ namespace WatchedFilmsTracker.Source.Managers
             return null;
         }
 
-        private static void UpdateTabIconAndText(object? sender, WorkingTextFile.CommonCollectionTypeChangedEventArgs e)
+        private static void UpdateTabIconAndText(object? sender, CollectionFile.CommonCollectionTypeChangedEventArgs e)
         {
             TabItem tabItem = CurrentlyOpenedTabItem();
             GetImageFromTab(tabItem).Source = e.NewCommonCollectionType.GetIconImageSource();
@@ -192,11 +189,11 @@ namespace WatchedFilmsTracker.Source.Managers
 
         private static void UpdateTabText(object? sender, EventArgs e)
         {
-            WorkingTextFile workingTextFile = (WorkingTextFile)sender;
-            int tabIndex = WorkingTextFiles.IndexOf(workingTextFile);
+            CollectionFile workingTextFile = (CollectionFile)sender;
+            int tabIndex = OpenedFiles.IndexOf(workingTextFile);
             if (tabIndex != -1)
             {
-                TabItem tabItem = TabItemsWorkingFiles[tabIndex];
+                TabItem tabItem = TabsOfOpenedFiles[tabIndex];
                 TextBlock textBlock = GetTextBlockFromTab(tabItem);
 
                 if (textBlock != null)
@@ -229,12 +226,12 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public class NewFileLoadedEventArgs : EventArgs
         {
-            public WorkingTextFile NewWorkingTextFile { get; }
-
-            public NewFileLoadedEventArgs(WorkingTextFile workingTextFile)
+            public NewFileLoadedEventArgs(CollectionFile workingTextFile)
             {
                 NewWorkingTextFile = workingTextFile;
             }
+
+            public CollectionFile NewWorkingTextFile { get; }
         }
     }
 }

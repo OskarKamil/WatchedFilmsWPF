@@ -15,7 +15,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
     /// <summary>
     /// Represents a collection of record models bound to a DataGrid.
     /// This class manages creation, insertion and manipulation of records
-    /// and coordinates updates with the associated <see cref="WorkingTextFile"/> and <see cref="DataGridManager"/>.
+    /// and coordinates updates with the associated <see cref="CollectionFile"/> and <see cref="DataGridManager"/>.
     /// </summary>
     public class CollectionOfRecords
     {
@@ -35,12 +35,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         /// </summary>
         internal DataGridManager DataGridManager { get; }
 
-        private WorkingTextFile workingTextFile;
+        private CollectionFile workingTextFile;
         private readonly HashSet<RecordModel> subscribedRecords = new();
         private int changeDeferralDepth;
         private bool hasDeferredChange;
 
-        public CollectionOfRecords(WorkingTextFile workingTextFile)
+        public CollectionOfRecords(CollectionFile workingTextFile)
         {
             this.workingTextFile = workingTextFile;
 

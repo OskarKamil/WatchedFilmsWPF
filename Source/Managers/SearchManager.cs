@@ -10,9 +10,9 @@ namespace WatchedFilmsTracker.Source.Managers
         private string defaultSearchText;
         private DataGrid filmsGrid;
         private TextBox searchTextBox;
-        private WorkingTextFile WorkingTextFile;
+        private CollectionFile WorkingTextFile;
 
-        public SearchManager(WorkingTextFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
+        public SearchManager(CollectionFile fileManager, TextBox searchTextBox, DataGrid filmsGrid)
         {
             this.WorkingTextFile = fileManager;
             this.searchTextBox = searchTextBox;

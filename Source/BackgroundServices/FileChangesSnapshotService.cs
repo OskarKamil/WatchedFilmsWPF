@@ -7,15 +7,15 @@ namespace WatchedFilmsTracker.Source.BackgroundServices
     internal class FileChangesSnapshotService
     {
         public const int MAX_NUMBER_OF_SNAPSHOTS = 5;
-        internal static WorkingTextFile FileManager { get => fileManager; set => fileManager = value; }
-        private static WorkingTextFile fileManager;
+        internal static CollectionFile FileManager { get => fileManager; set => fileManager = value; }
+        private static CollectionFile? fileManager;
         private static string filePattern = "snapshot_*.txt";
         private static string snapshotDirectory = "";
-        private static string[] snapshotFiles = null;
+        private static string[]? snapshotFiles = null;
 
-        public static void CreateNewSnapshot(WorkingTextFile filmsFile)
+        public static void CreateNewSnapshot(CollectionFile collectionFile)
         {
-            filmsFile.WriteTextFile(snapshotDirectory + "/" + $"snapshot_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+            collectionFile.WriteTextFile(snapshotDirectory + "/" + $"snapshot_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
             int numberOfSnapshots = GetSnapshotFiles().Length;
             if (numberOfSnapshots > MAX_NUMBER_OF_SNAPSHOTS)
                 DeleteOldestSnapshots(numberOfSnapshots - MAX_NUMBER_OF_SNAPSHOTS);
@@ -82,7 +82,7 @@ namespace WatchedFilmsTracker.Source.BackgroundServices
 
         private static void HandleSaveCompleted(object sender, CollectionOfRecords filmsFile)
         {
-            //  CreateNewSnapshot(filmsFile);
+            //  CreateNewSnapshot(collectionFile);
         }
     }
 }

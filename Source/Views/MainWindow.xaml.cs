@@ -82,11 +82,11 @@ namespace WatchedFilmsTracker
                 ManualCheckForUpdate(CheckUpdatesButton, null);
 
             //FILEMANAGER
-            //   workingTextFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
+            //   collectionFile.DeleteRecordAction = DeleteFilmRecord_ButtonClick;
             OpenLastOpenedFiles(SettingsManager.LastPath);
 
             //LOCAL FILES SERVICE
-            // localFilmsFilesService = new LocalFilmsFilesService(workingTextFile);
+            // localFilmsFilesService = new LocalFilmsFilesService(collectionFile);
             // LocalFilmsFilesService.CreateMyDataFolderIfNotExist();
 
             //STATISTICS DISPLAY COLUMNS
@@ -94,9 +94,8 @@ namespace WatchedFilmsTracker
             yearlyStatisticsTableManager = new YearlyStatisticsTableManager(yearlyGrid);
 
             //TABCONTROL
-            TabsWorkingTextFiles.TabControl = TabControlMainWindow;
-            TabsWorkingTextFiles.MainWindow = this;
-            TabControlMainWindow.ItemsSource = TabsWorkingTextFiles.TabItemsWorkingFiles;
+            OpenedFilesManager.TabControl = TabControlMainWindow;
+            TabControlMainWindow.ItemsSource = OpenedFilesManager.TabsOfOpenedFiles;
 
             TabControlMainWindow.SelectionChanged += (s, e) =>
             {
@@ -107,7 +106,7 @@ namespace WatchedFilmsTracker
                 UpdateCommonCollectionElements(null, null);
             };
 
-            TabsWorkingTextFiles.NewFileLoaded += (sender, e) =>
+            OpenedFilesManager.NewFileLoaded += (sender, e) =>
             {
                 e.NewWorkingTextFile.ContentChanged += WorkingTextFile_ContentChanged;
                 e.NewWorkingTextFile.UnsavedChangesChanged += WorkingTextFile_UnsavedChangesChanged;
@@ -116,11 +115,11 @@ namespace WatchedFilmsTracker
 
             //SNAPSHOT SERVICE
             // FileChangesSnapshotService.CreateSnapshotFolderIfNotExist();
-            // FileChangesSnapshotService.FileManager = workingTextFile;
+            // FileChangesSnapshotService.FileManager = collectionFile;
             //  FileChangesSnapshotService.SubscribeToSaveCompletedEvent(this);
 
             //SEARCH MANAGER
-            //    searchManager = new SearchManager(workingTextFile, searchTextBox, dataGridMainWindow);
+            //    searchManager = new SearchManager(collectionFile, searchTextBox, dataGridMainWindow);
         }
 
         public event EventHandler FileOpened;
@@ -167,16 +166,16 @@ namespace WatchedFilmsTracker
             }
         }
 
-        public WorkingTextFile CurrentWorkingFile()
+        public CollectionFile CurrentWorkingFile()
         {
-            return TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+            return OpenedFilesManager.CurrentlyOpenedWorkingFile();
         }
 
-        public WorkingTextFile GetCurrentlyOpenedTabWorkingTextFile() => TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+        public CollectionFile GetCurrentlyOpenedTabWorkingTextFile() => OpenedFilesManager.CurrentlyOpenedWorkingFile();
 
         public void UpdateDataContextForCurrentlyOpenedTabWorkingTextFile()
         {
-            WorkingTextFile currentlyOpened = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+            CollectionFile currentlyOpened = OpenedFilesManager.CurrentlyOpenedWorkingFile();
 
             TextBoxCommentsBefore.DataContext = currentlyOpened.Metadata;
             TextBoxProgramComments.DataContext = currentlyOpened.Metadata;
@@ -265,12 +264,12 @@ namespace WatchedFilmsTracker
 
         private void ButtonAddColumn_Click(object sender, RoutedEventArgs e)
         {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
+            OpenedFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.CreateNewColumn("Column");
         }
 
         private void ButtonAddRecord_Click(object sender, RoutedEventArgs e) // AddRecord, NewRecord
         {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
+            OpenedFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.AddEmptyRecordToList();
         }
 
         private void ButtonCurrentFileCollectionType_Click(object sender, RoutedEventArgs e)
@@ -302,7 +301,7 @@ namespace WatchedFilmsTracker
 
             if (openFileDialog.ShowDialog() == true)
             {
-                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
+                OpenedFilesManager.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
 
@@ -372,7 +371,7 @@ namespace WatchedFilmsTracker
 
         private void DEBUG_MakeAllColumnsText(object sender, RoutedEventArgs e)
         {
-            var workingFile = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+            var workingFile = OpenedFilesManager.CurrentlyOpenedWorkingFile();
 
             if (workingFile == null)
                 return;
@@ -385,7 +384,7 @@ namespace WatchedFilmsTracker
 
         private void DEBUG_PrintCellsDataTypes(object sender, RoutedEventArgs e)
         {
-            var workingFile = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+            var workingFile = OpenedFilesManager.CurrentlyOpenedWorkingFile();
 
             if (workingFile == null)
                 return;
@@ -404,7 +403,7 @@ namespace WatchedFilmsTracker
 
         private void DEBUG_PrintColumnTypes(object sender, RoutedEventArgs e)
         {
-            var workingFile = TabsWorkingTextFiles.CurrentlyOpenedWorkingFile();
+            var workingFile = OpenedFilesManager.CurrentlyOpenedWorkingFile();
 
             if (workingFile == null)
                 return;
@@ -459,7 +458,7 @@ namespace WatchedFilmsTracker
 
                 menuItem.Click += (sender, e) =>
                 {
-                    TabsWorkingTextFiles.CreateEmptyWorkingFile(commonCollection);
+                    OpenedFilesManager.CreateEmptyWorkingFile(commonCollection);
                 };
                 contextMenu.Items.Add(menuItem);
             }
@@ -469,13 +468,13 @@ namespace WatchedFilmsTracker
 
         private void OpenContainingFolder(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath))
+            if (File.Exists(OpenedFilesManager.CurrentlyOpenedWorkingFile().Filepath))
             {
-                Process.Start("explorer.exe", "/select, " + TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath);
+                Process.Start("explorer.exe", "/select, " + OpenedFilesManager.CurrentlyOpenedWorkingFile().Filepath);
             }
             else
             {
-                Debug.WriteLine($"{TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().Filepath} cannot be found");
+                Debug.WriteLine($"{OpenedFilesManager.CurrentlyOpenedWorkingFile().Filepath} cannot be found");
             }
         }
 
@@ -490,13 +489,13 @@ namespace WatchedFilmsTracker
 
             if (openFileDialog.ShowDialog() == true)
             {
-                TabsWorkingTextFiles.CreateNewWorkingFile(openFileDialog.FileName);
+                OpenedFilesManager.CreateNewWorkingFile(openFileDialog.FileName);
             }
         }
 
         private void OpenLastOpenedFiles(string? newFilePath)
         {
-            //   workingTextFile.OpenFilepathButSaveChangesFirst(newFilePath);
+            //   collectionFile.OpenFilepathButSaveChangesFirst(newFilePath);
         }
 
         private void OpenLocalFolderButton_Click(object sender, RoutedEventArgs e)
@@ -531,12 +530,12 @@ namespace WatchedFilmsTracker
 
         private void RemoveColumnButton_Click(object sender, RoutedEventArgs e)
         {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.IdentifyColumnForDeletion();
+            OpenedFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.IdentifyColumnForDeletion();
         }
 
         private void RenameColumnButton_Click(object sender, RoutedEventArgs e)
         {
-            TabsWorkingTextFiles.CurrentlyOpenedWorkingFile().CollectionOfRecords.RenameColumn();
+            OpenedFilesManager.CurrentlyOpenedWorkingFile().CollectionOfRecords.RenameColumn();
         }
 
         private void ResetColumnsWidthAndOrder(object sender, RoutedEventArgs e)
@@ -546,14 +545,18 @@ namespace WatchedFilmsTracker
 
         private void RevertChangesButton_Click(object sender, RoutedEventArgs e)
         {
-            WorkingTextFile workingTextFile = GetCurrentlyOpenedTabWorkingTextFile();
+            CollectionFile workingTextFile = GetCurrentlyOpenedTabWorkingTextFile();
             if (workingTextFile.RevertChanges())
                 UpdateDataContextForCurrentlyOpenedTabWorkingTextFile();
         }
 
         private void SaveAllButton_Click(object sender, RoutedEventArgs e)
         {
-            // iterate all tabs and save all of them
+            foreach (CollectionFile collectionFile in OpenedFilesManager.OpenedFiles)
+            {
+                if (collectionFile.HasUnsavedChanges)
+                    collectionFile.Save();
+            }
         }
 
         private void SaveAs(object sender, RoutedEventArgs e)
@@ -645,7 +648,7 @@ namespace WatchedFilmsTracker
             ButtonStateManager.UpdateAllButton(GetCurrentlyOpenedTabWorkingTextFile());
         }
 
-        private void UpdateCommonCollectionElements(object? sender, WorkingTextFile.CommonCollectionTypeChangedEventArgs e)
+        private void UpdateCommonCollectionElements(object? sender, CollectionFile.CommonCollectionTypeChangedEventArgs e)
         {
             TextBlockCurrentFileCollectionType.Text = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.Name;
             ImageCurrentFileCollectionType.Source = GetCurrentlyOpenedTabWorkingTextFile().CommonCollectionType.GetIconImageSource();
