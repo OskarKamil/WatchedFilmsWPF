@@ -33,18 +33,18 @@ Unknown collection types are displayed by their stored name and use a generic ic
 
 ## Responsibilities
 
-| Location | Responsibility |
-| --- | --- |
-| `Source/Models` | Metadata, refresh preferences, immutable tabular snapshots |
-| `Source/Persistence/Csv` | Read/write tabular records; no metadata or WPF dependencies |
-| `Source/Persistence/Json` | Load/save JSON companions; preserve additional properties |
-| `Source/Persistence/CollectionFileStore.cs` | Coordinate the two persistence formats |
-| `Source/ManagingRecords` | Live editable records, schema changes and dirty tracking |
-| `Source/Statistics` | SQL definitions, built-ins, results and DuckDB execution |
-| `Source/ViewModels/StatisticsSession.cs` | Per-collection refresh state, preferences and stale results |
-| `Source/Views/StatisticsPanel.xaml` | Statistics editor, controls and result tables |
-| `Source/Views/CollectionGridFactory.cs` | Construct the record editor view |
-| `Source/Views/MainWindow.xaml.cs` | Select the current collection and attach the panel |
+| Location                                    | Responsibility                                              |
+|---------------------------------------------|-------------------------------------------------------------|
+| `Source/Models`                             | Metadata, refresh preferences, immutable tabular snapshots  |
+| `Source/Persistence/Csv`                    | Read/write tabular records; no metadata or WPF dependencies |
+| `Source/Persistence/Json`                   | Load/save JSON companions; preserve additional properties   |
+| `Source/Persistence/CollectionFileStore.cs` | Coordinate the two persistence formats                      |
+| `Source/ManagingRecords`                    | Live editable records, schema changes and dirty tracking    |
+| `Source/Statistics`                         | SQL definitions, built-ins, results and DuckDB execution    |
+| `Source/ViewModels/StatisticsSession.cs`    | Per-collection refresh state, preferences and stale results |
+| `Source/Views/StatisticsPanel.xaml`         | Statistics editor, controls and result tables               |
+| `Source/Views/CollectionGridFactory.cs`     | Construct the record editor view                            |
+| `Source/Views/MainWindow.xaml.cs`           | Select the current collection and attach the panel          |
 
 Statistics capture **all live records**, including unsaved edits, from the datasource. They do not reread CSV files and do not depend on visual filtering, sorting or column display order. SQL runs against an in-memory DuckDB table called `records`. Columns are text; quote names containing spaces and use `TRY_CAST` for numeric/date calculations. Each query produces its own table or error message; output is limited to 1,000 rows. Queries are single `SELECT`/`WITH` statements with external file access disabled.
 
@@ -52,7 +52,7 @@ Statistics capture **all live records**, including unsaved edits, from the datas
 
 Enable **Restore previous session on startup** to reopen the saved files from the last successful application exit, in their previous tab order with the previously selected saved file active. `settings.conf` stores the ordered paths as a JSON array in `session_file_paths`, the active path in `active_session_file_path`, and the preference in `restore_previous_session`. Legacy `reopen_last_file` and `last_path` settings migrate automatically. An explicitly empty session stays empty. Missing files are skipped; an unreadable file does not prevent the remaining files from reopening. Each collection's JSON determines whether its statistics are calculated immediately.
 
-Opening a path that is already open selects its existing tab without reloading its records. Path comparison uses absolute normalized paths and ignores case on Windows. Untitled collections are independent tabs. Save As cannot overwrite another open collection's path.
+Opening a path that is already open selects its existing tab without reloading its records. Path comparison uses absolute normalised paths and ignores case on Windows. Untitled collections are independent tabs. Save As cannot overwrite another open collection's path.
 
 Application exit checks every open collection for unsaved changes without closing tabs during the checks. Each prompt names the collection and offers **Save**, **Don't save**, and **Cancel**. Save finishes before the next collection is checked. Cancel, cancelling Save As, or a save failure stops the exit immediately. Earlier declined edits remain available if exit is cancelled later. Only a successful exit records the new session; saved drafts join that session and discarded untitled drafts do not. **Autosave when closing a tab** applies to individual tab closes; application exit always prompts for unsaved changes.
 

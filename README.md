@@ -23,11 +23,11 @@ See [repository files and verification](docs/repository.md) for what belongs in 
 
 ## Screenshots
 
-![Main page stable version](External/screenshots/0.14-windows-theme-colour.png)
+![Main page stable version](docs/screenshots/0.14-windows-theme-colour.png)
 
 Screenshot 1: Main window showing the table of films and side menu
 
-![Main page WIP](External/screenshots/0.15-outtake6.png)
+![Main page WIP](docs/screenshots/0.15-outtake6.png)
 
 Screenshot 2: Main window showing the table of films and side menu. With added tabs of opened files and more settings in the side menu
 

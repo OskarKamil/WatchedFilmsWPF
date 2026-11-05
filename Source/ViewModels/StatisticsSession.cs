@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Persistence.Json;
 using WatchedFilmsTracker.Source.Statistics;

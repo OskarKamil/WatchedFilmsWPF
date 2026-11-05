@@ -1,11 +1,13 @@
 Immediate (This update):
-
 - Add information, maybe in the credits or readme that changes are made with AI.
 - Hide debug buttons in release builds; show them only during development.
+- The side panel doesn't display delimiters and collection type names in full.
+- Search text box text is right-aligned. (resize windows to see)
+- Program update label in side panel is centered instead of left-aligned.
+    - Maybe instead of having foldable panels, try tabs?
 
 Upcoming (Next update):
-
-- Add a confirmation dialog before clearing all data.
+- Add a confirmation dialogue before clearing all data.
 	- Consider moving the Clear all control somewhere less accessible to prevent accidental use.
 - Clarify what Save locally does.
 	- Offer it when closing a new, unsaved collection.
@@ -23,11 +25,11 @@ Upcoming (Next update):
 - Let users choose a rating system, such as a maximum of 4, 5 or 10 stars.
 - Add an editable collection description to the JSON companion.
 	- Display it under File information in the sidebar.
-- Implement easier program update. It checks the github for new version.
+- Implement easier program update. It checks the GitHub for new version.
 	- Then it downloads it and replaces the current exe file.
+- Add version update on the bottom status panel. Maybe an icon or something.
 
 Future plans:
-
 - Let the mouse wheel change the year, date or rating in the selected cell.
 - Colour cells according to their changes.
 	- New cells green, modified cells blue and removed cells red.

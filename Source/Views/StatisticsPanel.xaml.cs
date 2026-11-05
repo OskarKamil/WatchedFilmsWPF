@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Statistics;
 using WatchedFilmsTracker.Source.ViewModels;
 

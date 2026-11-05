@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Windows.Controls;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 
 namespace WatchedFilmsTracker.Source.Managers
 {

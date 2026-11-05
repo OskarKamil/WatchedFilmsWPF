@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using WatchedFilmsTracker.Source.Helpers;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Models;
 
 namespace WatchedFilmsTracker.Source.Managers

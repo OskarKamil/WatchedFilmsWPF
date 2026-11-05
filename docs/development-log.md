@@ -1,3 +1,7 @@
+# Development log
+
+Informal notes on how WatchedFilmsTracker evolved across versions.
+
 ### Java - JavaFX
 
 #### 0.1 
@@ -10,7 +14,7 @@
 - Icon in the titled window.
 
 #### 0.3 
-- Quick actions pane.
+- Quick actions panel.
 - Statistics pane.
 - Separate pane for TableView.
 - About modal window with a link to the GitHub page and program information.
@@ -76,7 +80,7 @@
 - Improved about window.
 - Fixed film ID in the table to properly refresh now.
 - On a long table with a scrollbar, adding a new record will select and scroll to the new record.
-- Improved visuals for the save changes dialog.
+- Improved visuals for the save changes dialogue.
 
 #### 0.12 
 - When a new version is available, the panel will turn yellow and display information about new version. Hyperlink will open release GitHub page.
@@ -86,8 +90,8 @@
 - Checkbox to check update on startup.
 
 #### 0.13
-- filesSnapshot folder keeps last 5 saves of a file in case of accidental overwritting or data loss.
-- When last opened file is deleted. The title of the window doesn't display old path anymore. It displays new file now.
+- filesSnapshot folder keeps last 5 saves of a file in case of accidental overwriting or data loss.
+- When last opened file is deleted. The title of the window doesn't display old path any more. It displays new file now.
 - New option to automatically scroll to last film record on file open.
 - New button that takes you to last film record in a file.
 - Statistics works faster on long lists and doesn't block the user interface.
@@ -95,18 +99,18 @@
 - New buttons that opens current opened file in file explorer directory.
 - New button that opens file explorer with currently opened file.
 - New button that opens file chooser of MyData folder.
-- New option to store your MyFilms list in MyData folder located in the program directory. This option will ask you if you wanna copy the original file or move it.
+- New option to store your MyFilms list in MyData folder located in the program directory. This option will ask you if you want to copy the original file or move it.
 
 #### 0.14
 - New search bar to quickly find a film in the list. The list of films will be filtered as you type.
 - The program folder contains ReadMe.txt file.
 - The example csv file is now named ExampleFile.csv.
-- The program doesn't containt unncessary files like .pdb or .config anymore.
+- The program doesn't contain unnecessary files like .pdb or .config any more.
 - Config file is created with default values if it doesn't exist.
 - When updating to the new version, the new version folder doesn't contain config files which would overwrite user preferences.
-- New context menu when you right click on a film record.
+- New context menu when you right-click on a film record.
 - New context menu item: it deletes a selected film record.
-- New context menu item: it opens a default internet browser with a google result of selected film: English title and release year.
+- New context menu item: it opens a default internet browser with a Google result of selected film: English title and release year.
 - Now you can select multiple cells in a table. (No use now, but you will be able to delete multiple records at once in the future. WIP)
 - The table now highlights the alternating 3 rows with Windows accent colour for better readability.
 - The table highlight colour changes when Windows accent colour changes.
@@ -118,6 +122,6 @@
 - New behaviour for [Add record] button. When pressed [Add record] button, the program will start editing first cell.
 - New program versatility. The program can read any CSV file. The columns are automatically generated.
 - The program can read first line of CSV file as a comment if some metadata are present.
-- The program now can add a comment as a first line in CSV file that will incluse metadata about the file like the common collection type or details about which columns are used in statistics panel.
+- The program now can add a comment as a first line in CSV file that will include metadata about the file like the common collection type or details about which columns are used in statistics panel.
 - New Panel on the right showing file information like filepath, delimited, common collection type with an option to change delimited and common collection type.
 - New settings option to reopen last opened files on startup.

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
+using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Views;
 
 namespace WatchedFilmsTracker.Source.BackgroundServices

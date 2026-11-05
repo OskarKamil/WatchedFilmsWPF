@@ -1,21 +1,22 @@
-﻿using Microsoft.Win32;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Microsoft.Win32;
 using WatchedFilmsTracker.Source.Buttons;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
+using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.Models;
 using WatchedFilmsTracker.Source.Persistence;
 using WatchedFilmsTracker.Source.Persistence.Json;
 using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
-namespace WatchedFilmsTracker.Source.ManagingFilmsFile
+namespace WatchedFilmsTracker.Source.ManagingRecords
 {
     /// <summary>
     /// Owns an open collection's editing lifecycle and change notifications.
