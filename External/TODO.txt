@@ -1,176 +1,39 @@
-**Immediate (This update):**
-Quick note
-- The button `Save all` doesn't work.
-	- It should save all opened files that has been changed.
+Immediate (This update):
 
-Make statistics more flexible. Use an SQL or other generic language.
-Statistics should be configurable by user. For example, user wants to group, sort, count or average by any column. This way user can create any statistics they want, and they can use common SQL or similar simple language.
-Example 1 - Decade statistics:
-SELECT
-    CONCAT((ReleaseYear / 10) * 10, 's') AS Decade,
-    COUNT(*) AS FilmsWatched,
-    ROUND(AVG(CAST(Rating AS decimal(10, 2))), 2) AS AverageRating
-FROM Films
-GROUP BY (ReleaseYear / 10) * 10
-ORDER BY (ReleaseYear / 10) * 10;
-Example 2 - Yearly statistics:
-SELECT
-    YEAR(WatchDate) AS WatchYear,
-    COUNT(*) AS FilmsWatched,
-    ROUND(AVG(CAST(Rating AS decimal(10, 2))), 2) AS AverageRating
-FROM Films
-GROUP BY YEAR(WatchDate)
-ORDER BY WatchYear;
-	- BIG DECISION. WHERE METADATA OF THE FILE IS STORED. IN THE FILE OR IN SEPARATE FILE? OR IN JSON FILE? OR IN SETTINGS FILE? OR IN PROGRAM EMBEDDED?
-	- SHOULD IT BE TXT FILE, OR CSV FILE, OR JSON FILE, OR XML FILE, OR SOMETHING ELSE? OR MY OWN FILE FORMAT? SHOULD I SUPPORT ALL JSON/XML/CSV/TXT FILES AND BE ABLE TO READ AND WRITE THEM? OR JUST ONE FILE FORMAT?
-	- WHERE SHOULD INFORMATION ABOUT STATISTICS BE STORED? IN THE FILE OR IN SEPARATE FILE? OR IN JSON FILE? OR IN SETTINGS FILE? OR IN PROGRAM EMBEDDED?
-	- THE SAME QUESTION ABOUT THE COLLECTION TYPE LIKE FILMS, BOOKS, GAMES. WHERE STORED?
-	- Create a way to generate statistics tables based on query language.
-	- Decide how to store statistics. In .txt file or create my own extension for the text files. Or store them in a separate file?
-	- Create predefined statistics? For example above 2 examples are pretty basic and they can be predefined and added with one button click.
-	- Add predefined statistics for games. For example, group by platform, count of games, average rating etc.
-		- For that it's good to game good classes and interface organization. Create statistics package or folder. Or common collection types? For example type Films will have some default statistics, as well as icon and other descriptions. Games the same, their own icon, statistics etc. Maybe create a common interface for statistics and common collection types. For example, Films and Games will implement this interface. And the program will be able to use them in a generic way.
+- Hide debug buttons in release builds; show them only during development.
 
-Make icons for common collection types actually work.
-Each text file will have a common collection type. For example, Films, Games, Books, or just Other, or anything else. Each type will have its own icon and statistics. The program will be able to use them in a generic way. When a program opens a file, a program will need to know what type of collection it is. For example, if it's a film collection, it will display film icon. That information about what type of collection it is must be stored somewhere.
+Upcoming (Next update):
 
-- Predefined statistics. Films are: group by decade 10*10 +"s", count of decade films, average rating 0.## + "/4.00".
-- Prefefined statistics. Games are: group by Platform, etc.
-- When saving a file, save [films] in first or any column header. Add version number.
-- When saving a file. Abstract which columns are not saved and what metadata [s] etc are not saved in column headers.
-- Fix closing program.
-- When opening a program. Reopen last file paths.
-- Add settings if reopen last files.
-- Fix search feature.
-	- Check what is being saved when search is on.
-- When changing tab, change: window title bar, statistics, buttons disability.
-- Add save all button.
-- Fix renaming columns.
-	- New window should start textbox in edit mode.
-	- Pressing enter confirms.
-	- Don't allow to rename "#" column.
-	- When column is renamed, set unsavedchange to true.
-- Reset columns order and width is not working.
-- Add functionality to Add new column and delete column buttons:
-	- ColumnRepresentation. Index of this list represents index of value in List in the model.
-	- Value under ColumnRepresentation represents the ID of the column in the datagrid.
-	- Each time column is added. New index is added to the Values. And ColumnRepresentation gets new index with value of ID of new column.
-	- each time column is removed, ColumnRepresentation will find value of the column id, and will set to -1.
-- Add credits section in About window.
-- Uncomment all the code.
-- Test all actions and uncomment the code.
-- Fix cloing program. It crashes when program closes.
-- When program opened. Get last opened files. Open them if they exist. Otherwise create empty file.
-- Fix column width and max width etc.
+- Add a confirmation dialog before clearing all data.
+	- Consider moving the Clear all control somewhere less accessible to prevent accidental use.
+- Clarify what Save locally does.
+	- Offer it when closing a new, unsaved collection.
+- Prevent very large text files from blocking the application.
+	- Show loading progress and provide a cancel option.
+	- Do not add a cancelled or unsuccessfully loaded file to the restored session, so it is not reopened on the next launch.
+	- Open a new empty collection if loading is cancelled.
+- Support Cut, Copy, Paste and Delete for multiple selected rows.
+- Add Ctrl+W to close the currently selected tab.
+- Add undo and redo.
+	- Assign Ctrl+Z to undo.
+- Use the Windows accent colour for buttons and other elements.
+	- Centralise accent-colour updates through shared styles or an update helper.
+- Create a custom ModernButton class.
+- Let users choose a rating system, such as a maximum of 4, 5 or 10 stars.
+- Add an editable collection description to the JSON companion.
+	- Display it under File information in the sidebar.
+- Implement easier program update. It checks the github for new version.
+	- Then it downloads it and replaces the current exe file.
 
-- Tabs should have name of file.
-- Save button works as SaveAs.
-- Closing program doesn't work.
-- Column name cannot have # in name.
-- Enter in rename column confirms.
-- Create X close tab button.
-- Add legacy settings reader.
-- When making settings.config. Add version number.
-- More generic dialog window.
-- Clear all should have confimation dialog.
-- Simplify tabs and working text files lists. Create a dictionary that will connect them. Or tabitem reference is in workingtextfile.
-- When removing column, set selection in the same way when removing a row.
-- ctrl+w to close currently opened tab.
-- Columns cannot have symbols: # and other symbols used in metadata parser, maybe ; or # or | or , or more
-	- Cell values cannot be delimiters.
-	- Column headers cannot be delimiters. or special symbols like ; or # or | or ,.
-	- Metadata comment will point to columns by their ID.
-- After pressing SaveAs, open this new file in a tab.
-- When closing a new unsaved file, additionally ask if SaveLocally.
-- (Maybe 0.016) Custom statistics. Basically options like group by (years), group by decade (decades), sum [column id], average [column id].
-- For unsaved changes in tabs, use pencil icon instead of * so the tab doesn't expand. If saved, make it opacity 1.0.
-- Set up metadata model, statistics etc in JSON file.
-	- Store common collection type, statistics sql code etc.
-	- Example: # {"WatchedFilmsTracker": "0.015", "common_collection_type": "films", "statistics1":{"group_by_decade": 1, "count": 2, "average_max_4.00": 3}}.
-	- Reading and writing metadata.
-- Column titled "#" cannot be deleted.
-- Option on how to save metadata.
-	- 0 - no metadata. 1 - metadata in first line as a comment. 2 - file is like JSON file with metadata. 3 - metadata in separate file.
-- List of columns, their types, should also display their index in the datagrid and Z-index as well.
-	- Show a button to reset zindex into index or adapt index to zindex.
+Future plans:
 
-**Upcoming (Next update):**
-- Reading from any number of csv values works. Uncomment code and fix it one by one.
-- Create ID column.
-- When adding new record, make sure column #1 exists before focuing and doing edit mode.
-- Reordering columns.
-- Make CSV writer save as CRLF.
-- CSV writer.
-- Add new column.
-- Statistics headers:
-	- Next to statistics header display ribbon menu to select which columns are to be used.
-	- Create method: get list of column headers.
-- Do a lot of test before releasing.
-- More flexible CSV file format. Start making it more custom.
-	- Datagrid autofill.
-	- Datagrid. User can add columns.
-	- Max film rating.
-	- FilmRecord maybe will have dictionary of values. If it works with datagrid source.
-- If release year or watch date is icorrect (unassigned from above), make the cell red but only after deselecting it, not in the middle of adding.
-- Clear all and autosave can result in losing all data if uncareful.
-	- Clear all and save should save current list as archived list to easy find if accidental loss.
-- Search option to find film titles.
-- Clear all data is too accessible. When pressed ask for confirmation and maybe move it somewhere else.
-- Revamp settings. Make settings button. Keep some preferences on main screen and some settings in the separate window.
-- Protection against super big text files. If file is so big it can block the program, display loading and an option to cancel.
-	- If cancel or unexpected close happens. Do not store the last filepath. It will open big file again on startup. If cancel happens, open new empty file.
-- Investigate exceptions when debugging. The ones with tokens and tasks.
-- More flexible statistics. It requires releaseYear, rating, watchDate. If one of them is missing, it should display information about missing columns.
-- Use Windows accent colour for buttons and other elements.
-	- Create method that updates selected elements with accent colour. Maybe use styling file so the style applies to all buttons across this program.
-(DELAYED, MAKE COLUMNS FLEXIBLE AND EDITABLE FIRST)
-- Scrolling list will mix up red cells.
-	- Fix the issue caused by virtualization of rows.
-- If a film has incorrect or empty release year or rating, display unassigned decade/rating statistic.
-	- Filtering clears the coloured cells.
-	- Create a counter for invalid cells.
-- Button to choose minimal view or hide side bar.
-- Create my own ModernButton class.
-- Implement delete rows, columns function.
-	- When user hovers over a button, highlight the to be deleted columns/rows.
-- Try to adapt xUnits into my project to enforce business rules.
-	- Ask ChatGPT what kinds of tests I can do.
-- Simplify how reading a file works.
-	- The program creates columns, adds data, removes columns, adds columns again.
-
-- Try again if MyFilms.csv works.
-	- If works, go to populating collection.txt file and update documentation.
-
-**Future Plans (FUTURE):**
-- Decide what settings are embedded in exe, which are in settings and which are in config file.
-- Enable default file locations for Open/Save operations.
-- Disable non-functional buttons.
-- Automatically update statistics after each modification.
-- Require confirmation for cell changes.
-- Implement 'Enter' key navigation between cells.
-- Include buttons to open, save, and save changes in different locations.
-- Ensure integrity of dates, preventing backward progression.
-- Prepare the program for release, including executable creation with jlink.
-- Perform duplicate checks for entered titles and release years.
-- Enable actions on multiple selected rows: Cut, Copy, Paste, Delete.
-- Consider implementing shortcut keys and an undo feature.
-- Explore learning opportunities with Hibernate and Spring frameworks.
-- When cell selected, mouse wheel changes year, date, rating.
-- In settings, user can choose rating system, max 4, 5, maybe 10 stars.
-- Rating system will affect GUI and other things.
-- When entering film title, show propositions in case film already in list.
-- Selecting a yearly/decadal row would highlight the rows in main datagrid.
-- (big) Reorganise how film records are stored. When adding a film record, editing release year or watch date, it assigns a film to proper statistics group.
-	- This will work much faster than current solution. Currently all lists and maps are made with each change.
-- A link to imdb film. (new property in filmrecord model)
-- Colour cells depending on change. New cells green, modified blue, removed red.
-- Introduce Series record. Not only films, but can also add series, and in the future books etc.
-- Entering google result or imbd or another website for films link as english title in the program, will result in parsing the data from webpage to fill out the film details.
-- Buttons to move record up or down. It will affect record ID. The records IDs must be by watch date. Create button maybe to apply IDs based on watch date.
-	- Some watch dates are the same. For some watch dates if DAY is the same, set up hour but not display it.
-- Create separate class CsvColumns that will be used to store default films columns but also will help csv reader and writer to read and save columns.
-	- Also if youm need make changes like adding new columns like personal review, it will be easier to implement new columns, or custom user made ones.
-- StatisticsManager has 2 heavy methods. GetDecadalReport and GetYearlyReport. Both generate new dictionaries and collections on each change of film record or the observable list.
-	- Maybe create a class StatisticsOfRecord and each FilmRecord object will have object of StatisticsOfRecord. And this class would have a decade and year property that will be easier to change and manage on per film basis. Each change would result in removing this object from the dictionary if change in watch date or release date would change the decade or the year.
-- If opening new file doesn't follow csv and this program style, it should display information that the data may display icorrectly because the file is not supported or sth like this.
--
+- Let the mouse wheel change the year, date or rating in the selected cell.
+- Colour cells according to their changes.
+	- New cells green, modified cells blue and removed cells red.
+- Add an IMDb link field to film records.
+- Restore the row context-menu action for searching the web.
+- Import film details when a web-search result or film-page link is entered as the English title.
+	- Support IMDb and other film sites.
+- Add controls to move records up or down and update their IDs.
+	- Keep IDs ordered by watch date; consider a button to rebuild them by date.
+	- For records with the same watch date, store a time to determine their order without displaying that time.

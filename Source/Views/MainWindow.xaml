@@ -20,14 +20,14 @@
                 <!-- First line: Column Header (current type) -->
                 <Label Margin="0"
                        Padding="0">
-                    <StackPanel Orientation="Horizontal">
+                    <WrapPanel>
                         <TextBlock Text="{Binding DataGridTextColumn.Header}"
                                    FontWeight="Bold" />
                         <TextBlock Text=" (" />
                         <TextBlock Text="{Binding DataType}"
                                    FontStyle="Italic" />
                         <TextBlock Text=")" />
-                    </StackPanel>
+                    </WrapPanel>
                 </Label>
 
                 <!-- Second line: List all data types -->
@@ -69,7 +69,7 @@
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
+                            <WrapPanel />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
@@ -84,11 +84,24 @@
                    LastChildFill="True">
 
             <!--Right Panel, Statistics and settings-->
-            <ScrollViewer DockPanel.Dock="Right"
+            <ScrollViewer x:Name="RightSidebar" DockPanel.Dock="Right" Width="340"
+                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                          HorizontalContentAlignment="Stretch" ClipToBounds="True"
                           Margin="0,0,0,30">
                 <StackPanel Orientation="Vertical"
-                            MinWidth="250"
+                            HorizontalAlignment="Stretch"
                             Background="White">
+                    <StackPanel.Resources>
+                        <Style TargetType="Expander">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </StackPanel.Resources>
 
                     <!--File information-->
                     <Expander x:Name="FileInformationExpander" Header="File information"
@@ -103,53 +116,76 @@
                                         <GroupBox.Header>File path</GroupBox.Header>
                                         <TextBox x:Name="TextBoxFilePath"
                                                  VerticalAlignment="Center"
-                                                 TextWrapping="WrapWithOverflow"
-                                                 Width="230"
+                                                 TextWrapping="Wrap"
+                                                 HorizontalScrollBarVisibility="Disabled"
                                                  IsReadOnly="True"
-                                                 HorizontalAlignment="Left" />
+                                                 HorizontalAlignment="Stretch" />
                                     </GroupBox>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="Delimiter: "></Label>
-                                    <ComboBox x:Name="DelimiterComboBox"
-                                              MinWidth="140" DisplayMemberPath="DisplayName"
+                                <Grid Margin="4,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Delimiter:" VerticalAlignment="Center" Margin="0,0,4,0" />
+                                    <ComboBox x:Name="DelimiterComboBox" Grid.Column="1"
+                                              MinWidth="0" DisplayMemberPath="DisplayName"
                                               SelectedValuePath="Value"
                                               SelectionChanged="DelimiterComboBox_SelectionChanged"
                                               ToolTip="Delimiter used when saving this collection." />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="Collection type: "></Label>
-                                    <Button x:Name="ButtonCurrentFileCollectionType"
-                                            HorizontalAlignment="Left"
+                                    <TextBlock Grid.Column="2" Text="Collection type:" Margin="8,0,4,0"
+                                               VerticalAlignment="Center" />
+                                    <Button x:Name="ButtonCurrentFileCollectionType" Grid.Column="3"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
                                             VerticalAlignment="Center"
                                             Click="ButtonCurrentFileCollectionType_Click">
-                                        <StackPanel Orientation="Vertical">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
                                             <Image x:Name="ImageCurrentFileCollectionType"
                                                    Source="/Assets/TabIcons/other.png"
                                                    Stretch="None"
                                                    RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                                   RenderOptions.EdgeMode="Aliased" />
-                                            <TextBlock x:Name="TextBlockCurrentFileCollectionType"
+                                                   RenderOptions.EdgeMode="Aliased">
+                                                <Image.Style>
+                                                    <Style TargetType="Image">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsEnabled" Value="False">
+                                                                <Setter Property="Opacity" Value="0.5" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                            </Image>
+                                            <TextBlock x:Name="TextBlockCurrentFileCollectionType" Grid.Column="1"
                                                        Text="Other"
+                                                       Margin="3,0,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                                                       ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center" />
-                                        </StackPanel>
+                                        </Grid>
                                     </Button>
-                                </StackPanel>
+                                </Grid>
                                 <StackPanel DataContext="{Binding DataContext, ElementName=CollectionStatisticsPanel}"
                                             Margin="4,8,4,4">
                                     <CheckBox x:Name="UseJsonCompanionCheckBox"
-                                              Content="Use JSON companion file"
                                               IsChecked="{Binding IsJsonEnabled, Mode=OneWay}"
                                               Click="UseJsonCompanionCheckBox_Click"
-                                              ToolTip="Create the JSON companion now to store metadata, statistics and refresh preferences." />
+                                              ToolTip="Store metadata, statistics and refresh preferences in a JSON companion beside the collection.">
+                                        <TextBlock Text="Use JSON companion file" />
+                                    </CheckBox>
                                     <TextBlock Margin="20,3,0,5" FontSize="11" Foreground="DimGray" TextWrapping="Wrap"
-                                               Text="Enabling creates the .metadata.json file immediately. New collections must first be saved." />
+                                               Text="For new collections, the JSON companion will be created beside the CSV when you save. For saved collections, enabling creates it immediately." />
                                     <GroupBox Header="JSON companion path">
                                         <TextBox x:Name="TextBoxCompanionPath" IsReadOnly="True"
                                                  Text="{Binding MetadataPath, Mode=OneWay}"
-                                                 VerticalAlignment="Center" HorizontalAlignment="Left"
-                                                 TextWrapping="WrapWithOverflow" Width="230"
+                                                 VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                                                 TextWrapping="Wrap" HorizontalScrollBarVisibility="Disabled"
                                                  ToolTip="Select this path to copy it." />
                                     </GroupBox>
                                     <TextBlock Text="{Binding MetadataStatus}" FontSize="11"
@@ -170,39 +206,72 @@
                                     <GroupBox.Header>General</GroupBox.Header>
                                     <StackPanel Orientation="Vertical">
                                         <CheckBox x:Name="defaultDateBox"
-                                                  Content="Default date is today"
-                                                  Click="CheckBoxDefaultDate" />
+                                                  Click="CheckBoxDefaultDate">
+                                            <TextBlock Text="Default date is today" />
+                                        </CheckBox>
                                         <CheckBox x:Name="autosaveBox"
-                                                  Content="Autosave changes on close"
+                                                  ToolTip="Save changes automatically when closing an individual tab. Exiting the application asks about each file with unsaved changes."
                                                   Click="CheckBoxAutoSave"
-                                                  IsChecked="False" />
+                                                  IsChecked="False">
+                                            <TextBlock Text="Autosave when closing a tab" />
+                                        </CheckBox>
+                                        <GroupBox Header="Use JSON for new files" Margin="0,6,0,0">
+                                            <StackPanel>
+                                                <WrapPanel Margin="3">
+                                                    <RadioButton x:Name="JsonForNewFilesYesRadioButton" Content="Yes"
+                                                                 GroupName="JsonForNewFiles" Margin="0,0,14,0"
+                                                                 Click="JsonForNewFilesPreference_Click" />
+                                                    <RadioButton x:Name="JsonForNewFilesNoRadioButton" Content="No"
+                                                                 GroupName="JsonForNewFiles" Margin="0,0,14,0"
+                                                                 Click="JsonForNewFilesPreference_Click" />
+                                                    <RadioButton x:Name="JsonForNewFilesAskRadioButton" Content="Ask each time"
+                                                                 GroupName="JsonForNewFiles"
+                                                                 Click="JsonForNewFilesPreference_Click" />
+                                                </WrapPanel>
+                                                <TextBlock Margin="3,0,3,3" FontSize="11" Foreground="DimGray"
+                                                           Text="The companion is created beside the CSV when the new file is saved." />
+                                            </StackPanel>
+                                        </GroupBox>
                                     </StackPanel>
                                 </GroupBox>
                                 <GroupBox>
                                     <GroupBox.Header>On startup</GroupBox.Header>
                                     <StackPanel Orientation="Vertical">
                                         <CheckBox x:Name="checkboxScrollLastPosition"
-                                                  Content="Scroll to the bottom of list"
-                                                  Click="CheckBoxLastFilmPosition" />
+                                                  Click="CheckBoxLastFilmPosition">
+                                            <TextBlock Text="Scroll to the bottom of list" />
+                                        </CheckBox>
                                         <CheckBox x:Name="checkboxCheckForUpdatesStartup"
-                                                  Content="Check for updates"
-                                                  Click="CheckBoxUpdateStartup" />
+                                                  Click="CheckBoxUpdateStartup">
+                                            <TextBlock Text="Check for updates" />
+                                        </CheckBox>
                                         <CheckBox x:Name="checkboxReopenLastFiles"
-                                                  Content="Reopen last collection on startup"
-                                                  Click="CheckBoxReopenFilesLastSession" />
+                                                  ToolTip="Reopen the saved files from your previous session. New collections are included after you save them."
+                                                  Click="CheckBoxReopenFilesLastSession">
+                                            <TextBlock Text="Restore previous session on startup" TextWrapping="Wrap" />
+                                        </CheckBox>
                                     </StackPanel>
                                 </GroupBox>
                                 <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
                                     <TextBlock Text="Columns order and width"
                                                HorizontalAlignment="Left"
                                                VerticalAlignment="Center" />
                                     <Button Content="Reset to default"
+                                            Grid.Column="1" Margin="6,0,0,0"
                                             HorizontalAlignment="Right"
                                             Click="ResetColumnsWidthAndOrder"
                                             VerticalAlignment="Center" />
                                 </Grid>
                                 <Grid>
-                                    <StackPanel Orientation="Horizontal">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <DockPanel>
                                         <Image x:Name="ImageNewVersionSettings"
                                                Source="\Assets\ButtonIcons\newVersion.png"
                                                Stretch="None"
@@ -218,14 +287,14 @@
                                                    Text="Program update"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
-                                                   Grid.Column="1" />
-                                    </StackPanel>
+                                                   TextWrapping="Wrap" />
+                                    </DockPanel>
                                     <Button x:Name="CheckUpdatesButton"
                                             Content="Check for updates"
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Right"
                                             Click="ManualCheckForUpdate"
-                                            Grid.Column="2"
+                                            Grid.Column="1" Margin="6,0,0,0"
                                             Grid.ColumnSpan="1"
                                             Grid.RowSpan="1" />
                                 </Grid>
@@ -251,14 +320,14 @@
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
                                 <Button Click="DEBUG_PrintColumnTypes"
-                                        Background="#FF37DDDD">DEBUG print columns and data types</Button>
+                                        Background="#FF37DDDD"><TextBlock Text="DEBUG print columns and data types" /></Button>
                                 <Button Click="DEBUG_MakeAllColumnsText"
                                         Background="#FF37DDDD">DEBUG make all columns text</Button>
                                 <Button Click="DEBUG_PrintCellsDataTypes"
                                         Background="#FF37DDDD">DEBUG print cells data types</Button>
                                 <Button Click="ApplyChangesClick">Apply changes</Button>
-                                <Button Background="#FFDD37DD">NOT WORKING Apply z-index of columns</Button>
-                                <Button Background="#FFDD37DD">NOT WORKING Apply order of columns</Button>
+                                <Button Background="#FFDD37DD"><TextBlock Text="NOT WORKING Apply z-index of columns" /></Button>
+                                <Button Background="#FFDD37DD"><TextBlock Text="NOT WORKING Apply order of columns" /></Button>
                             </StackPanel>
                         </GroupBox>
                     </Expander>
@@ -584,18 +653,32 @@
                                        VerticalAlignment="Center"
                                        Margin="0,0,5,0" />
 
-                                <TextBox x:Name="searchTextBox"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         Width="200"
-                                         GotFocus="SearchTextBox_GotFocus"
-                                         LostFocus="SearchTextBox_LostFocus"
-                                         FontStyle="Italic"
-                                         FontFamily="Segoe UI"
-                                         BorderThickness="0,0,0,0"
-                                         Text="Search"
-                                         TextChanged="SearchTextBox_TextChanged" />
+                                <Grid Width="200" VerticalAlignment="Center">
+                                    <TextBox x:Name="searchTextBox"
+                                             FontFamily="Segoe UI"
+                                             BorderThickness="0"
+                                             TextChanged="SearchTextBox_TextChanged" />
+                                    <TextBlock x:Name="SearchPlaceholderText" Text="Search collection data"
+                                               IsHitTestVisible="False" Foreground="Gray" FontStyle="Italic"
+                                               Margin="2,0" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding Text, ElementName=searchTextBox}" Value="" />
+                                                            <Condition Binding="{Binding IsKeyboardFocusWithin, ElementName=searchTextBox}" Value="False" />
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
                                 <Button x:Name="clearSearchButton"
+                                        Visibility="Hidden"
                                         BorderThickness="0,0,0,0"
                                         Background="{x:Null}"
                                         Click="searchClearButton_ClearText">

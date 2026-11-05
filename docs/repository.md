@@ -11,6 +11,7 @@ Git should store the files needed to build, understand, test and publish the app
 | `Source/Statistics` | SQL templates, query definitions, execution and results | Yes |
 | `Source/ViewModels` and `Source/Views` | Statistics state, refresh behavior, controls and record-grid construction | Yes |
 | `Verification` | Developer regression scripts and optional UI preview renderer | Yes |
+| `Verification/Fixtures/Collections` | Two fictional CSV examples per collection type, with JSON companions and sample statistics; see [fixture guide](../Verification/Fixtures/Collections/README.md) | Yes |
 | `docs` | Architecture, file-format and repository documentation | Yes |
 | `artifacts` | Generated preview images or local validation output | No |
 

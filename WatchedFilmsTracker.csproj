@@ -6,8 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Assets\ProgramIcon\icon2.ico
-	</ApplicationIcon>
+    <ApplicationIcon>Assets\ProgramIcon\icon2.ico</ApplicationIcon>
     <StartupObject>WatchedFilmsTracker.App</StartupObject>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>

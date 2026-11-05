@@ -111,13 +111,15 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
             CollectionOfRecords.CreateDefaultColumnsForCommonCollectionType();
             AfterFileHasBeenLoaded();
+
+            Metadata.StoreInJson = SettingsManager.JsonForNewFiles == NewFileJsonPreference.Yes;
         }
 
         public CollectionFile(string filepath)
         {
             CommonCollectionType = CommonCollections.GetCommonCollectionByName(CollectionType.Other);
             DataGrid = CreateGridInTheUI();
-            Filepath = filepath;
+            Filepath = OpenedFilesManager.NormalizePath(filepath);
             CollectionOfRecords = new CollectionOfRecords(this);
 
             ReadTextFile();
@@ -211,10 +213,19 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void OpenFilepath(string? newFilePath)
         {
-            if (string.IsNullOrWhiteSpace(newFilePath) || !File.Exists(newFilePath))
+            if (string.IsNullOrWhiteSpace(newFilePath))
                 return;
 
-            Filepath = newFilePath;
+            if (OpenedFilesManager.FindOpenFile(newFilePath, this) is CollectionFile existing)
+            {
+                OpenedFilesManager.SelectFile(existing);
+                return;
+            }
+
+            if (!File.Exists(newFilePath))
+                return;
+
+            Filepath = OpenedFilesManager.NormalizePath(newFilePath);
             ReadTextFile();
             AfterFileHasBeenLoaded();
         }
@@ -275,6 +286,16 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Title = "Save file as";
             saveFileDialog.Filter = "Text files (*.txt), (*.csv)|*.txt;*.csv";
+            saveFileDialog.FileOk += (_, eventArgs) =>
+            {
+                if (OpenedFilesManager.FindOpenFile(saveFileDialog.FileName, this) != null)
+                {
+                    eventArgs.Cancel = true;
+                    MessageBox.Show(Application.Current?.MainWindow,
+                        "This file is already open in another tab. Choose a different file name or switch to that tab.",
+                        "File already open", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            };
 
             if (!string.IsNullOrEmpty(Filepath))
             {
@@ -309,7 +330,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 isLoading = true;
                 try
                 {
-                    Metadata = new Metadata { CollectionType = CommonCollectionType.Name };
+                    Metadata = new Metadata
+                    {
+                        CollectionType = CommonCollectionType.Name,
+                        StoreInJson = Metadata.StoreInJson
+                    };
                     CollectionOfRecords.ReplaceContents(defaultColumns, new List<List<string>>());
                 }
                 finally
@@ -344,14 +369,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         }
 
         /// <summary>
-        /// Applies companion storage immediately without saving or reloading the live records.
+        /// Applies companion storage without saving or reloading live records. For a collection
+        /// that has not been saved, remembers the choice until its first save supplies a path.
         /// The caller is responsible for confirming deletion before setting deleteExisting.
         /// </summary>
         public void SetCompanionStorage(bool enabled, bool deleteExisting = false)
         {
-            if (enabled && (string.IsNullOrWhiteSpace(Filepath) || !File.Exists(Filepath)))
-                throw new InvalidOperationException("Save the collection before creating its JSON companion file.");
-
+            bool hasSavedCollection = DoesExistOnDisk();
             bool originalStorage = Metadata.StoreInJson;
             string originalPath = Metadata.SidecarPath;
             string originalError = Metadata.LoadError;
@@ -360,7 +384,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (enabled)
                 {
                     Metadata.StoreInJson = true;
-                    MetadataStore.Save(Filepath, Metadata);
+                    if (hasSavedCollection)
+                        MetadataStore.Save(Filepath, Metadata);
+                    else
+                    {
+                        Metadata.SidecarPath = CompanionFilePath;
+                        Metadata.LoadError = string.Empty;
+                    }
                 }
                 else
                 {
@@ -380,8 +410,11 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 throw;
             }
 
-            // This operation is already persisted. Preserve any existing dirty record state.
-            MetadataChanged?.Invoke(this, EventArgs.Empty);
+            if (!hasSavedCollection && originalStorage != enabled)
+                NotifyMetadataChanged();
+            else
+                // Saved collections are already persisted. Preserve any existing dirty record state.
+                MetadataChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>Captures the live records, including unsaved edits, for persistence or SQL queries.</summary>
@@ -398,76 +431,52 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             DataGrid = dataGrid;
         }
 
-        public SaveChangesDialog.CustomDialogResult ShowSaveChangesDialog()
+        public SaveChangesDialog.CustomDialogResult ShowSaveChangesDialog(Window? owner = null)
         {
-            SaveChangesDialog dialog = new SaveChangesDialog();
-            dialog.Owner = Application.Current.MainWindow;
+            SaveChangesDialog dialog = new SaveChangesDialog(Filepath);
+            dialog.Owner = owner ?? Application.Current?.MainWindow;
             dialog.ShowDialog();
 
             return dialog.Result;
         }
 
-        ///  <summary>
-        /// If file has unsaved changes, dialog asking to save changes will display.
-        /// </summary>
-        /// <returns>
-        /// Returns whether file can be closed.
-        /// </returns>
+        /// <summary>Resolves unsaved changes without closing the tab or discarding live edits.</summary>
+        public bool TryPrepareForClose(bool useAutoSave = true, Window? owner = null)
+        {
+            if (!HasUnsavedChanges)
+                return true;
+
+            if (useAutoSave && SettingsManager.AutoSave && !string.IsNullOrWhiteSpace(Filepath))
+                return Save();
+
+            return ShowSaveChangesDialog(owner) switch
+            {
+                SaveChangesDialog.CustomDialogResult.Save => Save(),
+                SaveChangesDialog.CustomDialogResult.NotSave => true,
+                _ => false,
+            };
+        }
+
+        /// <summary>Closes one tab after resolving its unsaved changes.</summary>
         public bool TryToCloseFile()
         {
-            if (HasUnsavedChanges)
-            {
-                // New file not on disk or autosave off
-                // Ask to save because file not on disk, could be a draft so ask
-                // Autosave off so ask
-                if (string.IsNullOrEmpty(Filepath) || SettingsManager.AutoSave == false)
-                {
-                    SaveChangesDialog.CustomDialogResult result = ShowSaveChangesDialog();
-                    if (result == SaveChangesDialog.CustomDialogResult.Save)
-                    {
-                        bool canClose = Save();
-                        if (canClose)
-                        {
-                            RaiseOnClosingFile();
-                        }
-                        return canClose;
-                    }
-                    else if (result == SaveChangesDialog.CustomDialogResult.NotSave)
-                    {
-                        RaiseOnClosingFile();
-                        return true;
-                    }
-                    else if (result == SaveChangesDialog.CustomDialogResult.Cancel)
-                    {
-                        return false;
-                    }
-                    return false;
-                }
+            if (!TryPrepareForClose())
+                return false;
 
-                // File existing on disk
-                else if (SettingsManager.AutoSave)
-                {
-                    bool canClose = Save();
-                    if (canClose)
-                    {
-                        RaiseOnClosingFile();
-                    }
-                    return canClose;
-                }
-            }
             RaiseOnClosingFile();
             return true;
         }
 
-        public void WriteTextFile()
-        {
-            fileStore.Save(Filepath, CollectionOfRecords.CreateSnapshot(), Metadata);
-        }
+        public void WriteTextFile() => WriteTextFile(Filepath);
 
         public void WriteTextFile(string newFilepath)
         {
-            fileStore.Save(newFilepath, CollectionOfRecords.CreateSnapshot(), Metadata);
-            Filepath = newFilepath;
+            string fullPath = OpenedFilesManager.NormalizePath(newFilepath);
+            if (OpenedFilesManager.FindOpenFile(fullPath, this) != null)
+                throw new InvalidOperationException("This file is already open in another tab. Choose a different file name.");
+
+            fileStore.Save(fullPath, CollectionOfRecords.CreateSnapshot(), Metadata);
+            Filepath = fullPath;
         }
 
         private void ApplyMetadataCollectionType()

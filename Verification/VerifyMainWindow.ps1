@@ -36,6 +36,15 @@ function Invoke-Manager([string]$Name, [object[]]$Arguments) {
     [void]$managerType.GetMethod($Name, [Reflection.BindingFlags]'Static,Public,NonPublic').Invoke($null, $Arguments)
 }
 
+function Update-TestLayout([int]$Width = 1250) {
+    for ($pass = 0; $pass -lt 3; $pass++) {
+        Pump-Dispatcher
+        $window.Content.Measure([Windows.Size]::new($Width, 900))
+        $window.Content.Arrange([Windows.Rect]::new(0, 0, $Width, 900))
+        $window.Content.UpdateLayout()
+    }
+}
+
 $originalLocation = (Get-Location).Path
 $originalDirectory = [Environment]::CurrentDirectory
 $testRoot = [string](Join-Path ([IO.Path]::GetTempPath()) ('WatchedFilmsTrackerMainWindow-' + [Guid]::NewGuid().ToString('N')))
@@ -55,6 +64,37 @@ try {
     $programName = $programNameField.GetValue($null)
     Assert-True ($window.Title -eq $programName) 'Startup without a collection uses the application name as its window title.'
 
+    $search = $window.FindName('searchTextBox')
+    $placeholder = $window.FindName('SearchPlaceholderText')
+    $clearSearch = $window.FindName('clearSearchButton')
+    Assert-True ($search.Text -eq '' -and $placeholder.Visibility -eq [Windows.Visibility]::Visible -and
+        $placeholder.Text -eq 'Search collection data' -and -not $placeholder.IsHitTestVisible) 'Search starts empty with a generic, click-through placeholder.'
+    Assert-True ($clearSearch.Visibility -eq [Windows.Visibility]::Hidden) 'The clear-search button is hidden when there is no query.'
+    $window.Opacity = 0
+    $window.ShowActivated = $false
+    $window.ShowInTaskbar = $false
+    $window.Show()
+    [void]$search.Focus()
+    Pump-Dispatcher
+    Assert-True ($search.IsKeyboardFocusWithin -and $placeholder.Visibility -eq [Windows.Visibility]::Collapsed -and
+        $search.Text -eq '') 'The placeholder disappears on the first focus without becoming search text.'
+    $search.Text = 'invoice 2026'
+    Pump-Dispatcher
+    Assert-True ($clearSearch.Visibility -eq [Windows.Visibility]::Visible -and
+        $placeholder.Visibility -eq [Windows.Visibility]::Collapsed) 'Typing a query displays the clear button and keeps the placeholder hidden.'
+    [void]$window.FindName('ButtonNewFile').Focus()
+    Pump-Dispatcher
+    Assert-True ($search.Text -eq 'invoice 2026' -and $placeholder.Visibility -eq [Windows.Visibility]::Collapsed) 'Leaving search preserves the real query.'
+    Invoke-WindowHandler 'searchClearButton_ClearText' @($clearSearch, [Windows.RoutedEventArgs]::new())
+    Pump-Dispatcher
+    Assert-True ($search.Text -eq '' -and $search.IsKeyboardFocusWithin -and
+        $clearSearch.Visibility -eq [Windows.Visibility]::Hidden -and
+        $placeholder.Visibility -eq [Windows.Visibility]::Collapsed) 'Clearing search leaves an empty, focused textbox ready for another query.'
+    [void]$window.FindName('ButtonNewFile').Focus()
+    Pump-Dispatcher
+    Assert-True ($placeholder.Visibility -eq [Windows.Visibility]::Visible -and $search.Text -eq '') 'The generic placeholder returns after an empty search loses focus.'
+    $window.Hide()
+
     foreach ($name in @('buttonAddRecord', 'buttonDeleteFilmRecord', 'buttonClearAll', 'buttonAddColumn',
         'buttoRemoveColumn', 'buttoRenameColumn', 'buttonSave', 'buttonSaveAs', 'buttonRevertChanges')) {
         Assert-True (-not $window.FindName($name).IsEnabled) "No-file startup disables $name."
@@ -66,6 +106,10 @@ try {
     Assert-True $true 'No-file row and column action handlers safely ignore an invocation.'
     Assert-True (-not $window.FindName('FileInformationBody').IsEnabled) 'No-file startup disables collection information controls.'
     Assert-True (-not $window.FindName('TableStructureBody').IsEnabled) 'No-file startup disables table structure controls.'
+    $saveAll = $window.FindName('buttonSaveAll')
+    $saveAllIcon = $saveAll.Content.Children[0]
+    Assert-True (-not $saveAll.IsEnabled -and $saveAllIcon.Opacity -eq 0.5) 'Save All starts disabled with a dimmed icon.'
+    Assert-True ($window.FindName('JsonForNewFilesAskRadioButton').IsChecked -eq $true) 'New-file JSON preference defaults to Ask each time.'
 
     $films = [WatchedFilmsTracker.Source.Models.CommonCollections]::GetCommonCollectionByName('Films')
     Invoke-Manager 'CreateEmptyWorkingFile' @($films)
@@ -86,6 +130,35 @@ try {
     $jsonPathBox = $window.FindName('TextBoxCompanionPath')
     Assert-True ($jsonCheckBox -is [Windows.Controls.CheckBox]) 'The JSON companion checkbox is in file information.'
     Assert-True ($jsonPathBox -is [Windows.Controls.TextBox] -and $jsonPathBox.IsReadOnly -and $jsonPathBox.Focusable) 'The companion path is selectable and read-only.'
+    $newFile = $window.CurrentWorkingFile()
+    $jsonCheckBox.SetCurrentValue([Windows.Controls.CheckBox]::IsCheckedProperty, $true)
+    Invoke-WindowHandler 'UseJsonCompanionCheckBox_Click' @($jsonCheckBox, [Windows.RoutedEventArgs]::new())
+    Pump-Dispatcher
+    Assert-True ($newFile.Filepath -eq '' -and $newFile.Metadata.StoreInJson -and $newFile.HasUnsavedChanges) 'Enabling JSON on an unsaved collection remembers the choice without requesting a path.'
+    Assert-True ($saveAll.IsEnabled -and $saveAllIcon.Opacity -eq 1.0) 'Save All enables and restores its icon for pending changes.'
+    [void]$newFile.RevertChanges()
+    Pump-Dispatcher
+
+    foreach ($name in @('FileInformationExpander', 'SettingsExpander', 'TableStructureExpander', 'CollectionStatisticsExpander')) {
+        $window.FindName($name).IsExpanded = $true
+    }
+    $window.FindName('CollectionStatisticsPanel').FindName('StatisticsEditorExpander').IsExpanded = $true
+    $pathBoxes = @($window.FindName('TextBoxFilePath'), $jsonPathBox)
+    $longPath = 'C:\A folder with spaces\' + ('verylongpathsegment' * 20) + '\My films.csv'
+    foreach ($box in $pathBoxes) { $box.SetCurrentValue([Windows.Controls.TextBox]::TextProperty, $longPath) }
+    $sidebar = $window.FindName('RightSidebar')
+    foreach ($width in @(1150, 1600)) {
+        Update-TestLayout $width
+        Assert-True ([Math]::Abs($sidebar.ActualWidth - 340) -lt 0.1) "The sidebar stays 340 px wide in a $width px window with all panels expanded."
+        Assert-True ($sidebar.ExtentWidth -le $sidebar.ViewportWidth + 1) 'Expanded content cannot increase the sidebar width.'
+        foreach ($box in $pathBoxes) {
+            Assert-True ($box.LineCount -gt 2 -and $box.ActualWidth -le $sidebar.ViewportWidth) 'Long paths wrap within the available sidebar width.'
+            Assert-True ($box.Parent.ActualWidth - $box.ActualWidth -lt 20) 'Path textboxes fill their bordered container.'
+        }
+    }
+    Assert-True ([object]::ReferenceEquals($delimiter.Parent, $window.FindName('ButtonCurrentFileCollectionType').Parent)) 'Delimiter and collection type share one row.'
+    $jsonPathBox.GetBindingExpression([Windows.Controls.TextBox]::TextProperty).UpdateTarget()
+    Invoke-WindowHandler 'UpdateFileInformation' @()
 
     [IO.File]::WriteAllText($csvPath, "Title`tRelease Year`r`nExample`t2020`r`n")
     [IO.File]::WriteAllText($jsonPath, '{"collectionType":"Podcasts","statisticsSettings":{"loadOnOpen":false}}')
@@ -97,21 +170,32 @@ try {
     Assert-True ($selectedMenuItems.Count -eq 0) 'An unknown collection type is not mislabeled as a known type.'
     Assert-True ($jsonPathBox.Text -eq $jsonPath) 'File information shows the exact copyable companion path.'
     Assert-True ($jsonPathBox.Parent -is [Windows.Controls.GroupBox] -and $jsonPathBox.BorderThickness.Left -gt 0) 'The JSON path uses the same bordered read-only textbox style as the file path.'
+    $newFile.Delimiter = ','
+    Pump-Dispatcher
+    Assert-True ($saveAll.IsEnabled -and $saveAllIcon.Opacity -eq 1.0) 'Changes in a background collection enable Save All and its icon.'
+    [void]$newFile.RevertChanges()
+    Pump-Dispatcher
+    Assert-True (-not $saveAll.IsEnabled -and $saveAllIcon.Opacity -eq 0.5) 'Clearing background changes disables Save All and dims its icon.'
 
     $currentFile = $window.CurrentWorkingFile()
     $currentFile.SetCompanionStorage($false, $true)
     $csvBefore = [Convert]::ToBase64String([IO.File]::ReadAllBytes($csvPath))
-    $jsonCheckBox.IsChecked = $true
+    $jsonCheckBox.SetCurrentValue([Windows.Controls.CheckBox]::IsCheckedProperty, $true)
     Invoke-WindowHandler 'UseJsonCompanionCheckBox_Click' @($jsonCheckBox, [Windows.RoutedEventArgs]::new())
     Pump-Dispatcher
     Assert-True ([IO.File]::Exists($jsonPath) -and $currentFile.Metadata.StoreInJson) 'Ticking the JSON checkbox creates its companion immediately.'
     Assert-True ([Convert]::ToBase64String([IO.File]::ReadAllBytes($csvPath)) -eq $csvBefore) 'The checkbox creates metadata without rewriting record data.'
     # With no companion present, disabling needs no delete prompt.
     [IO.File]::Delete($jsonPath)
-    $jsonCheckBox.IsChecked = $false
+    $jsonCheckBox.SetCurrentValue([Windows.Controls.CheckBox]::IsCheckedProperty, $false)
     Invoke-WindowHandler 'UseJsonCompanionCheckBox_Click' @($jsonCheckBox, [Windows.RoutedEventArgs]::new())
     Pump-Dispatcher
     Assert-True (-not $currentFile.Metadata.StoreInJson -and $jsonCheckBox.IsChecked -eq $false) 'The checkbox and persistence state remain synchronized after disabling.'
+
+    $yesRadio = $window.FindName('JsonForNewFilesYesRadioButton')
+    $yesRadio.IsChecked = $true
+    Invoke-WindowHandler 'JsonForNewFilesPreference_Click' @($yesRadio, [Windows.RoutedEventArgs]::new())
+    Assert-True ([WatchedFilmsTracker.Source.Managers.SettingsManager]::JsonForNewFiles.ToString() -eq 'Yes') 'The Yes radio updates the new-file JSON preference.'
 
     $expectedStates = @{
         FileInformationExpander = $true
@@ -126,6 +210,7 @@ try {
     Assert-True ([IO.File]::Exists($configPath)) 'Closing the window saves program settings.'
     [WatchedFilmsTracker.Source.Managers.SettingsManager]::LoadDefaultSettings()
     [WatchedFilmsTracker.Source.Managers.SettingsManager]::LoadSettingsFromConfigFile()
+    Assert-True ([WatchedFilmsTracker.Source.Managers.SettingsManager]::JsonForNewFiles.ToString() -eq 'Yes') 'The new-file JSON preference survives saving and reloading settings.'
     Assert-True ([WatchedFilmsTracker.Source.Managers.SettingsManager]::FileInformationExpanded -and
         -not [WatchedFilmsTracker.Source.Managers.SettingsManager]::SettingsExpanded -and
         -not [WatchedFilmsTracker.Source.Managers.SettingsManager]::TableStructureExpanded -and

@@ -1,126 +1,126 @@
 <UserControl x:Class="WatchedFilmsTracker.Source.Views.StatisticsPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             MinWidth="380" MaxWidth="440">
+             HorizontalContentAlignment="Stretch" ClipToBounds="True">
     <GroupBox Header="Collection statistics" Background="#114DFF00" Padding="3">
         <StackPanel x:Name="StatisticsBody">
-            <ItemsControl x:Name="StatisticResultsItems" ItemsSource="{Binding Results}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <GroupBox Header="{Binding Name}" Margin="0,0,0,5" Background="#11000000" Padding="0">
-                            <StackPanel>
-                                <TextBlock x:Name="StatisticErrorText" Text="{Binding Error}" Foreground="DarkRed"
-                                           TextWrapping="Wrap" Margin="3">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Error}" Value="">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Error}" Value="{x:Null}">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="True" Margin="0"
-                                          IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
-                                          MaxHeight="240" />
-                            </StackPanel>
-                        </GroupBox>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <GroupBox x:Name="StatisticsSettingsPanel" Header="Settings" Margin="0,0,0,5">
-                <StackPanel Margin="3">
-                    <Border x:Name="SessionOnlyWarning" Padding="6" Margin="0,0,0,6"
-                            Background="#FFFFF1CC" BorderBrush="#FFD7AF56" BorderThickness="1">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Visibility" Value="Collapsed" />
+            <GroupBox x:Name="StatisticsResultsPanel" Header="Statistics" Padding="3" Margin="0,0,0,5">
+                <StackPanel>
+                    <TextBlock x:Name="EmptyStatisticsResultsText" Margin="3" TextWrapping="Wrap" Foreground="DimGray">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="No statistics." />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsJsonEnabled}" Value="False">
-                                        <Setter Property="Visibility" Value="Visible" />
+                                    <DataTrigger Binding="{Binding HasStatistics}" Value="True">
+                                        <Setter Property="Text" Value="Refresh statistics to view results." />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasResults}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </Border.Style>
-                        <TextBlock Text="{Binding PersistenceWarning}" TextWrapping="Wrap" />
-                    </Border>
-                    <CheckBox Content="Load statistics when opening this collection"
-                              IsChecked="{Binding LoadOnOpen, Mode=TwoWay}"
-                              ToolTip="Also applies when a collection is reopened at application startup." />
-                    <CheckBox Content="Refresh automatically after datasource changes"
-                              Margin="0,4,0,5" IsChecked="{Binding AutoRefresh, Mode=TwoWay}" />
-                    <TextBlock Text="{Binding Status}" Margin="0,2,0,6" TextWrapping="Wrap" />
-                    <Button Content="Refresh statistics" Padding="8,4" IsEnabled="{Binding CanRefresh}" Click="Refresh_Click">
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ItemsControl x:Name="StatisticResultsItems" ItemsSource="{Binding Results}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <GroupBox Header="{Binding Name}" Margin="0,0,0,5" Background="#11000000" Padding="0">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap" /></DataTemplate>
+                                    </GroupBox.HeaderTemplate>
+                                    <StackPanel>
+                                        <TextBlock x:Name="StatisticErrorText" Text="{Binding Error}" Foreground="DarkRed" TextWrapping="Wrap" Margin="3">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Error}" Value=""><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                        <DataTrigger Binding="{Binding Error}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="True" Margin="0"
+                                                  IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Auto" MaxHeight="240" />
+                                    </StackPanel>
+                                </GroupBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox x:Name="StatisticsRefreshPanel" Header="Refresh statistics" Padding="3" Margin="0,0,0,5">
+                <StackPanel>
+                    <TextBlock x:Name="StatisticsStatusText" Text="{Binding Status, FallbackValue='No statistics.', TargetNullValue='No statistics.'}" Margin="0,2,0,6" TextWrapping="Wrap" />
+                    <Button x:Name="RefreshStatisticsButton" Content="Refresh statistics" Padding="8,4" IsEnabled="{Binding CanRefresh, FallbackValue=False}" Click="Refresh_Click">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsStale}" Value="True">
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsStale}" Value="True" />
+                                            <Condition Binding="{Binding HasStatistics}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
                                         <Setter Property="FontWeight" Value="Bold" />
                                         <Setter Property="Background" Value="#FFFFE1A3" />
-                                    </DataTrigger>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                     </Button>
                 </StackPanel>
             </GroupBox>
-
-            <Expander x:Name="StatisticsEditorExpander" Header="Modify statistics" IsExpanded="False">
+            <GroupBox x:Name="StatisticsSettingsPanel" Header="Settings" Margin="0,0,0,5">
+                <StackPanel Margin="3">
+                    <Border x:Name="SessionOnlyWarning" Padding="6" Margin="0,0,0,6" Background="#FFFFF1CC" BorderBrush="#FFD7AF56" BorderThickness="1">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsJsonEnabled}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding PersistenceWarning}" TextWrapping="Wrap" />
+                    </Border>
+                    <CheckBox IsChecked="{Binding LoadOnOpen, Mode=TwoWay}" ToolTip="Also applies when a collection is reopened at application startup.">
+                        <TextBlock Text="Load statistics when opening this collection" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <CheckBox Margin="0,4,0,5" IsChecked="{Binding AutoRefresh, Mode=TwoWay}">
+                        <TextBlock Text="Refresh automatically after datasource changes" TextWrapping="Wrap" />
+                    </CheckBox>
+                </StackPanel>
+            </GroupBox>
+            <Expander x:Name="StatisticsEditorExpander" Header="Modify statistics" IsExpanded="False" HorizontalContentAlignment="Stretch">
                 <GroupBox x:Name="ModifyStatisticsPanel" Header="Modify statistics" Padding="3">
                     <StackPanel>
-                        <GroupBox Header="Existing statistics" Padding="3" Margin="0,0,0,5">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <ListBox x:Name="ExistingStatisticsList" Grid.Column="0" Height="86"
-                                         HorizontalContentAlignment="Stretch" DisplayMemberPath="Name"
-                                         ItemsSource="{Binding Definitions}" SelectedItem="{Binding SelectedDefinition, Mode=TwoWay}" />
-                                <StackPanel Grid.Column="1" Margin="4,0,0,0">
-                                    <Button Content="↑" Width="38" Padding="2" Margin="0,0,0,3" ToolTip="Move selected statistic up"
-                                            IsEnabled="{Binding CanMoveUp}" Click="MoveUp_Click" />
-                                    <Button Content="↓" Width="38" Padding="2" Margin="0,0,0,3" ToolTip="Move selected statistic down"
-                                            IsEnabled="{Binding CanMoveDown}" Click="MoveDown_Click" />
-                                    <Button Content="×" Width="38" Padding="2" ToolTip="Delete selected statistic"
-                                            IsEnabled="{Binding HasSelectedDefinition}" Click="Delete_Click" />
-                                </StackPanel>
-                            </Grid>
-                        </GroupBox>
-
-                        <GroupBox Header="Edit selected statistic" IsEnabled="{Binding HasSelectedDefinition}" Padding="3" Margin="0,0,0,5">
-                            <StackPanel>
-                                <Label Padding="0,0,0,2" Content="Name" />
-                                <TextBox Text="{Binding EditorName, UpdateSourceTrigger=PropertyChanged}" />
-                                <Label Padding="0,5,0,2" Content="SQL query" />
-                                <TextBox Height="85" AcceptsReturn="True" AcceptsTab="True" FontFamily="Consolas"
-                                         HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                         TextWrapping="NoWrap" Text="{Binding EditorSql, UpdateSourceTrigger=PropertyChanged}" />
-                                <Button Padding="8,3" Margin="0,5,0,0" Click="SaveAndRun_Click">Apply and run</Button>
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <ListBox x:Name="ExistingStatisticsList" Grid.Column="0" Height="140"
+                                     HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ItemsSource="{Binding Definitions}" SelectedItem="{Binding SelectedDefinition, Mode=TwoWay}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate><TextBlock Text="{Binding Name}" TextWrapping="Wrap" /></DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                <Button x:Name="AddStatisticButton" Content="+" Width="38" Padding="2" Margin="0,0,0,3" ToolTip="Add a statistic from a template" Click="ShowStatisticTemplates_Click" />
+                                <Button Content="↑" Width="38" Padding="2" Margin="0,0,0,3" ToolTip="Move selected statistic up" IsEnabled="{Binding CanMoveUp}" Click="MoveUp_Click" />
+                                <Button Content="↓" Width="38" Padding="2" Margin="0,0,0,3" ToolTip="Move selected statistic down" IsEnabled="{Binding CanMoveDown}" Click="MoveDown_Click" />
+                                <Button Content="×" Width="38" Padding="2" Margin="0,0,0,3" ToolTip="Delete selected statistic" IsEnabled="{Binding HasSelectedDefinition}" Click="Delete_Click" />
+                                <Button x:Name="RestoreStatisticsButton" Content="↶" Width="38" Padding="2" ToolTip="Restore a recently deleted statistic" IsEnabled="{Binding HasDeletedStatistics, FallbackValue=False}" Click="ShowDeletedStatistics_Click" />
                             </StackPanel>
-                        </GroupBox>
-
-                        <GroupBox x:Name="AddStatisticsPanel" Header="Add new statistics" Padding="3">
-                            <StackPanel>
-                                <Label Padding="0,0,0,2" Content="Template" />
-                                <ComboBox x:Name="DefaultStatisticsComboBox" DisplayMemberPath="Name"
-                                          SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}" />
-                                <Label Padding="0,5,0,2" Content="Name" />
-                                <TextBox Text="{Binding DraftName, UpdateSourceTrigger=PropertyChanged}" />
-                                <Label Padding="0,5,0,2" Content="SQL query" />
-                                <TextBox Height="110" AcceptsReturn="True" AcceptsTab="True" FontFamily="Consolas"
-                                         HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                         TextWrapping="NoWrap" Text="{Binding DraftSql, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Margin="0,4,0,5" Foreground="DimGray" FontSize="11" TextWrapping="Wrap"
-                                           Text="Query the current datasource as records. Quote column names and use TRY_CAST for numbers. SELECT and WITH queries can return up to 1,000 rows." />
-                                <Button Padding="8,3" Click="AddDraft_Click">Add and run</Button>
-                            </StackPanel>
-                        </GroupBox>
+                        </Grid>
+                        <StackPanel IsEnabled="{Binding HasSelectedDefinition, FallbackValue=False}">
+                            <Label Padding="0,0,0,2" Content="Name" />
+                            <TextBox x:Name="StatisticNameTextBox" Text="{Binding EditorName, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Padding="0,5,0,2" Content="SQL query" />
+                            <TextBox x:Name="StatisticSqlTextBox" Height="110" AcceptsReturn="True" AcceptsTab="True" FontFamily="Consolas"
+                                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                                     TextWrapping="NoWrap" Text="{Binding EditorSql, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <TextBlock Margin="0,4,0,0" Foreground="DimGray" FontSize="11" TextWrapping="Wrap"
+                                   Text="Changes are kept as you type. Refresh statistics to run the queries. Query the datasource as records and quote column names." />
                     </StackPanel>
                 </GroupBox>
             </Expander>

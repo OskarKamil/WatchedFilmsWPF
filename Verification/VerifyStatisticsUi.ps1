@@ -34,6 +34,14 @@ function Wait-UiTask($Task) {
     [void]$Task.GetAwaiter().GetResult()
 }
 
+function Wait-StatisticsIdle($Session) {
+    $timeout = [Diagnostics.Stopwatch]::StartNew()
+    do {
+        Pump-Dispatcher
+        if ($timeout.Elapsed.TotalSeconds -gt 30) { throw 'Statistics action timed out in verification.' }
+    } while ($Session.IsBusy)
+}
+
 function New-Session($File) {
     $sessionType = $assembly.GetType('WatchedFilmsTracker.Source.ViewModels.StatisticsSession', $true)
     $arguments = [object[]]::new(1)
@@ -106,17 +114,36 @@ try {
     Assert-True ($session.Definitions.Count -eq 2 -and $session.Results[1].Rows[0]['total'] -eq 1) 'Users can add and test statistics while JSON persistence is off.'
     Wait-UiTask ($session.DeleteSelectedAsync())
     Assert-True ($session.Definitions.Count -eq 1) 'Users can delete session-only statistics.'
+    Assert-True ($session.RecentlyDeletedStatistics.Count -eq 1 -and $session.HasDeletedStatistics) 'Deleted statistics remain recoverable while JSON is off.'
+    $deleted = $session.RecentlyDeletedStatistics[0]
+    Assert-True ($deleted.DisplayText -eq 'Deleted today - Session count') 'Recently deleted statistics show a readable age and statistic name.'
+    $session.SelectedDeletedStatistic = $deleted
+    Wait-UiTask ($session.RestoreSelectedAsync())
+    Assert-True ($session.Definitions.Count -eq 2 -and $session.Definitions[1].Name -eq 'Session count' -and
+        $session.RecentlyDeletedStatistics.Count -eq 0) 'Restoring returns the original statistic and removes its history entry.'
+    Wait-UiTask ($session.DeleteSelectedAsync())
+
+    $deleted = $session.RecentlyDeletedStatistics[0]
+    $deleted.DeletedAt = [DateTimeOffset]::new([DateTime]::Today.AddDays(-1).AddHours(12))
+    Assert-True ($deleted.DisplayText -eq 'Deleted 1 day ago - Session count') 'A statistic deleted yesterday uses the singular day label.'
+    $deleted.DeletedAt = [DateTimeOffset]::new([DateTime]::Today.AddDays(-5).AddHours(12))
+    Assert-True ($deleted.DisplayText -eq 'Deleted 5 days ago - Session count') 'Older deleted statistics show the number of calendar days.'
 
     $catalogType = $assembly.GetType('WatchedFilmsTracker.Source.Statistics.DefaultStatisticsCatalog', $true)
     $emptyTemplate = $catalogType.GetProperty('Empty', [Reflection.BindingFlags]'Static,Public,NonPublic').GetValue($null)
-    $selectedSql = $session.EditorSql
-    $session.SelectedTemplate = $emptyTemplate
-    Assert-True ($session.DraftSql.Contains('Edit me') -and $session.DraftName -eq 'New statistic') 'The Empty template provides an editable SQL starting point.'
-    Assert-True ($session.EditorSql -eq $selectedSql) 'Choosing an add template does not overwrite the selected statistic.'
-    $session.DraftName = 'Draft count'
-    $session.DraftSql = 'SELECT COUNT(*) AS total FROM records'
-    Wait-UiTask ($session.AddDraftAsync())
-    Assert-True ($session.Definitions.Count -eq 2 -and $session.Results[1].Rows[0]['total'] -eq 1) 'The add panel creates and runs the customized draft.'
+    $previousDefinition = $session.SelectedDefinition
+    Wait-UiTask ($session.AddDefaultAsync($emptyTemplate))
+    Assert-True ($session.EditorSql.Contains('Edit me') -and $session.EditorName -eq 'New statistic') 'The Empty template creates a selected editable statistic.'
+    $session.EditorName = 'Draft count'
+    $session.EditorSql = 'SELECT COUNT(*) AS total FROM records'
+    Assert-True ($session.SelectedDefinition.Name -eq 'Draft count' -and $session.SelectedDefinition.Sql.Contains('COUNT(*)')) 'Editing the shared name and SQL properties updates the selected definition immediately.'
+    Assert-True ($emptyTemplate.Name -eq 'Empty' -and $emptyTemplate.Sql.Contains('Edit me')) 'Editing a new statistic preserves its original catalog template.'
+    $editedDefinition = $session.SelectedDefinition
+    $session.SelectedDefinition = $previousDefinition
+    $session.SelectedDefinition = $editedDefinition
+    Assert-True ($session.EditorName -eq 'Draft count' -and $session.EditorSql.Contains('COUNT(*)')) 'Switching selections preserves edits without applying them.'
+    Wait-UiTask ($session.RefreshAsync())
+    Assert-True ($session.Definitions.Count -eq 2 -and $session.Results[1].Rows[0]['total'] -eq 1) 'Manual refresh runs the shared editor query.'
     Assert-True ($session.CanMoveUp -and -not $session.CanMoveDown) 'Ordering buttons reflect the selected last statistic.'
     Wait-UiTask ($session.MoveSelectedAsync(-1))
     Assert-True ($session.Definitions[0].Name -eq 'Draft count' -and $session.Results[0].Name -eq 'Draft count') 'Moving up reorders both definitions and result tables.'
@@ -166,6 +193,14 @@ try {
         }
 
         $panel = [WatchedFilmsTracker.Source.Views.StatisticsPanel]::new()
+        $testWindow = [Windows.Window]::new()
+        $testWindow.Content = $panel
+        $testWindow.Width = 340
+        $testWindow.Height = 900
+        $testWindow.Opacity = 0
+        $testWindow.ShowInTaskbar = $false
+        $testWindow.ShowActivated = $false
+        $testWindow.Show()
         $panel.ShowCollection($reloadedFile)
         $panel.DataContext.IsJsonEnabled = $false
         Pump-Dispatcher
@@ -175,12 +210,81 @@ try {
         Assert-True $body.IsEnabled 'XAML leaves statistics usable with session-only queries.'
         Assert-True ($warning.Visibility -eq [Windows.Visibility]::Visible) 'XAML shows the unsaved-query warning when JSON is off.'
         Assert-True (-not $editor.IsExpanded) 'The add/edit statistics controls are folded by default.'
+        $editor.IsExpanded = $true
         Assert-True ($editor.Header -eq 'Modify statistics') 'The statistics editor is labeled Modify statistics.'
         Assert-True ($panel.FindName('StatisticsSettingsPanel') -is [Windows.Controls.GroupBox]) 'Statistics settings are in an always-visible bordered group.'
         Assert-True ($panel.FindName('ModifyStatisticsPanel') -is [Windows.Controls.GroupBox] -and
-            $panel.FindName('AddStatisticsPanel') -is [Windows.Controls.GroupBox]) 'Modify and Add new statistics each have a border.'
+            $null -eq $panel.FindName('AddStatisticsPanel')) 'One statistics editor replaces the separate add panel.'
+        $resultsPanel = $panel.FindName('StatisticsResultsPanel')
+        $refreshPanel = $panel.FindName('StatisticsRefreshPanel')
+        $refreshButton = $panel.FindName('RefreshStatisticsButton')
+        Assert-True ($resultsPanel -is [Windows.Controls.GroupBox] -and $refreshPanel -is [Windows.Controls.GroupBox] -and
+            [object]::ReferenceEquals($body.Children[0], $resultsPanel) -and
+            [object]::ReferenceEquals($body.Children[1], $refreshPanel) -and
+            [object]::ReferenceEquals($body.Children[2], $panel.FindName('StatisticsSettingsPanel'))) 'Results and refresh each have a border, with refresh above settings.'
+        $restoreButton = $panel.FindName('RestoreStatisticsButton')
+        Assert-True (-not $restoreButton.IsEnabled -and $null -eq $panel.FindName('RecentlyDeletedStatisticsPanel')) 'Restore starts disabled and no history panel occupies the sidebar.'
+        Wait-UiTask ($panel.DataContext.DeleteSelectedAsync())
+        Pump-Dispatcher
+        Assert-True $restoreButton.IsEnabled 'Deleting a statistic enables the restore button.'
+        Assert-True (-not $refreshButton.IsEnabled -and $panel.FindName('StatisticsStatusText').Text -eq 'No statistics.' -and
+            $panel.FindName('EmptyStatisticsResultsText').Visibility -eq [Windows.Visibility]::Visible -and
+            $panel.FindName('EmptyStatisticsResultsText').Text -eq 'No statistics.' -and
+            $panel.DataContext.Results.Count -eq 0) 'Deleting the last statistic disables refresh and shows both empty states.'
+        $restoreButton.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.Button]::ClickEvent))
+        Pump-Dispatcher
+        $restoreMenu = $restoreButton.ContextMenu
+        Assert-True ($restoreMenu.IsOpen -and $restoreMenu.Items.Count -eq 1 -and
+            $restoreMenu.Items[0].Header -like 'Deleted today - *') 'Restore opens a popup list with deletion ages and names.'
+        $restoreMenu.Items[0].RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.MenuItem]::ClickEvent))
+        Wait-StatisticsIdle $panel.DataContext
+        Assert-True ($panel.DataContext.Definitions.Count -eq 1 -and -not $panel.DataContext.HasDeletedStatistics -and
+            -not $restoreMenu.IsOpen -and $refreshButton.IsEnabled) 'Selecting a popup entry directly restores its query and closes the menu.'
+        $addButton = $panel.FindName('AddStatisticButton')
+        $addButton.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.Button]::ClickEvent))
+        Pump-Dispatcher
+        $templateMenu = $addButton.ContextMenu
+        Assert-True ($templateMenu.IsOpen -and $templateMenu.Items.Count -gt 1 -and
+            @($templateMenu.Items | Where-Object Header -eq 'Empty').Count -eq 1) 'Add opens a popup list of built-in templates including Empty.'
+        $emptyMenuItem = @($templateMenu.Items | Where-Object Header -eq 'Empty')[0]
+        $emptyMenuItem.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.MenuItem]::ClickEvent))
+        Wait-StatisticsIdle $panel.DataContext
+        Assert-True ($panel.DataContext.Definitions.Count -eq 2 -and $panel.DataContext.EditorName -eq 'New statistic' -and
+            -not $templateMenu.IsOpen) 'Choosing a template adds and selects a new statistic directly.'
+        $nameBox = $panel.FindName('StatisticNameTextBox')
+        $sqlBox = $panel.FindName('StatisticSqlTextBox')
+        $nameBox.SetCurrentValue([Windows.Controls.TextBox]::TextProperty, 'Edited directly')
+        $sqlBox.SetCurrentValue([Windows.Controls.TextBox]::TextProperty, 'SELECT COUNT(*) AS edited_total FROM records')
+        Pump-Dispatcher
+        $editedDefinition = $panel.DataContext.SelectedDefinition
+        $panel.FindName('ExistingStatisticsList').SelectedItem = $panel.DataContext.Definitions[0]
+        Pump-Dispatcher
+        $panel.FindName('ExistingStatisticsList').SelectedItem = $editedDefinition
+        Pump-Dispatcher
+        Assert-True ($nameBox.Text -eq 'Edited directly' -and $sqlBox.Text.Contains('edited_total') -and
+            $editedDefinition.Name -eq 'Edited directly' -and $reloadedFile.HasUnsavedChanges) 'The single pair of textboxes updates the selected query and retains edits across selection changes.'
+        $panel.DataContext.IsJsonEnabled = $true
+        [void]$reloadedFile.Save()
+        $editedFile = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new($csvPath)
+        Assert-True ($editedFile.Metadata.Statistics[1].Name -eq 'Edited directly' -and
+            $editedFile.Metadata.Statistics[1].Sql.Contains('edited_total')) 'Live editor changes persist without an Apply action.'
+        Wait-UiTask ($panel.DataContext.DeleteSelectedAsync())
+        $addButton.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.Button]::ClickEvent))
+        Pump-Dispatcher
+        $staleMenu = $addButton.ContextMenu
+        $staleItem = $staleMenu.Items[0]
+        $otherFile = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new($type)
+        $otherFile.Metadata.StatisticsSettings.LoadOnOpen = $false
+        $panel.ShowCollection($otherFile)
+        $staleItem.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.MenuItem]::ClickEvent))
+        Pump-Dispatcher
+        Assert-True (-not $staleMenu.IsOpen -and $otherFile.Metadata.Statistics.Count -eq 0 -and
+            $reloadedFile.Metadata.Statistics.Count -eq 1) 'Switching collections closes popup menus and ignores stale menu choices.'
+        Assert-True (-not $refreshButton.IsEnabled -and $panel.FindName('EmptyStatisticsResultsText').Text -eq 'No statistics.') 'A new empty collection starts with disabled refresh and an empty result message.'
+        $panel.ShowCollection($reloadedFile)
+        Pump-Dispatcher
         $resultsItems = $panel.FindName('StatisticResultsItems')
-        Assert-True ([object]::ReferenceEquals($body.Children[0], $resultsItems)) 'Statistic result tables appear first in the panel.'
+        Assert-True ([object]::ReferenceEquals($resultsItems.Parent.Parent, $resultsPanel)) 'Statistic datagrids are enclosed by the results border.'
         $templateView = $resultsItems.ItemTemplate.LoadContent()
         $table = [Data.DataTable]::new()
         $templateView.DataContext = [WatchedFilmsTracker.Source.Statistics.StatisticReportResult]::new('Result', $table.DefaultView)
@@ -192,6 +296,7 @@ try {
         Pump-Dispatcher
         Assert-True ($body.IsEnabled -and $warning.Visibility -eq [Windows.Visibility]::Collapsed) 'Enabling JSON hides the session-only persistence warning.'
         $panel.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.FrameworkElement]::UnloadedEvent))
+        $testWindow.Close()
 
         $orderedDefinition = [WatchedFilmsTracker.Source.Statistics.StatisticDefinition]::new()
         $orderedDefinition.Name = 'First after moving'
@@ -203,6 +308,36 @@ try {
         [void]$reloadedFile.Save()
         $savedOrder = [IO.File]::ReadAllText($sidecarPath) | ConvertFrom-Json
         Assert-True ($savedOrder.statistics[0].name -eq 'First after moving') 'The selected display order is saved in JSON.'
+
+        for ($number = 1; $number -le 12; $number++) {
+            $reloadedSession.NewStatistic()
+            $reloadedSession.EditorName = "Deleted statistic $number"
+            $reloadedSession.EditorSql = 'SELECT COUNT(*) AS preserved_total FROM records'
+            Wait-UiTask ($reloadedSession.SaveAndRunAsync())
+            Wait-UiTask ($reloadedSession.DeleteSelectedAsync())
+        }
+        Assert-True ($reloadedSession.RecentlyDeletedStatistics.Count -eq 10 -and
+            $reloadedSession.RecentlyDeletedStatistics[0].Definition.Name -eq 'Deleted statistic 12' -and
+            $reloadedSession.RecentlyDeletedStatistics[9].Definition.Name -eq 'Deleted statistic 3') 'History retains the latest 10 deletions in most-recent-first order.'
+        Assert-True $reloadedFile.HasUnsavedChanges 'Deleting statistics marks the companion metadata as unsaved.'
+        [void]$reloadedFile.Save()
+        $savedHistory = [IO.File]::ReadAllText($sidecarPath) | ConvertFrom-Json
+        Assert-True ($savedHistory.recentlyDeletedStatistics.Count -eq 10 -and
+            $savedHistory.recentlyDeletedStatistics[0].definition.sql.Contains('preserved_total')) 'JSON saves recent deletion dates and full statistic definitions.'
+        $historyFile = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new($csvPath)
+        $historySession = New-Session $historyFile
+        try {
+            $historySession.SelectedDeletedStatistic = $historySession.RecentlyDeletedStatistics[0]
+            $originalId = $historySession.SelectedDeletedStatistic.Definition.Id
+            Wait-UiTask ($historySession.RestoreSelectedAsync())
+            Assert-True ($historySession.SelectedDefinition.Name -eq 'Deleted statistic 12' -and
+                $historySession.SelectedDefinition.Id -eq $originalId -and
+                $historySession.RecentlyDeletedStatistics.Count -eq 9 -and $historyFile.HasUnsavedChanges) 'Reloaded history restores the original statistic identity and marks the file for saving.'
+            Assert-True ($historySession.Results[2].Rows[0]['preserved_total'] -eq 1) 'A restored query runs against the collection datasource.'
+        }
+        finally {
+            $historySession.Dispose()
+        }
 
     }
     finally {

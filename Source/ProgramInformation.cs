@@ -10,6 +10,6 @@ namespace WatchedFilmsTracker.Source
     {
         public static readonly string VERSION = "Version 0.15";
         public static readonly string PROGRAM_NAME = "Watched films tracker";
-        public static readonly string COPYRIGHT = "© 2024 Oskar Jargilo";
+        public static readonly string COPYRIGHT = "© 2026 Oskar Jargilo";
     }
 }

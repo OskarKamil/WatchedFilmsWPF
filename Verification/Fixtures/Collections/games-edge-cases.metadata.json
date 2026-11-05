@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "collectionType": "Games",
+  "delimiter": ";",
+  "statistics": [
+    {
+      "id": "games-edge-cases-total",
+      "name": "Total records",
+      "sql": "SELECT COUNT(*) AS \"Total records\" FROM records"
+    },
+    {
+      "id": "games-edge-cases-rating",
+      "name": "Average rating",
+      "sql": "SELECT ROUND(AVG(TRY_CAST(\"Rating\" AS DOUBLE)), 2) AS \"Average rating\" FROM records"
+    },
+    {
+      "id": "games-edge-cases-years",
+      "name": "Count by release year",
+      "sql": "SELECT TRY_CAST(\"Release Year\" AS INTEGER) AS \"Release year\", COUNT(*) AS \"Count\" FROM records GROUP BY \"Release year\" ORDER BY \"Release year\""
+    }
+  ],
+  "recentlyDeletedStatistics": [
+    {
+      "definition": {
+        "id": "games-edge-cases-deleted-0",
+        "name": "Rated records",
+        "sql": "SELECT COUNT(*) AS \"Rated records\" FROM records WHERE TRY_CAST(\"Rating\" AS DOUBLE) IS NOT NULL"
+      },
+      "deletedAt": "2026-11-05T09:00:00+00:00",
+      "originalIndex": 0
+    },
+    {
+      "definition": {
+        "id": "games-edge-cases-deleted-1",
+        "name": "Records with comments",
+        "sql": "SELECT COUNT(*) AS \"With comments\" FROM records WHERE COALESCE(\"Comments\", '') <> ''"
+      },
+      "deletedAt": "2026-11-04T09:00:00+00:00",
+      "originalIndex": 1
+    },
+    {
+      "definition": {
+        "id": "games-edge-cases-deleted-2",
+        "name": "Highest rating",
+        "sql": "SELECT MAX(TRY_CAST(\"Rating\" AS DOUBLE)) AS \"Highest rating\" FROM records"
+      },
+      "deletedAt": "2026-10-31T09:00:00+00:00",
+      "originalIndex": 2
+    }
+  ],
+  "statisticsSettings": {
+    "loadOnOpen": true,
+    "autoRefresh": false
+  }
+}

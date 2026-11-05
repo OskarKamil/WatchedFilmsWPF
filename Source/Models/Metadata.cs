@@ -16,6 +16,7 @@ public sealed class Metadata
     public string CollectionType { get; set; } = "Other";
     public string? Delimiter { get; set; }
     public ObservableCollection<StatisticDefinition> Statistics { get; set; } = new();
+    public ObservableCollection<DeletedStatistic> RecentlyDeletedStatistics { get; set; } = new();
     public StatisticsSettings StatisticsSettings { get; set; } = new();
 
     // Preserve properties written by newer application versions when saving again.

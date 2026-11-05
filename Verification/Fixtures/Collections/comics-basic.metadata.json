@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "collectionType": "Comics",
+  "delimiter": ",",
+  "statistics": [
+    {
+      "id": "comics-basic-total",
+      "name": "Total records",
+      "sql": "SELECT COUNT(*) AS \"Total records\" FROM records"
+    },
+    {
+      "id": "comics-basic-rating",
+      "name": "Average rating",
+      "sql": "SELECT ROUND(AVG(TRY_CAST(\"Rating\" AS DOUBLE)), 2) AS \"Average rating\" FROM records"
+    }
+  ],
+  "recentlyDeletedStatistics": [],
+  "statisticsSettings": {
+    "loadOnOpen": true,
+    "autoRefresh": false
+  }
+}

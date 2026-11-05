@@ -31,6 +31,10 @@ internal static class MetadataStore
             metadata.StoreInJson = true;
             metadata.CollectionType = string.IsNullOrWhiteSpace(metadata.CollectionType) ? "Other" : metadata.CollectionType;
             metadata.Statistics ??= new();
+            metadata.RecentlyDeletedStatistics = new((metadata.RecentlyDeletedStatistics ?? new())
+                .Where(entry => entry?.Definition != null)
+                .OrderByDescending(entry => entry.DeletedAt)
+                .Take(10));
             metadata.StatisticsSettings ??= new();
             // A hand-edited null entry is not a runnable statistic.
             for (int index = metadata.Statistics.Count - 1; index >= 0; index--)

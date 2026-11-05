@@ -4,9 +4,10 @@ namespace WatchedFilmsTracker.Source.Views
 {
     public partial class SaveChangesDialog : Window
     {
-        public SaveChangesDialog()
+        public SaveChangesDialog(string? collectionPath = null)
         {
             InitializeComponent();
+            CollectionPathText.Text = string.IsNullOrWhiteSpace(collectionPath) ? "New unsaved collection" : collectionPath;
             Closing += OnDialogClosing;
         }
 

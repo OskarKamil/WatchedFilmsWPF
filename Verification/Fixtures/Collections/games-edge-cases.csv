@@ -1,0 +1,9 @@
+"English Title";"Original Title";"Platform";"Release Year";"Rating";"Status";"Finish Date";"Comments";"Review"
+"Light over the River";"Światło nad rzeką";"PC";"2018";"4.5";"Completed";"12/02/2025";"Unicode sample: café, Łódź, 東京, naïve.";"Accented and non-Latin characters should survive saving."
+"The ""Last"" Signal";"The ""Last"" Signal";"Switch";"2018";"3";"Playing";"";"Embedded delimiter [;] and a ""quoted phrase"".";"A comma, a semicolon; and a pipe | belong to this one field."
+"North;South";"North / South";"PlayStation 5";"2022";"5";"On hold";"";"First line of a comment.
+Second line of the same comment.";"The review also has two lines.
+The second line stays in the same cell."
+"A Deliberately Long Collection Title for Testing Column Widths and Horizontal Scrolling";"";"PC";"2022";"4";"Planned";"";"Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. Long text sample. ";"Repeated years and ratings make grouping and averages easy to inspect."
+"The Unfinished Atlas";"";"PC";"2022";"";"In progress";"";"Optional values are intentionally blank.";""
+"Title Only - Optional Fields Empty";"";"";"";"";"";"";"";""

@@ -18,6 +18,32 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public static ObservableCollection<TabItem> TabsOfOpenedFiles { get; set; } = new ObservableCollection<TabItem>();
 
+        public static string NormalizePath(string filePath) => Path.GetFullPath(filePath);
+
+        /// <summary>Finds a saved-path collection without treating separate untitled tabs as duplicates.</summary>
+        public static CollectionFile? FindOpenFile(string? filePath, CollectionFile? excluding = null)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return null;
+
+            string fullPath = NormalizePath(filePath);
+            return OpenedFiles.FirstOrDefault(file => !ReferenceEquals(file, excluding) &&
+                !string.IsNullOrWhiteSpace(file.Filepath) &&
+                string.Equals(NormalizePath(file.Filepath), fullPath, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public static void SelectFile(CollectionFile file)
+        {
+            int index = OpenedFiles.IndexOf(file);
+            if (index < 0 || index >= TabsOfOpenedFiles.Count)
+                return;
+
+            TabItem tab = TabsOfOpenedFiles[index];
+            tab.IsSelected = true;
+            if (TabControl != null)
+                TabControl.SelectedItem = tab;
+        }
+
         public static void CloseTab(CollectionFile workingTextFile)
         {
             int index = OpenedFiles.IndexOf(workingTextFile);
@@ -43,29 +69,23 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public static void CreateEmptyWorkingFile(CommonCollectionType commonCollection)
         {
-            CollectionFile workingTextFile = new CollectionFile(commonCollection);
-            OpenedFiles.Add(workingTextFile);
-
-            var newTab = CreateNewTab(workingTextFile);
-
-            TabsOfOpenedFiles.Add(newTab);
-
-            newTab.Content = workingTextFile.Grid;
-            newTab.IsSelected = true;
-
-            NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
-            workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
-            workingTextFile.UnsavedChangesChanged += UpdateTabText;
-
-            workingTextFile.FileClosing += (sender, e) =>
-            {
-                CloseTab((CollectionFile)sender);
-            };
+            AddWorkingFile(new CollectionFile(commonCollection));
         }
 
         public static void CreateNewWorkingFile(string filePath)
         {
-            CollectionFile workingTextFile = new CollectionFile(filePath);
+            string fullPath = NormalizePath(filePath);
+            if (FindOpenFile(fullPath) is CollectionFile existing)
+            {
+                SelectFile(existing);
+                return;
+            }
+
+            AddWorkingFile(new CollectionFile(fullPath));
+        }
+
+        private static void AddWorkingFile(CollectionFile workingTextFile)
+        {
             OpenedFiles.Add(workingTextFile);
 
             var newTab = CreateNewTab(workingTextFile);
@@ -73,11 +93,12 @@ namespace WatchedFilmsTracker.Source.Managers
             TabsOfOpenedFiles.Add(newTab);
 
             newTab.Content = workingTextFile.Grid;
-            newTab.IsSelected = true;
+            SelectFile(workingTextFile);
 
             NewFileLoaded?.Invoke(null, new NewFileLoadedEventArgs(workingTextFile));
             workingTextFile.CommonCollectionTypeChanged += UpdateTabIconAndText;
             workingTextFile.UnsavedChangesChanged += UpdateTabText;
+            workingTextFile.FileSaved += UpdateTabText;
 
             workingTextFile.FileClosing += (sender, e) =>
             {
@@ -95,7 +116,7 @@ namespace WatchedFilmsTracker.Source.Managers
             if (TabControl?.SelectedItem is not TabItem selectedTab)
                 return null;
             int indexOfTab = TabsOfOpenedFiles.IndexOf(selectedTab);
-            if (indexOfTab == -1)
+            if (indexOfTab < 0 || indexOfTab >= OpenedFiles.Count)
                 return null;
             // Debug.WriteLine($"index of tab is {indexOfTab}, and number of tabs is: {TabsOfOpenedFiles.Count}, or {TabControl.Items.Count} or {OpenedFiles.Count}");
             return OpenedFiles[indexOfTab];
@@ -144,6 +165,9 @@ namespace WatchedFilmsTracker.Source.Managers
             stackPanel.Children.Add(closeTabButton);
 
             tabItem.Header = stackPanel;
+            tabItem.ToolTip = string.IsNullOrWhiteSpace(workingTextFile.Filepath)
+                ? "New collection (not saved)"
+                : workingTextFile.Filepath;
 
             return tabItem;
         }
@@ -193,38 +217,24 @@ namespace WatchedFilmsTracker.Source.Managers
 
         private static void UpdateTabText(object? sender, EventArgs e)
         {
-            CollectionFile workingTextFile = (CollectionFile)sender;
+            if (sender is not CollectionFile workingTextFile)
+                return;
             int tabIndex = OpenedFiles.IndexOf(workingTextFile);
-            if (tabIndex != -1)
+            if (tabIndex >= 0 && tabIndex < TabsOfOpenedFiles.Count)
             {
                 TabItem tabItem = TabsOfOpenedFiles[tabIndex];
                 TextBlock textBlock = GetTextBlockFromTab(tabItem);
 
                 if (textBlock != null)
                 {
-                    string currentTabText = textBlock.Text;
-
-                    if (workingTextFile.HasUnsavedChanges)
-                    {
-                        if (!currentTabText.StartsWith("* "))
-                        {
-                            textBlock.Text = "* " + currentTabText;
-                        }
-                    }
-                    else
-                    {
-                        Debug.WriteLine("unsaved changes no");
-
-                        if (currentTabText.StartsWith("* "))
-                        {
-                            textBlock.Text = currentTabText.Substring(2);
-                        }
-                    }
+                    string name = string.IsNullOrWhiteSpace(workingTextFile.Filepath)
+                        ? "new collection"
+                        : Path.GetFileName(workingTextFile.Filepath);
+                    textBlock.Text = (workingTextFile.HasUnsavedChanges ? "* " : string.Empty) + name;
                 }
-                else
-                {
-                    Debug.WriteLine("textlbock IS null");
-                }
+                tabItem.ToolTip = string.IsNullOrWhiteSpace(workingTextFile.Filepath)
+                    ? "New collection (not saved)"
+                    : workingTextFile.Filepath;
             }
         }
 

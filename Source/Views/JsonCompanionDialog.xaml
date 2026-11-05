@@ -1,0 +1,16 @@
+<Window x:Class="WatchedFilmsTracker.Source.Views.JsonCompanionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="JSON companion file" Width="440" SizeToContent="Height"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        WindowStyle="ToolWindow">
+    <StackPanel Margin="20">
+        <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <TextBox x:Name="CompanionPathTextBox" IsReadOnly="True" TextWrapping="Wrap"
+                 HorizontalAlignment="Stretch" Margin="0,0,0,16" Padding="5"
+                 VerticalScrollBarVisibility="Auto" MaxHeight="120" />
+        <Button x:Name="PrimaryButton" Click="PrimaryButton_Click" Padding="12,7" Margin="0,0,0,8" />
+        <Button x:Name="SecondaryButton" Click="SecondaryButton_Click" Padding="12,7" Margin="0,0,0,8" />
+        <Button Content="Cancel" IsCancel="True" Click="CancelButton_Click" Padding="12,7" />
+    </StackPanel>
+</Window>

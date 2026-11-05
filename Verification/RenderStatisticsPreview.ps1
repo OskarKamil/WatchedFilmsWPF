@@ -71,6 +71,10 @@ foreach ($name in @('Count by release year', 'Count by watched year', 'Average r
 $panel = [WatchedFilmsTracker.Source.Views.StatisticsPanel]::new()
 $panel.ShowCollection($file)
 $panel.FindName('StatisticsEditorExpander').IsExpanded = $true
+$deleted = [WatchedFilmsTracker.Source.Models.DeletedStatistic]::new()
+$deleted.Definition.Name = 'Count by collection type'
+$deleted.Definition.Sql = 'SELECT COUNT(*) AS total FROM records'
+$file.Metadata.RecentlyDeletedStatistics.Add($deleted)
 $table = [Data.DataTable]::new()
 [void]$table.Columns.Add('Release year', [int])
 [void]$table.Columns.Add('Count', [int])
@@ -84,14 +88,18 @@ $border.Background = [Windows.Media.Brushes]::White
 $border.Padding = [Windows.Thickness]::new(8)
 $border.Child = $panel
 try {
-    Save-Visual $border 416 (Join-Path $OutputDirectory 'statistics-panel-preview.png')
+    Save-Visual $border 340 (Join-Path $OutputDirectory 'statistics-panel-preview.png')
     $errorText = Get-VisualDescendants $panel | Where-Object { $_ -is [Windows.Controls.TextBlock] -and $_.Name -eq 'StatisticErrorText' } | Select-Object -First 1
     if ($null -eq $errorText -or $errorText.Visibility -ne [Windows.Visibility]::Collapsed) {
         throw 'Successful result tables must collapse the error text to remove its top gap.'
     }
     Write-Output 'PASS: Successful result tables collapse the empty error text above the grid.'
     $panel.FindName('StatisticsEditorExpander').IsExpanded = $false
-    Save-Visual $border 416 (Join-Path $OutputDirectory 'statistics-panel-folded-preview.png')
+    Save-Visual $border 340 (Join-Path $OutputDirectory 'statistics-panel-folded-preview.png')
+    $emptyFile = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new($films)
+    $emptyFile.Metadata.StoreInJson = $true
+    $panel.ShowCollection($emptyFile)
+    Save-Visual $border 340 (Join-Path $OutputDirectory 'statistics-empty-preview.png')
 }
 finally {
     $panel.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.FrameworkElement]::UnloadedEvent))
@@ -118,7 +126,10 @@ try {
     $information = $window.FindName('FileInformationExpander')
     $information.IsExpanded = $true
     Pump-Dispatcher
-    Save-Visual $information 400 (Join-Path $OutputDirectory 'file-information-preview.png')
+    Save-Visual $information 323 (Join-Path $OutputDirectory 'file-information-preview.png')
+    $window.FindName('TextBoxFilePath').Text = 'C:\Collections with spaces\' + ('longfolder' * 8) + '\My films.csv'
+    $window.FindName('TextBoxCompanionPath').Text = 'C:\Collections with spaces\' + ('longfolder' * 8) + '\My films.metadata.json'
+    Save-Visual $window.FindName('RightSidebar').Content 323 (Join-Path $OutputDirectory 'sidebar-preview.png')
 }
 finally {
     if ($window -ne $null) {

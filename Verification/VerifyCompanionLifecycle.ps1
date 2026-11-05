@@ -23,6 +23,10 @@ $testRoot = [string](Join-Path ([IO.Path]::GetTempPath()) ('WatchedFilmsTrackerC
 $csvPath = [string](Join-Path $testRoot 'collection.csv')
 $jsonPath = [IO.Path]::ChangeExtension($csvPath, '.metadata.json')
 $unrelatedPath = [string](Join-Path $testRoot 'notes.json')
+$deferredCsvPath = [string](Join-Path $testRoot 'first save.csv')
+$deferredJsonPath = [IO.Path]::ChangeExtension($deferredCsvPath, '.metadata.json')
+$csvOnlyPath = [string](Join-Path $testRoot 'csv only.csv')
+$csvOnlyJsonPath = [IO.Path]::ChangeExtension($csvOnlyPath, '.metadata.json')
 try {
     [IO.File]::WriteAllText($csvPath, "Title`tRelease Year`r`nOriginal title`t2020`r`n")
     [IO.File]::WriteAllText($unrelatedPath, '{"keep":true}')
@@ -72,15 +76,39 @@ try {
 
     $newFile = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new(
         [WatchedFilmsTracker.Source.Models.CommonCollections]::GetCommonCollectionByName('Films'))
-    Assert-Throws { $newFile.SetCompanionStorage($true) } 'An unsaved collection must choose its CSV path before companion creation.'
-    Assert-True (-not $newFile.Metadata.StoreInJson -and $newFile.CompanionFilePath -eq '') 'No-path failure does not enable persistence or invent a companion path.'
+    $newFile.SetCompanionStorage($true)
+    Assert-True ($newFile.Metadata.StoreInJson -and $newFile.HasUnsavedChanges) 'An unsaved collection remembers enabling JSON and becomes saveable.'
+    Assert-True ($newFile.CompanionFilePath -eq '' -and -not [IO.File]::Exists($deferredJsonPath)) 'Enabling JSON without a CSV path does not create a file or invent a path.'
+    $newFile.SaveFileAtLocation($deferredCsvPath)
+    Assert-True ([IO.File]::Exists($deferredCsvPath) -and [IO.File]::Exists($deferredJsonPath)) 'First save creates the remembered JSON companion beside the chosen CSV.'
+    Assert-True ($newFile.CompanionFilePath -eq $deferredJsonPath -and -not $newFile.HasUnsavedChanges) 'First save updates the companion path and clears dirty state.'
+
+    $csvOnly = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new(
+        [WatchedFilmsTracker.Source.Models.CommonCollections]::GetCommonCollectionByName('Films'))
+    $csvOnly.SetCompanionStorage($true)
+    $csvOnly.SetCompanionStorage($false)
+    $csvOnly.SaveFileAtLocation($csvOnlyPath)
+    Assert-True ([IO.File]::Exists($csvOnlyPath) -and -not [IO.File]::Exists($csvOnlyJsonPath)) 'Turning pending JSON off before first save creates only the CSV.'
+
+    [WatchedFilmsTracker.Source.Managers.SettingsManager]::JsonForNewFiles = 'Yes'
+    $alwaysJson = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new(
+        [WatchedFilmsTracker.Source.Models.CommonCollections]::GetCommonCollectionByName('Films'))
+    Assert-True ($alwaysJson.Metadata.StoreInJson -and $alwaysJson.CompanionFilePath -eq '') 'The Yes preference enables deferred JSON for new collections.'
+    [WatchedFilmsTracker.Source.Managers.SettingsManager]::JsonForNewFiles = 'No'
+    $neverJson = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new(
+        [WatchedFilmsTracker.Source.Models.CommonCollections]::GetCommonCollectionByName('Films'))
+    Assert-True (-not $neverJson.Metadata.StoreInJson) 'The No preference leaves new collections as CSV only.'
+    [WatchedFilmsTracker.Source.Managers.SettingsManager]::JsonForNewFiles = 'AskEachTime'
+    $askJson = [WatchedFilmsTracker.Source.ManagingFilmsFile.CollectionFile]::new(
+        [WatchedFilmsTracker.Source.Models.CommonCollections]::GetCommonCollectionByName('Films'))
+    Assert-True (-not $askJson.Metadata.StoreInJson) 'Ask each time waits for the new-collection action to supply the user choice.'
 }
 finally {
     $resolvedRoot = [IO.Path]::GetFullPath($testRoot)
     if (-not $resolvedRoot.StartsWith([IO.Path]::GetFullPath([IO.Path]::GetTempPath()), [StringComparison]::OrdinalIgnoreCase)) {
         throw 'Refusing cleanup outside the system temporary directory.'
     }
-    foreach ($path in @($csvPath, $jsonPath, $unrelatedPath)) {
+    foreach ($path in @($csvPath, $jsonPath, $unrelatedPath, $deferredCsvPath, $deferredJsonPath, $csvOnlyPath, $csvOnlyJsonPath)) {
         if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path }
     }
     Remove-Item -LiteralPath $resolvedRoot

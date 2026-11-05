@@ -16,17 +16,18 @@ using WatchedFilmsTracker.Source.ManagingDatagrid;
 using WatchedFilmsTracker.Source.ManagingFilmsFile;
 using WatchedFilmsTracker.Source.ManagingRecords;
 using WatchedFilmsTracker.Source.Models;
+using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.BackgroundServices.CheckForUpdateService;
 
 namespace WatchedFilmsTracker
 {
     public partial class MainWindow : Window
     {
-        private const string SearchBoxDefaultText = "Filter results";
         private SearchManager searchManager;
         private MainWindowViewModel viewModel;
         private bool isApplyingSettings = true;
         private bool isUpdatingFileInformation;
+        private bool isCheckingForExit;
 
         public MainWindow()
         {
@@ -34,8 +35,6 @@ namespace WatchedFilmsTracker
             InitializeComponent(); // must be first line always
             viewModel = new MainWindowViewModel();
             this.DataContext = viewModel;
-
-            searchTextBox.Text = SearchBoxDefaultText;
 
             Closing += MainWindow_Closing; // override closing window
 
@@ -104,7 +103,7 @@ namespace WatchedFilmsTracker
                 e.NewWorkingTextFile.FileSaved += WorkingTextFile_FileSaved;
             };
 
-            OpenLastOpenedFiles(SettingsManager.LastPath);
+            RestorePreviousSession();
             UpdateCurrentCollectionUi();
 
             //SNAPSHOT SERVICE
@@ -221,7 +220,10 @@ namespace WatchedFilmsTracker
             defaultDateBox.IsChecked = SettingsManager.DefaultDateIsToday;
             checkboxCheckForUpdatesStartup.IsChecked = SettingsManager.CheckUpdateOnStartup;
             checkboxScrollLastPosition.IsChecked = SettingsManager.ScrollLastPosition;
-            checkboxReopenLastFiles.IsChecked = SettingsManager.ReopenLastFile;
+            checkboxReopenLastFiles.IsChecked = SettingsManager.RestorePreviousSession;
+            JsonForNewFilesYesRadioButton.IsChecked = SettingsManager.JsonForNewFiles == NewFileJsonPreference.Yes;
+            JsonForNewFilesNoRadioButton.IsChecked = SettingsManager.JsonForNewFiles == NewFileJsonPreference.No;
+            JsonForNewFilesAskRadioButton.IsChecked = SettingsManager.JsonForNewFiles == NewFileJsonPreference.AskEachTime;
             this.Left = SettingsManager.WindowLeft;
             this.Top = SettingsManager.WindowTop;
             this.Width = SettingsManager.WindowWidth;
@@ -269,26 +271,23 @@ namespace WatchedFilmsTracker
                 bool enable = UseJsonCompanionCheckBox.IsChecked == true;
                 if (enable)
                 {
-                    // A companion needs the saved collection's name and directory.
-                    if (!collectionFile.DoesExistOnDisk() && !collectionFile.SaveAs())
-                        return;
-
                     collectionFile.SetCompanionStorage(enabled: true);
                 }
                 else
                 {
-                    MessageBoxResult answer = MessageBoxResult.No;
+                    JsonCompanionDialog.Choice answer = JsonCompanionDialog.Choice.Secondary;
                     if (collectionFile.CompanionFileExists)
                     {
-                        answer = MessageBox.Show(this,
-                            $"Delete the JSON companion file?\n\n{collectionFile.CompanionFilePath}\n\n" +
-                            "Yes deletes it. No keeps the file and turns off JSON storage. Cancel leaves JSON enabled.",
-                            "JSON companion file", MessageBoxButton.YesNoCancel, MessageBoxImage.Question,
-                            MessageBoxResult.No);
+                        var dialog = new JsonCompanionDialog(creatingNewCollection: false, collectionFile.CompanionFilePath)
+                        {
+                            Owner = this
+                        };
+                        dialog.ShowDialog();
+                        answer = dialog.Result;
                     }
 
-                    if (answer != MessageBoxResult.Cancel)
-                        collectionFile.SetCompanionStorage(enabled: false, deleteExisting: answer == MessageBoxResult.Yes);
+                    if (answer != JsonCompanionDialog.Choice.Cancel)
+                        collectionFile.SetCompanionStorage(enabled: false, deleteExisting: answer == JsonCompanionDialog.Choice.Primary);
                 }
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
@@ -371,7 +370,19 @@ namespace WatchedFilmsTracker
 
         private void CheckBoxReopenFilesLastSession(object sender, RoutedEventArgs e)
         {
-            SettingsManager.ReopenLastFile = checkboxReopenLastFiles.IsChecked == true;
+            SettingsManager.RestorePreviousSession = checkboxReopenLastFiles.IsChecked == true;
+        }
+
+        private void JsonForNewFilesPreference_Click(object sender, RoutedEventArgs e)
+        {
+            if (isApplyingSettings)
+                return;
+
+            SettingsManager.JsonForNewFiles = JsonForNewFilesYesRadioButton.IsChecked == true
+                ? NewFileJsonPreference.Yes
+                : JsonForNewFilesNoRadioButton.IsChecked == true
+                    ? NewFileJsonPreference.No
+                    : NewFileJsonPreference.AskEachTime;
         }
 
         private void CheckBoxUpdateStartup(object sender, RoutedEventArgs e)
@@ -465,31 +476,64 @@ namespace WatchedFilmsTracker
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            string? lastCollectionPath = GetCurrentlyOpenedTabWorkingTextFile()?.Filepath;
-            if (string.IsNullOrWhiteSpace(lastCollectionPath))
+            if (e.Cancel)
+                return;
+            if (isCheckingForExit)
             {
-                lastCollectionPath = OpenedFilesManager.OpenedFiles
-                    .Select(file => file.Filepath)
-                    .LastOrDefault(path => !string.IsNullOrWhiteSpace(path))
-                    ?? SettingsManager.LastPath;
+                e.Cancel = true;
+                return;
             }
-            foreach (CollectionFile collectionFile in OpenedFilesManager.OpenedFiles.ToList())
+
+            isCheckingForExit = true;
+            CollectionFile? selectedBeforeClose = GetCurrentlyOpenedTabWorkingTextFile();
+            CollectionFile[] files = OpenedFilesManager.OpenedFiles.ToArray();
+            try
             {
-                if (!collectionFile.TryToCloseFile())
+                foreach (CollectionFile collectionFile in files)
                 {
-                    e.Cancel = true;
-                    return;
+                    if (!collectionFile.DataGrid.CommitEdit(DataGridEditingUnit.Cell, true) ||
+                        !collectionFile.DataGrid.CommitEdit(DataGridEditingUnit.Row, true))
+                    {
+                        OpenedFilesManager.SelectFile(collectionFile);
+                        e.Cancel = true;
+                        return;
+                    }
+
+                    if (!collectionFile.HasUnsavedChanges)
+                        continue;
+
+                    OpenedFilesManager.SelectFile(collectionFile);
+                    if (!collectionFile.TryPrepareForClose(useAutoSave: false, owner: this))
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
                 }
+
+                // Capture paths after Save As supplies names for saved drafts. Keep tabs
+                // and declined edits intact until every close confirmation succeeds.
+                SettingsManager.SessionFilePaths = files.Select(file => file.Filepath).ToArray();
+                SettingsManager.ActiveSessionFilePath = !string.IsNullOrWhiteSpace(selectedBeforeClose?.Filepath)
+                    ? selectedBeforeClose.Filepath
+                    : SettingsManager.SessionFilePaths.LastOrDefault() ?? string.Empty;
+                SettingsManager.LastPath = SettingsManager.ActiveSessionFilePath;
+                SettingsManager.WindowLeft = Left;
+                SettingsManager.WindowTop = Top;
+                SettingsManager.WindowWidth = Width;
+                SettingsManager.WindowHeight = Height;
+                SaveSidebarExpansionSettings();
+                SettingsManager.SaveToConfFile();
             }
-
-            SettingsManager.LastPath = lastCollectionPath;
-            SettingsManager.WindowLeft = Left;
-            SettingsManager.WindowTop = Top;
-            SettingsManager.WindowWidth = Width;
-            SettingsManager.WindowHeight = Height;
-            SaveSidebarExpansionSettings();
-
-            SettingsManager.SaveToConfFile();
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
+            {
+                e.Cancel = true;
+                MessageBox.Show(this, $"Could not finish closing the application: {exception.Message}",
+                    "Close application", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            finally
+            {
+                isCheckingForExit = false;
+            }
         }
 
         private async void ManualCheckForUpdate(object sender, RoutedEventArgs e)
@@ -515,7 +559,21 @@ namespace WatchedFilmsTracker
 
                 menuItem.Click += (sender, e) =>
                 {
+                    bool useJson = SettingsManager.JsonForNewFiles == NewFileJsonPreference.Yes;
+                    if (SettingsManager.JsonForNewFiles == NewFileJsonPreference.AskEachTime)
+                    {
+                        var dialog = new JsonCompanionDialog(creatingNewCollection: true) { Owner = this };
+                        dialog.ShowDialog();
+                        if (dialog.Result == JsonCompanionDialog.Choice.Cancel)
+                            return;
+                        useJson = dialog.Result == JsonCompanionDialog.Choice.Primary;
+                    }
+
                     OpenedFilesManager.CreateEmptyWorkingFile(commonCollection);
+                    CollectionFile newCollection = OpenedFilesManager.OpenedFiles.Last();
+                    newCollection.SetCompanionStorage(useJson);
+                    if (useJson && !newCollection.HasUnsavedChanges)
+                        newCollection.NotifyMetadataChanged();
                 };
                 contextMenu.Items.Add(menuItem);
             }
@@ -550,20 +608,35 @@ namespace WatchedFilmsTracker
             }
         }
 
-        private void OpenLastOpenedFiles(string? newFilePath)
+        private void RestorePreviousSession()
         {
-            if (!SettingsManager.ReopenLastFile || string.IsNullOrWhiteSpace(newFilePath) || !File.Exists(newFilePath))
+            if (!SettingsManager.RestorePreviousSession)
                 return;
 
-            try
+            string[] paths = SettingsManager.SessionFilePaths.ToArray();
+            string activePath = SettingsManager.ActiveSessionFilePath;
+            List<string> errors = new();
+            foreach (string path in paths)
             {
-                OpenedFilesManager.CreateNewWorkingFile(newFilePath);
+                if (!File.Exists(path))
+                    continue;
+
+                try
+                {
+                    OpenedFilesManager.CreateNewWorkingFile(path);
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or FormatException)
+                {
+                    errors.Add($"{path}\n{exception.Message}");
+                }
             }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or FormatException)
-            {
-                MessageBox.Show(this, $"Could not reopen the last collection: {exception.Message}",
-                    "Open collection", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+
+            if (OpenedFilesManager.FindOpenFile(activePath) is CollectionFile activeFile)
+                OpenedFilesManager.SelectFile(activeFile);
+
+            if (errors.Count > 0)
+                MessageBox.Show(this, "Some files from the previous session could not be reopened:\n\n" + string.Join("\n\n", errors),
+                    "Restore previous session", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OpenLocalFolderButton_Click(object sender, RoutedEventArgs e)
@@ -645,33 +718,8 @@ namespace WatchedFilmsTracker
 
         private void searchClearButton_ClearText(object sender, RoutedEventArgs e)
         {
-            searchTextBox.Text = null;
-            SearchTextBox_LostFocus(sender, e);
-            searchManager?.SearchFilms();
-        }
-
-        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (searchTextBox.Text == "Film title, year, specific words")
-            {
-                searchTextBox.Text = string.Empty;
-                // Reset to default font style when the user starts typing
-                searchTextBox.Foreground = new SolidColorBrush(Colors.Black);
-                searchTextBox.FontStyle = FontStyles.Normal;
-                searchTextBox.FontFamily = new FontFamily("Segoe UI");
-            }
-        }
-
-        private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(searchTextBox.Text))
-            {
-                searchTextBox.Text = "Film title, year, specific words";
-                // Reapply the placeholder style
-                searchTextBox.Foreground = new SolidColorBrush(Color.FromRgb(120, 120, 120)); // Bleak color
-                searchTextBox.FontStyle = FontStyles.Italic;
-                searchTextBox.FontFamily = new FontFamily("Segoe UI");
-            }
+            searchTextBox.Clear();
+            searchTextBox.Focus();
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -680,7 +728,7 @@ namespace WatchedFilmsTracker
             {
                 return;
             }
-            if (searchTextBox.Text != SearchBoxDefaultText && searchTextBox.Text.Length > 0)
+            if (searchTextBox.Text.Length > 0)
             {
                 clearSearchButton.Visibility = Visibility.Visible;
             }
@@ -703,8 +751,12 @@ namespace WatchedFilmsTracker
         private void UpdateButtons()
         {
             ButtonStateManager.UpdateAllButton(GetCurrentlyOpenedTabWorkingTextFile());
-            buttonSaveAll.IsEnabled = OpenedFilesManager.OpenedFiles.Any(file => file.HasUnsavedChanges);
+            UpdateSaveAllButton();
         }
+
+        private void UpdateSaveAllButton() =>
+            ButtonManager.SetButtonsState(new List<Button> { buttonSaveAll },
+                OpenedFilesManager.OpenedFiles.Any(file => file.HasUnsavedChanges));
 
         private void UpdateCommonCollectionElements(object? sender, CollectionFile.CommonCollectionTypeChangedEventArgs? e)
         {
@@ -759,11 +811,11 @@ namespace WatchedFilmsTracker
 
         private void WorkingTextFile_UnsavedChangesChanged(object? sender, EventArgs e)
         {
+            UpdateSaveAllButton();
             if (!ReferenceEquals(sender, GetCurrentlyOpenedTabWorkingTextFile()))
                 return;
 
             ButtonStateManager.UpdateUnsavedChanges(GetCurrentlyOpenedTabWorkingTextFile());
-            buttonSaveAll.IsEnabled = OpenedFilesManager.OpenedFiles.Any(file => file.HasUnsavedChanges);
             UpdateStageTitle();
         }
 

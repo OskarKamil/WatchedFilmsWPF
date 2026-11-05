@@ -1,8 +1,16 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
 
 namespace WatchedFilmsTracker.Source.Managers
 {
+    public enum NewFileJsonPreference
+    {
+        Yes,
+        No,
+        AskEachTime
+    }
+
     /// <summary>
     /// Manages application settings.
     ///
@@ -41,6 +49,15 @@ namespace WatchedFilmsTracker.Source.Managers
     /// </summary>
     public static class SettingsManager
     {
+        public static NewFileJsonPreference JsonForNewFiles
+        {
+            get => settings.TryGetValue("json_for_new_files", out string? value) &&
+                   Enum.TryParse(value, out NewFileJsonPreference preference) && Enum.IsDefined(preference)
+                ? preference
+                : NewFileJsonPreference.AskEachTime;
+            set => settings["json_for_new_files"] = value.ToString();
+        }
+
         public static bool AutoSave
         {
             get => bool.Parse(settings["auto_save"]);
@@ -59,10 +76,49 @@ namespace WatchedFilmsTracker.Source.Managers
             set => settings["default_date_is_today"] = value.ToString();
         }
 
+        public static bool RestorePreviousSession
+        {
+            get => settings.TryGetValue("restore_previous_session", out string? value) &&
+                   bool.TryParse(value, out bool enabled) && enabled;
+            set => settings["restore_previous_session"] = value.ToString();
+        }
+
+        // Retain the former API while migrating its config key on load.
         public static bool ReopenLastFile
         {
-            get => bool.Parse(settings["reopen_last_file"]);
-            set => settings["reopen_last_file"] = value.ToString();
+            get => RestorePreviousSession;
+            set => RestorePreviousSession = value;
+        }
+
+        /// <summary>
+        /// Saved tabs in their previous order. An absent list migrates the old last-file
+        /// setting; an explicit empty list represents a session with no saved files.
+        /// </summary>
+        public static IReadOnlyList<string> SessionFilePaths
+        {
+            get
+            {
+                if (!settings.TryGetValue("session_file_paths", out string? value))
+                    return NormalizeSessionPaths(new[] { LastPath });
+
+                try
+                {
+                    return NormalizeSessionPaths(JsonSerializer.Deserialize<string[]>(value) ?? Array.Empty<string>());
+                }
+                catch (JsonException exception)
+                {
+                    Debug.WriteLine($"Invalid session file list: {exception.Message}");
+                    return Array.Empty<string>();
+                }
+            }
+            set => settings["session_file_paths"] = JsonSerializer.Serialize(
+                NormalizeSessionPaths(value ?? Array.Empty<string>()));
+        }
+
+        public static string ActiveSessionFilePath
+        {
+            get => settings.TryGetValue("active_session_file_path", out string? value) ? value : LastPath;
+            set => settings["active_session_file_path"] = NormalizeSessionPaths(new[] { value }).FirstOrDefault() ?? string.Empty;
         }
 
         public static bool FileInformationExpanded
@@ -130,10 +186,12 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public static void LoadDefaultSettings()
         {
+            settings.Clear();
             AutoSave = false;
             CheckUpdateOnStartup = false;
             DefaultDateIsToday = true;
-            ReopenLastFile = false;
+            RestorePreviousSession = false;
+            JsonForNewFiles = NewFileJsonPreference.AskEachTime;
             FileInformationExpanded = false;
             SettingsExpanded = true;
             TableStructureExpanded = true;
@@ -151,6 +209,8 @@ namespace WatchedFilmsTracker.Source.Managers
             if (File.Exists(CONFIG_FILEPATH))
             {
                 var lines = File.ReadAllLines(CONFIG_FILEPATH);
+                bool? legacyReopenLastFile = null;
+                bool hasRestorePreference = false;
                 foreach (var line in lines)
                 {
                     // Split into two parts only, at the first occurrence of '='
@@ -162,6 +222,42 @@ namespace WatchedFilmsTracker.Source.Managers
 
                         switch (key)
                         {
+                            case "restore_previous_session":
+                                if (bool.TryParse(value, out bool restoreSession))
+                                {
+                                    RestorePreviousSession = restoreSession;
+                                    hasRestorePreference = true;
+                                }
+                                else
+                                    Debug.WriteLine($"Invalid bool value for {key}: {value}");
+                                break;
+
+                            case "reopen_last_file":
+                                if (bool.TryParse(value, out bool reopenLastFile))
+                                    legacyReopenLastFile = reopenLastFile;
+                                else
+                                    Debug.WriteLine($"Invalid bool value for {key}: {value}");
+                                break;
+
+                            case "session_file_paths":
+                                // Preserve the key even if malformed: never revive a stale
+                                // legacy last_path when an explicit session list is present.
+                                settings[key] = value;
+                                SessionFilePaths = SessionFilePaths;
+                                break;
+
+                            case "active_session_file_path":
+                                ActiveSessionFilePath = value;
+                                break;
+
+                            case "json_for_new_files":
+                                if (Enum.TryParse(value, ignoreCase: true, out NewFileJsonPreference preference) &&
+                                    Enum.IsDefined(preference))
+                                    JsonForNewFiles = preference;
+                                else
+                                    Debug.WriteLine($"Invalid JSON preference for {key}: {value}");
+                                break;
+
                             // DOUBLE
                             case "window_height":
                             case "window_left":
@@ -181,7 +277,6 @@ namespace WatchedFilmsTracker.Source.Managers
                             case "auto_save":
                             case "check_update_on_startup":
                             case "default_date_is_today":
-                            case "reopen_last_file":
                             case "file_information_expanded":
                             case "settings_expanded":
                             case "table_structure_expanded":
@@ -208,6 +303,8 @@ namespace WatchedFilmsTracker.Source.Managers
                         }
                     }
                 }
+                if (!hasRestorePreference && legacyReopenLastFile.HasValue)
+                    RestorePreviousSession = legacyReopenLastFile.Value;
             }
         }
 
@@ -228,6 +325,29 @@ namespace WatchedFilmsTracker.Source.Managers
         private static string CleanKey(string key)
         {
             return key.Trim().ToLower().Replace(" ", "_");
+        }
+
+        private static IReadOnlyList<string> NormalizeSessionPaths(IEnumerable<string> paths)
+        {
+            var normalized = new List<string>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string? path in paths)
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    continue;
+
+                try
+                {
+                    string fullPath = Path.GetFullPath(path);
+                    if (seen.Add(fullPath))
+                        normalized.Add(fullPath);
+                }
+                catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
+                {
+                    Debug.WriteLine($"Invalid session path: {exception.Message}");
+                }
+            }
+            return normalized.ToArray();
         }
     }
 }
