@@ -2,8 +2,8 @@
 {
     public static class CommonCollections
     {
-        public static Dictionary<string, CommonCollectionType> CommonCollectionsSet { get; } = new Dictionary<string, CommonCollectionType>();
-        private static List<CommonCollectionType> _sortedCollections;
+        public static Dictionary<string, CommonCollectionType> CommonCollectionsSet { get; } = new(StringComparer.OrdinalIgnoreCase);
+        private static List<CommonCollectionType>? _sortedCollections;
 
         static CommonCollections()
         {
@@ -43,18 +43,27 @@
             return _sortedCollections;
         }
 
-        public static CommonCollectionType GetCommonCollectionByName(string name)
+        public static CommonCollectionType GetCommonCollectionByName(string name) => Resolve(name);
+
+        /// <summary>Retains future/custom type names and provides generic defaults for them.</summary>
+        public static CommonCollectionType Resolve(string? name)
         {
-            if (CommonCollectionsSet.ContainsKey(name))
-                return CommonCollectionsSet[name];
-            return null;
+            if (string.IsNullOrWhiteSpace(name))
+                return CommonCollectionsSet[nameof(CollectionType.Other)];
+
+            if (CommonCollectionsSet.TryGetValue(name, out CommonCollectionType? known))
+                return known;
+
+            return new CommonCollectionType
+            {
+                Name = name,
+                DefaultColumnHeaders = GetColumnHeaders(CollectionType.Other),
+            };
         }
 
         public static CommonCollectionType GetCommonCollectionByName(CollectionType name)
         {
-            if (CommonCollectionsSet.ContainsKey(name.ToString()))
-                return CommonCollectionsSet[name.ToString()];
-            return null;
+            return Resolve(name.ToString());
         }
 
         private static List<string> GetColumnHeaders(CollectionType type)

@@ -82,6 +82,7 @@ namespace WatchedFilmsTracker.Source.DataGridHelpers
         {
             // Ensure the DataGrid has no pre-existing columns
             DataGrid.Columns.Clear();
+            ColumnsAndDataTypes.Clear();
 
             for (int i = 0; i < columns.Count; i++)
             {

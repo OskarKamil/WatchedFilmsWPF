@@ -17,6 +17,10 @@ Watched Films Tracker is a comprehensive application designed to help film enthu
 - **Search:** Utilise the search bar to effortlessly find a film by title, release year, or any other film detail.
 - **Portability:** Store your list of films within the program folder, making the application a portable choice.
 
+Collection metadata and saved SQL statistics use a JSON companion file. See [collection files and statistics](docs/architecture.md) for the format, refresh settings, and project responsibilities.
+
+See [repository files and verification](docs/repository.md) for what belongs in Git and how to run the developer checks.
+
 ## Screenshots
 
 ![Main page stable version](External/screenshots/0.14-windows-theme-colour.png)

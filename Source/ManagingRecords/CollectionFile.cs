@@ -6,38 +6,25 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using WatchedFilmsTracker.Source.Buttons;
-using WatchedFilmsTracker.Source.Csv;
 using WatchedFilmsTracker.Source.DataGridHelpers;
 using WatchedFilmsTracker.Source.GUIimprovements;
 using WatchedFilmsTracker.Source.Managers;
 using WatchedFilmsTracker.Source.Models;
-using WatchedFilmsTracker.Source.RecordValueValidator;
-using WatchedFilmsTracker.Source.Services.Csv;
-using WatchedFilmsTracker.Source.Statistics;
+using WatchedFilmsTracker.Source.Persistence;
+using WatchedFilmsTracker.Source.Persistence.Json;
 using WatchedFilmsTracker.Source.Views;
 using static WatchedFilmsTracker.Source.Models.CommonCollections;
 
 namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 {
     /// <summary>
-    /// The <c>CollectionFile</c> class is responsible for managing the operations related to a text file
-    /// that contains a collection of records. It handles reading from and writing to the file, managing
-    /// the state of the records, and updating the UI components associated with the records.
-    ///
-    /// This class provides functionalities to:
-    /// - Load records from a text file and populate a DataGrid.
-    /// - Track changes to the records and manage unsaved changes.
-    /// - Save records back to the text file.
-    /// - Handle various events related to the collection of records and the UI.
-    ///
-    /// The class also maintains metadata about the file and provides methods to interact with the records
-    /// and their representation in the UI.
+    /// Owns an open collection's editing lifecycle and change notifications.
+    /// Persistence belongs to CollectionFileStore; SQL execution and refresh state
+    /// belong to the statistics service and session.
     /// </summary>
     public class CollectionFile
     {
         public CollectionOfRecords CollectionOfRecords { get; set; }
-
-        public CollectionStatistics CollectionStatistics { get; set; }
 
         public CommonCollectionType CommonCollectionType
         {
@@ -47,6 +34,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                 if (_commonCollectionType != value)
                 {
                     _commonCollectionType = value;
+                    Metadata.CollectionType = value.Name;
                     CommonCollectionTypeChanged?.Invoke(this, new CommonCollectionTypeChangedEventArgs(_commonCollectionType));
                 }
             }
@@ -58,7 +46,29 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public Grid Grid { get; set; }
 
-        public Metadata Metadata { get; set; }
+        public Metadata Metadata { get; private set; } = new();
+
+        public string CompanionFilePath => string.IsNullOrWhiteSpace(Filepath)
+            ? string.Empty
+            : MetadataStore.GetSidecarPath(Filepath);
+
+        public bool CompanionFileExists => File.Exists(CompanionFilePath);
+
+        /// <summary>The delimiter used on subsequent saves; changing it never reparses live records.</summary>
+        public string Delimiter
+        {
+            get => DelimiterOptions.IsSupported(Metadata.Delimiter) ? Metadata.Delimiter! : "\t";
+            set
+            {
+                if (!DelimiterOptions.IsSupported(value))
+                    throw new ArgumentException("Choose a supported delimiter.", nameof(value));
+                if (Delimiter == value)
+                    return;
+
+                Metadata.Delimiter = value;
+                NotifyMetadataChanged();
+            }
+        }
 
         /// <summary>
         /// Indicates whether the content has changed since the last load, save or revert.
@@ -78,11 +88,13 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             }
         }
 
-        public string Filepath;
+        public string Filepath = string.Empty;
 
         private CommonCollectionType _commonCollectionType;
 
-        private FilmRecordPropertyValidator _filmRecordPropertyValidator;
+        private readonly CollectionFileStore fileStore = new();
+
+        private bool isLoading;
 
         private bool _hasUnsavedChanges;
 
@@ -111,9 +123,6 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             ReadTextFile();
 
             DataGrid.ItemsSource = GetObservableCollectionOfRecords();
-            CollectionOfRecords.DataGridManager.BuildColumnsFromList(CollectionOfRecords.Columns);
-            CollectionOfRecords.CreateColumnWithIds();
-
             AfterFileHasBeenLoaded();
         }
 
@@ -121,6 +130,12 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         /// Raised for every content mutation, including subsequent mutations while the file is already dirty.
         /// </summary>
         public event EventHandler? ContentChanged;
+
+        public event EventHandler? MetadataChanged;
+
+        public event EventHandler? MetadataReplaced;
+
+        public event EventHandler? FileSaved;
 
         public event EventHandler<CommonCollectionTypeChangedEventArgs>? CommonCollectionTypeChanged;
 
@@ -138,21 +153,17 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             DataGrid.AlternatingRowBackground = new SolidColorBrush(SystemAccentColour.GetBrightAccentColourRGB());
 
-            DataGrid.CellEditEnding += CellEditEnding;
-
             SettingsManager.LastPath = Filepath;
-
-            CollectionStatistics = new CollectionStatistics(CollectionOfRecords);
-            CollectionStatistics.DataGridManager = CollectionOfRecords.DataGridManager;
 
             if (SettingsManager.ScrollLastPosition)
                 ScrollToBottomOfList();
 
-            DataGrid.SelectedCellsChanged += (obs, args) =>
-            {
-                ButtonStateManager.UpdateSelectedCells(this);
-            };
+            DataGrid.SelectedCellsChanged -= SelectedCellsChanged;
+            DataGrid.SelectedCellsChanged += SelectedCellsChanged;
         }
+
+        private void SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e) =>
+            ButtonStateManager.UpdateSelectedCells(this);
 
         private void MarkAsModified()
         {
@@ -162,101 +173,21 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public DataGrid CreateGridInTheUI()
         {
-            Grid grid = new Grid
-            {
-                Name = "grid"
-            };
-            Grid = grid;
-
-            DataGrid dataGrid = new DataGrid
-            {
-                Name = "dataGrid",
-                AutoGenerateColumns = false,
-                CanUserAddRows = false,
-                VerticalContentAlignment = VerticalAlignment.Stretch,
-                ColumnWidth = DataGridLength.Auto,
-                CanUserDeleteRows = false,
-                AlternatingRowBackground = new SolidColorBrush(Color.FromRgb(0xD6, 0xE2, 0xFF)),
-                AlternationCount = 4,
-                CanUserResizeRows = false,
-                SelectionUnit = DataGridSelectionUnit.CellOrRowHeader,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Visible
-            };
-
-            // Set ScrollViewer properties on the DataGrid
-            ScrollViewer.SetCanContentScroll(dataGrid, true);
-            ScrollViewer.SetVerticalScrollBarVisibility(dataGrid, ScrollBarVisibility.Auto);
-            ScrollViewer.SetHorizontalScrollBarVisibility(dataGrid, ScrollBarVisibility.Auto);
-
-            // Add the DataGrid to the Grid
-            grid.Children.Add(dataGrid);
-
-            return dataGrid;
+            var view = CollectionGridFactory.Create();
+            Grid = view.Container;
+            return view.RecordsGrid;
         }
 
-        //        // Search film on the internet menu item
-        //        MenuItem searchFilmOnTheInternetMenuItem = new MenuItem()
-        //        {
-        //            Header = "Search film on the internet",
-        //            Icon = new Image()
-        //            {
-        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/searchInternetForFilm.png"))
-        //            }
-        //        };
-        //        searchFilmOnTheInternetMenuItem.Click += (sender, args) =>
-        //        {
-        //            string query = Uri.EscapeUriString($"{filmRecord.EnglishTitle} {filmRecord.ReleaseYear}");
-        //            string url = $"https://www.google.com/search?q={query}";
-        //            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        //        };
-        //        contextMenu.Items.Add(searchFilmOnTheInternetMenuItem);
-        public bool DoesExistInLocalMyDataFolder()
-        {
-            if (string.IsNullOrEmpty(Filepath))
+        public bool DoesExistInLocalMyDataFolder() =>
+            !string.IsNullOrEmpty(Filepath) &&
+            string.Equals(Path.GetFileName(Path.GetDirectoryName(Filepath)), "MyData", StringComparison.OrdinalIgnoreCase);
 
-            {
-                return false;
-            }
-            else
-            {
-                string filePath = Directory.GetParent(Filepath).Name;
-                if (filePath == "MyData")
-                    return true;
-                else
-                    return true;
-            }
-        }
-
-        public bool DoesExistOnDisk()
-        {
-            if (string.IsNullOrEmpty(Filepath))
-
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
+        public bool DoesExistOnDisk() => File.Exists(Filepath);
 
         public DataGridManager GetDataGridManager()
         {
             return CollectionOfRecords.DataGridManager;
         }
-
-        //        // Delete record menu item
-        //        MenuItem deleteRecordMenuItem = new MenuItem()
-        //        {
-        //            Header = "Delete record",
-        //            Icon = new Image()
-        //            {
-        //                Source = new BitmapImage(new Uri("pack://application:,,,/Assets/ButtonIcons/deleteRecord.png"))
-        //            }
-        //        };
-        //        deleteRecordMenuItem.Click += (sender, args) => this.CollectionOfFilms.DeleteRecordFromList(filmRecord);
-        //        contextMenu.Items.Add(deleteRecordMenuItem);
 
         public ObservableCollection<RecordModel> GetObservableCollectionOfRecords()
         {
@@ -278,64 +209,41 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             return DataGrid.SelectedCells.Count > 0;
         }
 
-        //        // Create context menu
-        //        ContextMenu contextMenu = new ContextMenu();
-        public void NewFile(CollectionType collectionType)
-        {
-        }
-
-        //public void AddContextMenuForTheItem(DataGrid dataGrid)
-        //{
-        //    dataGrid.LoadingRow += (s, e) =>
-        //    {
-        //        FilmRecord? filmRecord = e.Row.DataContext as FilmRecord;
-        //        if (filmRecord == null) return;
         public void OpenFilepath(string? newFilePath)
         {
-            if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
-            {
-                CollectionOfRecords = new CollectionOfRecords(this);
-                ReadTextFile();
-            }
-            else
-            {
-                // CollectionOfRecords = new CollectionOfRecords(newFilePath, this);
-                //CollectionOfRecords.ReadTextFile(FilePath);
-            }
+            if (string.IsNullOrWhiteSpace(newFilePath) || !File.Exists(newFilePath))
+                return;
+
+            Filepath = newFilePath;
+            ReadTextFile();
             AfterFileHasBeenLoaded();
         }
 
         public void OpenFilepathButSaveChangesFirst(string? newFilePath)
         {
-            if (string.IsNullOrEmpty(newFilePath) || !File.Exists(newFilePath))
-            {
-                if (TryToCloseFile())
-                {
-                    CollectionOfRecords = new CollectionOfRecords(this);
-                    ReadTextFile();
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
-            {
-                CollectionOfRecords = new CollectionOfRecords(this);
-                ReadTextFile();
-            }
-            AfterFileHasBeenLoaded();
+            if (HasUnsavedChanges && !Save())
+                return;
+            OpenFilepath(newFilePath);
         }
 
         public void ReadTextFile()
         {
-            CSVreader reader = new CSVreader(Filepath);
-            reader.ReadFile();
-            Metadata = reader.Metadata;
+            isLoading = true;
+            try
+            {
+                var document = fileStore.Load(Filepath);
+                Metadata = document.Metadata;
+                ApplyMetadataCollectionType();
+                CollectionOfRecords.ReplaceContents(
+                    document.Data.Columns.Select(header => new DataGridTextColumn { Header = header }).ToList(),
+                    document.Data.Rows.Select(row => row.ToList()).ToList());
+            }
+            finally
+            {
+                isLoading = false;
+            }
 
-            CollectionOfRecords.Columns = reader.GetColumns();
-
-            CollectionOfRecords.PopulateListWithData(reader.GetListOfRecords(), "\t");
+            MetadataReplaced?.Invoke(this, EventArgs.Empty);
         }
 
         /// <returns>
@@ -354,6 +262,7 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
             WriteTextFile();
             HasUnsavedChanges = false;
+            FileSaved?.Invoke(this, EventArgs.Empty);
 
             return true;
         }
@@ -379,8 +288,8 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
             if (saveFileDialog.ShowDialog() == true)
             {
                 WriteTextFile(saveFileDialog.FileName);
-                // OpenFilepath(saveFileDialog.FileName);
                 HasUnsavedChanges = false;
+                FileSaved?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             return false;
@@ -397,17 +306,24 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
                     .Select(header => new DataGridTextColumn { Header = header })
                     .ToList();
 
-                CollectionOfRecords.ReplaceContents(defaultColumns, new List<List<string>>());
+                isLoading = true;
+                try
+                {
+                    Metadata = new Metadata { CollectionType = CommonCollectionType.Name };
+                    CollectionOfRecords.ReplaceContents(defaultColumns, new List<List<string>>());
+                }
+                finally
+                {
+                    isLoading = false;
+                }
+                MetadataReplaced?.Invoke(this, EventArgs.Empty);
             }
             else
             {
                 if (!File.Exists(Filepath))
                     return false;
 
-                CSVreader reader = new CSVreader(Filepath);
-                reader.ReadFile();
-                Metadata = reader.Metadata;
-                CollectionOfRecords.ReplaceContents(reader.GetColumns(), reader.GetListOfRecords());
+                ReadTextFile();
             }
 
             HasUnsavedChanges = false;
@@ -417,8 +333,59 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
         public void SaveFileAtLocation(string filepath)
         {
             WriteTextFile(filepath);
-            OpenFilepath(filepath);
+            HasUnsavedChanges = false;
+            FileSaved?.Invoke(this, EventArgs.Empty);
         }
+
+        public void NotifyMetadataChanged()
+        {
+            HasUnsavedChanges = true;
+            MetadataChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Applies companion storage immediately without saving or reloading the live records.
+        /// The caller is responsible for confirming deletion before setting deleteExisting.
+        /// </summary>
+        public void SetCompanionStorage(bool enabled, bool deleteExisting = false)
+        {
+            if (enabled && (string.IsNullOrWhiteSpace(Filepath) || !File.Exists(Filepath)))
+                throw new InvalidOperationException("Save the collection before creating its JSON companion file.");
+
+            bool originalStorage = Metadata.StoreInJson;
+            string originalPath = Metadata.SidecarPath;
+            string originalError = Metadata.LoadError;
+            try
+            {
+                if (enabled)
+                {
+                    Metadata.StoreInJson = true;
+                    MetadataStore.Save(Filepath, Metadata);
+                }
+                else
+                {
+                    if (deleteExisting && CompanionFileExists)
+                        File.Delete(CompanionFilePath);
+
+                    Metadata.StoreInJson = false;
+                    Metadata.SidecarPath = CompanionFilePath;
+                    Metadata.LoadError = string.Empty;
+                }
+            }
+            catch
+            {
+                Metadata.StoreInJson = originalStorage;
+                Metadata.SidecarPath = originalPath;
+                Metadata.LoadError = originalError;
+                throw;
+            }
+
+            // This operation is already persisted. Preserve any existing dirty record state.
+            MetadataChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>Captures the live records, including unsaved edits, for persistence or SQL queries.</summary>
+        public CollectionDataSnapshot CreateStatisticsSnapshot() => CollectionOfRecords.CreateSnapshot();
 
         public void ScrollToBottomOfList()
         {
@@ -494,52 +461,25 @@ namespace WatchedFilmsTracker.Source.ManagingFilmsFile
 
         public void WriteTextFile()
         {
-            CSVwriter writer = new CSVwriter(Filepath);
-            writer.SaveListIntoCSV(CollectionOfRecords.ObservableCollectionOfRecords.ToList(), DataGrid);
-            writer.CloseFile();
+            fileStore.Save(Filepath, CollectionOfRecords.CreateSnapshot(), Metadata);
         }
 
         public void WriteTextFile(string newFilepath)
         {
-            CSVwriter writer = new CSVwriter(newFilepath);
+            fileStore.Save(newFilepath, CollectionOfRecords.CreateSnapshot(), Metadata);
             Filepath = newFilepath;
-            writer.SaveListIntoCSV(CollectionOfRecords.ObservableCollectionOfRecords.ToList(), DataGrid);
-            writer.CloseFile();
         }
 
-        private static void TryToOpenFilepath(string? filepath)
+        private void ApplyMetadataCollectionType()
         {
-            // just like openfilepath from mainwindow, open filepath but first check if unsaved changes
-        }
-
-        private void CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
-        {
-            if (e.EditAction == DataGridEditAction.Commit && "Release year" == e.Column.Header.ToString())
-            {
-                // Get the new value
-                var editedCell = e.EditingElement as TextBox;
-                if (editedCell != null)
-                {
-                    string newValue = editedCell.Text;
-                }
-
-                // Change the cell background color to red
-                DataGridRow row = e.Row;
-                DataGridCell cell = DataGridCellGetter.GetCell(DataGrid, e.Row.GetIndex(), e.Column.DisplayIndex);
-
-                // Pass the FilmRecord value to the IsReleaseYearValid method
-                if (e.Row.DataContext is RecordModel filmRecord)
-                {
-                    //  Debug.WriteLine("committed value is: " + _filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
-                    //   DataGridCellAppearanceHelper.MakeCellAppearInvalid(cell, !_filmRecordPropertyValidator.IsReleaseYearValid(editedCell.Text));
-                    //todo fix validator
-                }
-            }
+            // Unknown type names are valid collection identities, with generic columns and icon.
+            CommonCollectionType = CommonCollections.Resolve(Metadata.CollectionType);
         }
 
         private void CollectionOfRecords_Changed(object? sender, EventArgs e)
         {
-            MarkAsModified();
+            if (!isLoading)
+                MarkAsModified();
         }
 
         private void SubscribeToCollectionChanges()

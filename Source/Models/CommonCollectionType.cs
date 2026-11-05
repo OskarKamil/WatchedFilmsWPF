@@ -4,16 +4,16 @@ using System.Windows.Media.Imaging;
 
 namespace WatchedFilmsTracker.Source.Models
 {
-    public class CommonCollectionType
+    public sealed class CommonCollectionType
     {
-        public List<string> DefaultColumnHeaders { get; set; }
-        public string Name { get; set; }
+        public List<string> DefaultColumnHeaders { get; set; } = new();
+        public string Name { get; set; } = "Other";
 
         public Image GetIconImage()
         {
             Image image = new Image
             {
-                Source = new BitmapImage(new Uri($"pack://application:,,,/Assets/TabIcons/{Name.ToLower()}.png")),
+                Source = GetIconImageSource(),
                 Stretch = Stretch.None
             };
 
@@ -25,7 +25,9 @@ namespace WatchedFilmsTracker.Source.Models
 
         public string GetIconImageFilepath()
         {
-            return $"pack://application:,,,/Assets/TabIcons/{Name.ToLower()}.png";
+            string iconName = CommonCollections.CommonCollectionsSet.TryGetValue(Name, out CommonCollectionType? known)
+                ? known.Name.ToLowerInvariant() : "other";
+            return $"pack://application:,,,/Assets/TabIcons/{iconName}.png";
         }
 
         public BitmapImage GetIconImageSource()

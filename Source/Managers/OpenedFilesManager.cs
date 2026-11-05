@@ -92,7 +92,8 @@ namespace WatchedFilmsTracker.Source.Managers
 
         public static CollectionFile CurrentlyOpenedWorkingFile()
         {
-            var selectedTab = (TabItem)TabControl.SelectedItem;
+            if (TabControl?.SelectedItem is not TabItem selectedTab)
+                return null;
             int indexOfTab = TabsOfOpenedFiles.IndexOf(selectedTab);
             if (indexOfTab == -1)
                 return null;
@@ -183,8 +184,11 @@ namespace WatchedFilmsTracker.Source.Managers
 
         private static void UpdateTabIconAndText(object? sender, CollectionFile.CommonCollectionTypeChangedEventArgs e)
         {
-            TabItem tabItem = CurrentlyOpenedTabItem();
-            GetImageFromTab(tabItem).Source = e.NewCommonCollectionType.GetIconImageSource();
+            if (sender is not CollectionFile file)
+                return;
+            int index = OpenedFiles.IndexOf(file);
+            if (index >= 0 && GetImageFromTab(TabsOfOpenedFiles[index]) is Image image)
+                image.Source = e.NewCommonCollectionType.GetIconImageSource();
         }
 
         private static void UpdateTabText(object? sender, EventArgs e)

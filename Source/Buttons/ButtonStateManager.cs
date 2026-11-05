@@ -4,8 +4,10 @@ namespace WatchedFilmsTracker.Source.Buttons
 {
     internal static class ButtonStateManager
     {
-        public static void UpdateAllButton(CollectionFile workingTextFile)
+        public static void UpdateAllButton(CollectionFile? workingTextFile)
         {
+            ButtonManager.EnableButtons(ButtonManager.AlwaysActiveButtons);
+            ButtonManager.SetButtonsState(ButtonManager.OpenedFileButtons, workingTextFile != null);
             UpdateUnsavedChanges(workingTextFile);
             UpdateSelectedCells(workingTextFile);
             UpdateAtLeastOneRecord(workingTextFile);
@@ -14,45 +16,46 @@ namespace WatchedFilmsTracker.Source.Buttons
             UpdateCollectionType(workingTextFile);
         }
 
-        public static void UpdateCollectionType(CollectionFile workingTextFile)
+        public static void UpdateCollectionType(CollectionFile? workingTextFile)
         {
-           // throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
-        public static void UpdateFileExistsOnDiskButtons(CollectionFile workingTextFile)
+        public static void UpdateFileExistsOnDiskButtons(CollectionFile? workingTextFile)
         {
-            if (workingTextFile.DoesExistOnDisk())
+            if (workingTextFile?.DoesExistOnDisk() == true)
                 ButtonManager.EnableButtons(ButtonManager.FileExistsOnDiskButtons);
             else
                 ButtonManager.DisableButtons(ButtonManager.FileExistsOnDiskButtons);
         }
 
-        public static void UpdateFileIsNotInLocalMyDataDirectoryButtons(CollectionFile workingTextFile)
+        public static void UpdateFileIsNotInLocalMyDataDirectoryButtons(CollectionFile? workingTextFile)
         {
-            if (workingTextFile.DoesExistInLocalMyDataFolder())
+            if (workingTextFile != null && !workingTextFile.DoesExistInLocalMyDataFolder())
                 ButtonManager.EnableButtons(ButtonManager.FileIsNotInLocalMyDataDirectoryButtons);
             else
                 ButtonManager.DisableButtons(ButtonManager.FileIsNotInLocalMyDataDirectoryButtons);
         }
-        public static void UpdateUnsavedChanges(CollectionFile workingTextFile)
+
+        public static void UpdateUnsavedChanges(CollectionFile? workingTextFile)
         {
-            if (workingTextFile.HasUnsavedChanges)
+            if (workingTextFile?.HasUnsavedChanges == true)
                 ButtonManager.EnableButtons(ButtonManager.UnsavedChangeButtons);
             else
                 ButtonManager.DisableButtons(ButtonManager.UnsavedChangeButtons);
         }
 
-        internal static void UpdateAtLeastOneRecord(CollectionFile workingTextFile)
+        internal static void UpdateAtLeastOneRecord(CollectionFile? workingTextFile)
         {
-            if (workingTextFile.HasAtLeastOneRecord())
+            if (workingTextFile?.HasAtLeastOneRecord() == true)
                 ButtonManager.EnableButtons(ButtonManager.AtLeastOneRecordButtons);
             else
                 ButtonManager.DisableButtons(ButtonManager.AtLeastOneRecordButtons);
         }
 
-        internal static void UpdateSelectedCells(CollectionFile workingTextFile)
+        internal static void UpdateSelectedCells(CollectionFile? workingTextFile)
         {
-            if (workingTextFile.HasSelectedCells())
+            if (workingTextFile?.HasSelectedCells() == true)
                 ButtonManager.EnableButtons(ButtonManager.SelectedCellsButtons);
             else
                 ButtonManager.DisableButtons(ButtonManager.SelectedCellsButtons);

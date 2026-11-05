@@ -8,6 +8,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public string ProgramVersion => ProgramInformation.VERSION;
+    public string ProgramName => ProgramInformation.PROGRAM_NAME;
     public string ProgramCopyright => ProgramInformation.COPYRIGHT;
 
     public int TotalFilmsWatched

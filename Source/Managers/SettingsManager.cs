@@ -59,6 +59,36 @@ namespace WatchedFilmsTracker.Source.Managers
             set => settings["default_date_is_today"] = value.ToString();
         }
 
+        public static bool ReopenLastFile
+        {
+            get => bool.Parse(settings["reopen_last_file"]);
+            set => settings["reopen_last_file"] = value.ToString();
+        }
+
+        public static bool FileInformationExpanded
+        {
+            get => bool.Parse(settings["file_information_expanded"]);
+            set => settings["file_information_expanded"] = value.ToString();
+        }
+
+        public static bool SettingsExpanded
+        {
+            get => bool.Parse(settings["settings_expanded"]);
+            set => settings["settings_expanded"] = value.ToString();
+        }
+
+        public static bool TableStructureExpanded
+        {
+            get => bool.Parse(settings["table_structure_expanded"]);
+            set => settings["table_structure_expanded"] = value.ToString();
+        }
+
+        public static bool CollectionStatisticsExpanded
+        {
+            get => bool.Parse(settings["collection_statistics_expanded"]);
+            set => settings["collection_statistics_expanded"] = value.ToString();
+        }
+
         public static string LastPath
         {
             get => settings["last_path"];
@@ -103,6 +133,11 @@ namespace WatchedFilmsTracker.Source.Managers
             AutoSave = false;
             CheckUpdateOnStartup = false;
             DefaultDateIsToday = true;
+            ReopenLastFile = false;
+            FileInformationExpanded = false;
+            SettingsExpanded = true;
+            TableStructureExpanded = true;
+            CollectionStatisticsExpanded = true;
             LastPath = "";
             ScrollLastPosition = true;
             WindowHeight = 700.0;
@@ -146,6 +181,11 @@ namespace WatchedFilmsTracker.Source.Managers
                             case "auto_save":
                             case "check_update_on_startup":
                             case "default_date_is_today":
+                            case "reopen_last_file":
+                            case "file_information_expanded":
+                            case "settings_expanded":
+                            case "table_structure_expanded":
+                            case "collection_statistics_expanded":
                             case "scroll_last_position":
                                 if (bool.TryParse(value, out _))
                                 {

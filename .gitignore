@@ -397,4 +397,12 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea/
-.gitignore
+
+# Local application preferences and working collections (keep examples/fixtures tracked)
+/settings.conf
+/MyFilms.csv
+/MyData/
+/*.metadata.json
+
+# Share this portable, credential-free folder profile; other profiles remain ignored
+!/Properties/PublishProfiles/FolderProfile.pubxml
