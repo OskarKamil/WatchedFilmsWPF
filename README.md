@@ -1,7 +1,7 @@
 # WatchedFilmsTracker
-| Name | Version | Status | Started | Language | Framework | Platforms | Type |
-|-----|--------|--------|---------|----------|-----------|-----------|------|
-| WatchedFilmsTracker | v0.14 (stable), v0.15 (beta) | 🟢 Maintained | 2023 | C# | WPF | Windows | Desktop GUI |
+| Name                | Version                      | Status        | Started | Language | Framework | Platforms | Type        |
+|---------------------|------------------------------|---------------|---------|----------|-----------|-----------|-------------|
+| WatchedFilmsTracker | v0.14 (stable), v0.15 (beta) | 🟢 Maintained | 2023    | C#       | WPF       | Windows   | Desktop GUI |
 
 ## About
 
@@ -35,7 +35,7 @@ Screenshot 2: Main window showing the table of films and side menu. With added t
 
 - **Operating System:** Windows
 - **Development Environment:** Visual Studio .NET
-- **.NET Framework:** The .NET framework is required, which is typically pre-installed on Windows systems.
+- **.NET Framework:** The .NET Framework is required, which is typically pre-installed on Windows systems.
 - **Additional Libraries:** None
 
 ## Limitations
@@ -75,4 +75,4 @@ Contributions are welcome! If you would like to contribute to this project, plea
 
 ## License
 
-This project is open source under the [MIT License](https://opensource.org/licenses/MIT). Feel free to use, modify, and distribute this code as you see fit.
+This project is open source under the [MIT Licence](https://opensource.org/licenses/MIT). Feel free to use, modify, and distribute this code as you see fit.

@@ -9,6 +9,7 @@
     <ApplicationIcon>Assets\ProgramIcon\icon2.ico</ApplicationIcon>
     <StartupObject>WatchedFilmsTracker.App</StartupObject>
     <NoWin32Manifest>true</NoWin32Manifest>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -88,15 +89,9 @@
     <Folder Include="Source\ViewModels\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Assets\TextFiles\ExampleFile.csv">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
   <Target Name="CopyReleaseExamples" AfterTargets="Publish" Condition="'$(PublishDir)' != ''">
     <MakeDir Directories="$(PublishDir);$(PublishDir)WatchedFilmsTracker" />
-    <Copy SourceFiles="README.md;Assets\TextFiles\ExampleFile.csv"
+    <Copy SourceFiles="README.md"
           DestinationFolder="$(PublishDir)" SkipUnchangedFiles="true" />
   </Target>
 

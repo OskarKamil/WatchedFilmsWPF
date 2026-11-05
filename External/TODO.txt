@@ -1,5 +1,6 @@
 Immediate (This update):
 
+- Add information, maybe in the credits or readme that changes are made with AI.
 - Hide debug buttons in release builds; show them only during development.
 
 Upcoming (Next update):
